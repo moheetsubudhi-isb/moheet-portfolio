@@ -27,6 +27,7 @@
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --e:cubic-bezier(.2,.8,.2,1);
   --r:10px;
+  --panel:#FAF8F3;     /* the results panel, and so also the wipe that reveals the arrow */
   --rule:29px;          /* the ruling pitch, and the body line-height, so text sits on it */
 }
 html{-webkit-text-size-adjust:100%;background:var(--paper)}
@@ -164,6 +165,10 @@ body.open #poster{display:none}
 .obj .label{font-family:var(--display);font-weight:600;font-size:clamp(13px,3.2vw,15.5px);
   line-height:1.18;letter-spacing:-.01em}
 .obj .label .arrow{color:var(--accent);opacity:0;transition:opacity .2s}
+/* While a search is open the objects step back rather than crowd the panel.
+   Faded, not removed: in the scatter they are positioned absolutely, so this
+   hides them without anything reflowing. */
+#hub.searching .obj{opacity:0;pointer-events:none;transition:opacity .18s var(--e)}
 .obj:hover .label .arrow{opacity:1}
 
 /* ---------- search ---------- */
@@ -190,9 +195,10 @@ body.open #poster{display:none}
   transform:translateX(-50%);width:min(min(560px,78vw),calc(100vw - 32px));
   text-align:left}
 .results[hidden]{display:none}
+/* Solid, not translucent: the nothing-found arrow is revealed by sliding a
+   panel-coloured cover off it, and the cover has to match exactly. */
 .results ol{list-style:none;margin:0;border:1px solid var(--line-2);border-radius:var(--r);
-  background:rgba(255,255,255,.78);backdrop-filter:blur(8px);overflow:hidden;
-  max-height:min(46vh,340px);overflow-y:auto}
+  background:var(--panel);overflow:hidden;max-height:min(46vh,340px);overflow-y:auto}
 .results li + li{border-top:1px solid var(--line)}
 .results button{width:100%;display:flex;align-items:center;gap:11px;text-align:left;
   background:transparent;border:0;padding:10px 13px;cursor:pointer;font-family:inherit;
@@ -212,18 +218,23 @@ body.open #poster{display:none}
 /* Nothing found is not an error, it is an invitation. */
 .results .none{padding:18px 16px 20px;display:flex;flex-direction:column;
   align-items:center;gap:2px;text-align:center}
-.results .none svg{width:38px;height:58px;fill:none;stroke:var(--accent);
-  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
-.results .none svg path{stroke-dasharray:var(--len,120);stroke-dashoffset:var(--len,120);
-  animation:sketch .85s cubic-bezier(.45,.05,.3,1) forwards}
-.results .none svg path:last-child{animation-delay:.62s;animation-duration:.3s}
-@keyframes sketch{to{stroke-dashoffset:0}}
+.results .none svg{display:block;width:62px;height:57px;fill:none;stroke:var(--muted);
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.results .none svg .pass2{opacity:.4}
+/* The line is drawn by sliding a cover down off it, which is a transform and so
+   runs on the compositor. Animating stroke-dashoffset is a main-thread property
+   and stalls whenever the tab is not being painted, which left the arrow as a
+   stub. */
+.sketch{position:relative;width:62px;height:57px;overflow:hidden}
+.sketch::after{content:"";position:absolute;left:-2px;right:-2px;top:0;bottom:0;
+  background:var(--panel);animation:wipe .72s cubic-bezier(.35,.1,.25,1) .07s forwards}
+@keyframes wipe{to{transform:translateY(101%)}}
 .results .none .say{font-family:var(--display);font-weight:600;font-size:15.5px;
   letter-spacing:-.01em}
 .results .none .sub2{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
   color:var(--faint);text-transform:uppercase;margin-top:4px}
 @media (prefers-reduced-motion: reduce){
-  .results .none svg path{animation:none;stroke-dashoffset:0}
+  .sketch::after{animation:none;display:none}
 }
 
 /* ---------- accent picker ---------- */
@@ -272,7 +283,7 @@ body.open #view{display:block}
   border:1px solid var(--line-2);border-radius:999px;padding:7px 14px;background:transparent;
   cursor:pointer;white-space:nowrap}
 .back:hover{border-color:var(--accent);color:var(--accent)}
-.topbar .where{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+.where{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--faint);overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap;min-width:0}
 .topbar .search{margin:0 0 0 auto;padding:0;flex:0 1 268px;min-width:132px;z-index:41}
@@ -836,7 +847,7 @@ function showFolder(path, animate) {
   hubBar.hidden = !path;
   if (path) {
     hubUp.textContent = "← " + (PARENTS[path] ? TITLES[PARENTS[path]] : SITE);
-    hubWhere.textContent = crumb(path);
+    hubWhere.textContent = TITLES[path];
   }
   document.title = path ? TITLES[path] + " — " + SITE : SITE;
   if (q.value.trim()) { q.value = ""; }
@@ -852,7 +863,8 @@ function apply(raw, animate) {
   placeSearch(leaf);
   panes.forEach(function (p) { p.hidden = p.dataset.pane !== path; });
   if (leaf) {
-    whereEl.textContent = crumb(path);
+    /* The button beside it already says what it came out of. */
+    whereEl.textContent = TITLES[path];
     document.title = TITLES[path] + " — " + SITE;
     const parent = PARENTS[path] || "";
     backBtn.textContent = "← " + (parent ? TITLES[parent] : SITE);
@@ -1078,10 +1090,12 @@ function runSearch() {
     resultsEl.hidden = true;
     resultsEl.innerHTML = "";
     countEl.textContent = "";
+    hub.classList.remove("searching");
     objs.forEach(function (o) { o.hidden = o.dataset.parent !== hubPath; });
     layoutScatter();
     return;
   }
+  hub.classList.add("searching");
   /* A hit nearer the front of the indexed text is a more central one: the
      string starts with the label, so a name match sorts above a body match. */
   shown = INDEX.filter(function (it) {
@@ -1099,10 +1113,11 @@ function runSearch() {
   resultsEl.hidden = false;
   if (!shown.length) {
     resultsEl.innerHTML = '<ol><li class="none">' +
-      '<svg viewBox="0 0 44 64" aria-hidden="true">' +
-      '<path style="--len:76" d="M22 5c-3.4 9.6 2.6 15.6-.6 24.4C19 36 23 42 21.6 50"/>' +
-      '<path style="--len:40" d="M13.8 41.5c3.2 3.4 6 7.4 7.8 12 2-4.8 4.6-8.8 7.8-12"/>' +
-      "</svg>" +
+      '<span class="sketch"><svg viewBox="0 0 72 66" aria-hidden="true">' +
+      '<path d="M64 8C60 21 53 27 41 35 31 42 27 49 25 57"/>' +
+      '<path class="pass2" d="M63 10C59 23 52 28.5 40.5 36.5 31 43 27.5 50 25.5 58"/>' +
+      '<path d="M25 57l14-3M25 57l2-14"/>' +
+      "</svg></span>" +
       '<span class="say">Not in here. Ask me.</span>' +
       '<span class="sub2">LinkedIn &middot; email &middot; WhatsApp</span>' +
       "</li></ol>";
