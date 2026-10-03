@@ -76,6 +76,7 @@ CSS = """
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --e:cubic-bezier(.2,.8,.2,1);
   --r:10px;
+  --rule:29px;          /* the ruling pitch, and the body line-height, so text sits on it */
 }
 html{-webkit-text-size-adjust:100%;background:var(--paper)}
 
@@ -84,13 +85,16 @@ html{-webkit-text-size-adjust:100%;background:var(--paper)}
 body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
   opacity:.55;mix-blend-mode:multiply;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E")}
+/* The ruling belongs to the paper, so it scrolls with the text rather than sitting
+   under it like a screen overlay. The vignette stays fixed: it is light, not paper. */
+body{background-image:repeating-linear-gradient(to bottom,
+  transparent 0 calc(var(--rule) - 1px), rgba(23,21,15,.05) calc(var(--rule) - 1px) var(--rule));
+  background-attachment:scroll}
 body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    repeating-linear-gradient(to bottom, transparent 0 31px, rgba(23,21,15,.045) 31px 32px),
-    radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(23,21,15,.07) 100%)}
+  background:radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(23,21,15,.07) 100%)}
 body > *{position:relative;z-index:1}
 @media (prefers-reduced-transparency: reduce){body::before{display:none}}
-body{background:var(--paper);color:var(--ink);font-family:var(--body);
+body{background-color:var(--paper);color:var(--ink);font-family:var(--body);
   line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 .wrap{max-width:820px;margin:0 auto;padding:0 20px}
 a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(47,79,212,.3)}
@@ -210,12 +214,17 @@ body.open #view{display:block}
 .topbar .where{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--faint);overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap}
-.view-head{padding:clamp(40px,10vw,72px) 0 0}
+/* Written on the lines: prose uses the ruling pitch for its line-height, and the
+   page starts on a whole number of rules so the two stay in step as you scroll. */
+#view{padding-top:0}
+.view-body p,.view-body li,.notes li{line-height:var(--rule)}
+.view-body p{font-size:clamp(15px,3.6vw,16.5px)}
+.view-head{padding:calc(var(--rule) * 2) 0 0}
 .view-head .n{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent)}
 .view-head h2{margin-top:12px}
 .view-head .lead{margin-top:16px}
-.view-body{padding:22px 0 clamp(50px,11vw,86px)}
-.view-body > * + *{margin-top:18px}
+.view-body{padding:var(--rule) 0 clamp(50px,11vw,86px)}
+.view-body > * + *{margin-top:var(--rule)}
 
 /* ---------- shared blocks ---------- */
 .panel{border:1px solid var(--line);border-radius:var(--r);background:var(--paper-2);
@@ -295,11 +304,11 @@ ul li::before{content:"";position:absolute;left:0;top:17px;width:8px;height:1px;
   pointer-events:none}
 body.open .corner{display:none}
 .corner > *{pointer-events:auto}
-.hint{display:flex;flex-direction:column;align-items:flex-end;gap:1px;
+.hint{display:flex;flex-direction:column;align-items:flex-end;gap:3px;
   font-family:var(--mono);font-size:10.5px;line-height:1.35;letter-spacing:.06em;
   color:var(--faint);text-align:right;animation:hintIn .6s var(--e) both .9s}
-.hint svg{width:72px;height:36px;fill:none;stroke:var(--faint);stroke-width:1.6;
-  stroke-linecap:round;stroke-linejoin:round;transform:scaleX(-1);margin-right:6px}
+.hint svg{width:78px;height:44px;fill:none;stroke:var(--faint);stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round;margin-right:10px}
 .hint svg path{stroke-dasharray:170;stroke-dashoffset:170;
   animation:draw 1.1s var(--e) forwards 1.25s}
 .hint.gone{animation:hintOut .4s var(--e) both}
@@ -479,24 +488,74 @@ reads the open Agent Skills format. The repository is
 
     v.append(dict(
         slug="local", label="Run it on your laptop", art="context", glyph=None,
-        title="When the data cannot leave",
-        lede="A model on your own machine. No graphics card, free, and it works with the wifi "
-             "off.",
-        body=f"""
-<p>Good enough for pulling fields out of messy text, summarising, classifying, and first drafts.
-Worse than a frontier model at hard reasoning, and that is fine.</p>
-<p class="rule">The local model filters. The cloud model finishes.</p>
-<p>Run the local one over anything sensitive, send only what is left to the better model. That
-is also the answer when someone asks whether you are allowed to use this at work.</p>
+        title="Open models, and running one yourself",
+        lede="The weights are published, so you can download the model and run it on your "
+             "own machine. No account, no API, no data leaving the building.",
+        body="""
+<h3>What &ldquo;open&rdquo; actually means here</h3>
+<p>A model is a very large file of numbers, the weights. With GPT-5 or Claude those numbers
+stay on the company&rsquo;s servers and you rent access through an API. With an open model the
+company publishes the file. You download it and run it, and nobody can switch it off, meter
+it, or see what you asked.</p>
+<p><strong>Open weights is not the same as open source.</strong> Almost all of these publish the
+weights under their own licence while keeping the training data and code private. Most allow
+commercial use; a few restrict it above a size of business. If you are shipping something
+commercial, read the licence rather than assuming.</p>
+
+<h3>Why it is worth knowing</h3>
 <ul>
-<li>Check your RAM first. 8 GB is comfortable, 4 GB works with the smallest models.</li>
-<li>Install from <a href="https://ollama.com/download">ollama.com/download</a>. Mac, Windows and Linux, no account needed.</li>
-<li>In the picker, avoid anything with <code>:cloud</code> in the name. Those run on someone else&rsquo;s servers.</li>
+<li><strong>Nothing leaves.</strong> The obvious one, and the only answer that satisfies a
+compliance team without a procurement cycle.</li>
+<li><strong>No per-token cost.</strong> The work is free once the file is on disk, so you can
+run it over ten thousand rows without watching a meter.</li>
+<li><strong>It cannot be deprecated.</strong> A model you have downloaded behaves the same next
+year. Hosted models change underneath you.</li>
+<li><strong>It works offline.</strong> Genuinely: turn the wifi off and it still answers.</li>
 </ul>
+
+<h3>The families worth knowing</h3>
+<table><thead><tr><th>Family</th><th>From</th><th>Worth it for</th></tr></thead><tbody>
+<tr><td><a href="https://www.llama.com" target="_blank" rel="noopener">Llama</a></td><td>Meta</td><td>The default all-rounder. The small ones are fast and good enough for most everyday work.</td></tr>
+<tr><td><a href="https://qwen.ai" target="_blank" rel="noopener">Qwen</a></td><td>Alibaba</td><td>Strongest small models right now, and the best multilingual coverage.</td></tr>
+<tr><td><a href="https://ai.google.dev/gemma" target="_blank" rel="noopener">Gemma</a></td><td>Google</td><td>Small, efficient, well-behaved. Good on a modest laptop.</td></tr>
+<tr><td><a href="https://mistral.ai" target="_blank" rel="noopener">Mistral</a></td><td>Mistral AI</td><td>European, permissive licensing, strong at its size.</td></tr>
+<tr><td>Phi</td><td>Microsoft</td><td>Punches far above its weight at reasoning and code for how small it is.</td></tr>
+<tr><td><a href="https://www.deepseek.com" target="_blank" rel="noopener">DeepSeek</a></td><td>DeepSeek</td><td>Reasoning models at a fraction of the usual size.</td></tr>
+<tr><td><a href="https://huggingface.co/openai" target="_blank" rel="noopener">gpt-oss</a></td><td>OpenAI</td><td>OpenAI&rsquo;s open-weight release. The 20B is the largest thing that fits in plain 16&nbsp;GB.</td></tr>
+</tbody></table>
+<p>Everything published lives on <a href="https://huggingface.co/models" target="_blank" rel="noopener">Hugging Face</a>, which is where these actually get released. It is worth half an hour of browsing.</p>
+
+<h3>Three ways to run one</h3>
+<table><thead><tr><th>Tool</th><th>Suits</th></tr></thead><tbody>
+<tr><td><a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a></td><td>One command, a desktop window if you want one, and it plugs into coding agents. Start here.</td></tr>
+<tr><td><a href="https://lmstudio.ai" target="_blank" rel="noopener">LM Studio</a></td><td>A proper app with a model browser. Best if you would rather never see a terminal.</td></tr>
+<tr><td><a href="https://jan.ai" target="_blank" rel="noopener">Jan</a></td><td>Open source, offline by default, looks like a normal chat app.</td></tr>
+</tbody></table>
+
+<h3>Which size fits your machine</h3>
+<p>Match the model to your memory first, then worry about which one. The download size is
+roughly what it needs in RAM while running, and you need headroom for everything else open.</p>
+<table><thead><tr><th>You have</th><th>Run</th></tr></thead><tbody>
+<tr><td>4 GB</td><td>A 1&ndash;2B model. Summarising, extraction, tidying text.</td></tr>
+<tr><td>8 GB</td><td>A 3&ndash;4B model, around 2&ndash;2.5 GB on disk. The everyday sweet spot.</td></tr>
+<tr><td>16 GB</td><td>A 7&ndash;8B model. Good enough for most daily work.</td></tr>
+<tr><td>16 GB and patient</td><td>gpt-oss 20B, about 14 GB. Slow, but it runs with no graphics card.</td></tr>
+</tbody></table>
+<p>Start with the smallest one that could work:</p>
 {panel("ollama", "Your first model", "1.4 GB download")}
 <p>If it will not load you will see <code>model requires more system memory than is
 available</code>. It checks free memory, not installed, so closing a browser with forty tabs
-genuinely fixes it.</p>"""))
+genuinely fixes it. In any model picker, avoid anything with <code>:cloud</code> in the name,
+which runs on someone else&rsquo;s servers and defeats the point.</p>
+
+<h3>Be honest about what it cannot do</h3>
+<p>A small local model is meaningfully worse than a frontier model at hard, multi-step
+reasoning. It is entirely good enough for pulling fields out of messy text, summarising,
+classifying, redacting, and first drafts you were going to rewrite anyway.</p>
+<p class="rule">The local model filters. The cloud model finishes.</p>
+<p>Run the local one over anything sensitive, strip what matters, send only the remainder to
+the better model. Most of your data never leaves, and you still get a frontier answer where it
+counts. That is the pattern worth stealing, and the one that gets signed off.</p>"""))
 
     v.append(dict(
         slug="parts", label="The seven parts", art="loopring", glyph=None,
@@ -534,7 +593,7 @@ work, and they are all things you control.</p>
                   "optimisation optimization pricing price elasticity regression clustering "
                   "forecasting ab test experiment recommender data engineering toolkit "
                   "install plugin marketplace",
-        "local": "ollama offline privacy compliance laptop cpu ram gpu model qwen llama gemma phi",
+        "local": "ollama offline privacy compliance laptop cpu ram gpu open source weights licence llama qwen gemma mistral phi deepseek gpt-oss hugging face lm studio jan",
         "parts": "model harness loop mcp skills context memory overview recap formula summary",
     }
     for item in v:
@@ -621,8 +680,8 @@ def build():
   <div class="hub-foot">Moheet Subudhi &middot; questions welcome</div>
   <div class="corner">
     <div class="hint" id="dragHint" hidden>
+      <svg viewBox="0 0 96 54" aria-hidden="true"><path d="M88 50C74 48 46 44 26 30 16 23 11 16 9 9"/><path d="M6 8l13 2M6 8l3 13"/></svg>
       <span>drag the folders<br>anywhere you like</span>
-      <svg viewBox="0 0 90 46" aria-hidden="true"><path d="M86 6C70 2 44 4 26 14 8 24 4 36 10 40c5 3 14-2 12-9-2-6-9-7-14-4"/><path d="M4 28l-1 11 11-3"/></svg>
     </div>
     <button id="resetSpots" class="reset" hidden>reset layout</button>
   </div>
