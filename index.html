@@ -944,11 +944,11 @@ function reveal(pane) {
    height of the centre block. */
 function layoutScatter() {
   const wide = window.matchMedia("(min-width: 850px)").matches;
-  /* Two objects are a pair, not a poster. Three or more get laid out and can be
-     dragged, so the page people land on behaves like the rest. */
+  /* No minimum. A folder holding one thing lays out and drags like a folder
+     holding seven; otherwise the page changes its own rules as it fills up. */
   const objsAll = [...hub.querySelectorAll(".obj")].filter(function (o) { return !o.hidden; });
   if (!objsAll.length) { hub.classList.remove("scatter"); return; }
-  if (!wide || objsAll.length < 3) {
+  if (!wide) {
     hub.classList.remove("scatter"); clearSpots(objsAll); return;
   }
 
@@ -1004,7 +1004,9 @@ function layoutScatter() {
   }
 
   const rest = N - (useSides ? 2 : 0);
-  const topCount = Math.ceil(rest / 2);
+  /* One or two sit under the heading rather than above it: a lone object over
+     the title reads as a mistake. */
+  const topCount = rest <= 2 ? 0 : Math.ceil(rest / 2);
   row(topCount, topY);
   if (useSides) {
     const midY = Math.max(topY + oh + 8,
@@ -1094,8 +1096,8 @@ function runSearch() {
   resultsEl.hidden = false;
   if (!shown.length) {
     resultsEl.innerHTML = '<ol><li class="none">' +
-      '<span class="say">Not in here. Ask me.</span>' +
-      '<span class="sub2">LinkedIn &middot; email &middot; WhatsApp</span>' +
+      '<span class="say">Not here. Ask me.</span>' +
+      '<span class="sub2">Three ways below. I answer.</span>' +
       "</li></ol>";
     return;
   }
@@ -1228,15 +1230,19 @@ document.querySelectorAll(".obj").forEach(function (el) {
 /* The nudge shows once, only where dragging is possible, and only to someone who
    has not already moved something. It leaves as soon as they do. */
 const dragHint = document.getElementById("dragHint");
+let hintTimer = null;
 function maybeHint() {
   const canDrag = hub.classList.contains("scatter");
-  const known = recall("draghint2") === "seen" || Object.keys(placed).length > 0;
-  dragHint.hidden = !canDrag || known;
+  if (!canDrag) { dragHint.hidden = true; return; }
+  if (dragHint.dataset.gone) return;
+  dragHint.hidden = false;
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(dismissHint, 7000);
 }
 function dismissHint() {
   if (dragHint.hidden) return;
+  dragHint.dataset.gone = "1";
   dragHint.classList.add("gone");
-  store("draghint2", "seen");
   setTimeout(function () { dragHint.hidden = true; dragHint.classList.remove("gone"); }, 400);
 }
 
