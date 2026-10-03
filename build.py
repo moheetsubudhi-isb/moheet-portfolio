@@ -254,6 +254,13 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.62;color:var(--ink);
 .tab:hover{color:var(--ink);border-color:var(--line-2)}
 .tab[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:#fff}
 
+/* a node with children renders its own poster inside the view */
+.objects.sub{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
+  max-width:none;margin:var(--rule) 0 0;padding:0}
+@media(min-width:720px){.objects.sub{grid-template-columns:repeat(3,1fr);gap:14px}}
+.objects.sub .obj{position:static!important;width:auto!important;transform:none!important}
+.objects.sub .obj .thumb{max-height:none;aspect-ratio:16/10}
+
 .split{display:grid;gap:16px;margin-top:24px}
 @media(min-width:760px){.split{grid-template-columns:1fr 1fr}.split .panel{margin-top:0}}
 
@@ -558,6 +565,46 @@ the better model. Most of your data never leaves, and you still get a frontier a
 counts. That is the pattern worth stealing, and the one that gets signed off.</p>"""))
 
     v.append(dict(
+        slug="projects", label="My projects", art=None, icon="projects",
+        title="Things I am building",
+        lede="Side projects, mostly built to scratch an itch, mostly still being worked on.",
+        children=[
+            dict(slug="ownr", label="Ownr", icon="memory",
+                 title="Ownr",
+                 lede="One memory, shared across every AI tool you use.",
+                 body="""
+<p>Every assistant keeps its own memory in its own format, locked to itself. Correct something
+in one and the others never hear about it, so you re-explain the same context on Monday that
+you explained on Friday.</p>
+<p>Ownr is one memory that sits outside all of them. Your standing rules, your projects, the
+decisions you have already made and why. Any tool can read it and write to it, so a correction
+given once holds everywhere.</p>
+<p><a href="https://ownr.digital" target="_blank" rel="noopener">ownr.digital &rarr;</a></p>"""),
+            dict(slug="skills-repo", label="Business Analytics Skills", icon="analytics",
+                 title="Business Analytics Skills",
+                 lede="Thirty-six skills that make an assistant work like a decision scientist "
+                      "rather than a calculator.",
+                 body="""
+<p>Machine learning, statistics, optimisation, pricing, decision analysis, data engineering and
+recommenders. Each skill asks what the work is for, follows a real method, runs a check where
+there is logic to verify, and hands back a decision brief rather than a number.</p>
+<p>Open format, so the same folder works in Claude Code, Codex, Cursor, Copilot and Gemini CLI
+without changes. Two marketplaces, a CLI installer, or plain folders. MIT licensed.</p>
+<p><a href="https://github.com/moheetsubudhi-isb/business-analytics-skills" target="_blank" rel="noopener">The repository &rarr;</a></p>"""),
+            dict(slug="this-page", label="This page", icon="site",
+                 title="How to Build with AI",
+                 lede="The session this page came from, and the page itself.",
+                 body="""
+<p>A session for my cohort on building with AI, and the take-home pack that goes with it: a
+prompt that interviews you and writes your own setup, five ready-made ones, a loop checklist, a
+tool registry, and the 36 skills.</p>
+<p>The page is one static file with no build step and no framework. Everything you can copy
+here is pulled from the source markdown when the page is built, so what the page hands out and
+what the files say cannot drift apart.</p>
+<p><a href="https://github.com/moheetsubudhi-isb/build-with-ai" target="_blank" rel="noopener">How it is put together &rarr;</a></p>"""),
+        ]))
+
+    v.append(dict(
         slug="parts", label="The seven parts", art="loopring", glyph=None,
         title="The seven parts",
         lede="Six of these seven are not the model. Six of these seven are where things "
@@ -595,12 +642,21 @@ work, and they are all things you control.</p>
                   "install plugin marketplace",
         "local": "ollama offline privacy compliance laptop cpu ram gpu open source weights licence llama qwen gemma mistral phi deepseek gpt-oss hugging face lm studio jan",
         "parts": "model harness loop mcp skills context memory overview recap formula summary",
+        "projects": "projects ownr portfolio work building side product repo",
     }
+    def index(item):
+        """A node is searchable on its own words plus, if it is a folder, its children's."""
+        kids = item.get("children", [])
+        for k in kids:
+            index(k)
+        words = " ".join([item["title"], item["lede"],
+                          re.sub(r"<[^>]+>", " ", item.get("body", "")),
+                          " ".join(k["find"] for k in kids),
+                          KEYWORDS.get(item["slug"], "")])
+        item["find"] = re.sub(r"\s+", " ", item["label"] + " " + words).strip().lower()[:1400]
+
     for item in v:
-        words = (item["title"] + " " + item["lede"] + " "
-                 + re.sub(r"<[^>]+>", " ", item["body"]) + " "
-                 + KEYWORDS.get(item["slug"], ""))
-        item["find"] = re.sub(r"\s+", " ", (item["label"] + " " + words)).strip().lower()[:1200]
+        index(item)
     return v
 
 
@@ -610,36 +666,57 @@ def build():
     I = icons()
     V = views(A, c)
 
-    # Where each object sits on the poster at wide widths, and how far it is tilted.
-    # Kept clear of the centre, which the title occupies.
-    SPOTS = [("4%", "3%", "-5deg"), ("38%", "0%", "3deg"),
-             ("72%", "3%", "-3deg"), ("85%", "34%", "4deg"),
-             ("0%", "36%", "4deg"), ("5%", "71%", "-4deg"),
-             ("40%", "74%", "-3deg"), ("74%", "71%", "5deg")]
+    SPOTS_UNUSED = None
+
+    def icon_for(node):
+        """A node names an icon, or borrows the one matching its slug."""
+        return I.get(node.get("icon") or node["slug"]) or I["spark"]
+
+    def walk(nodes, parent=""):
+        """Every node, with the path that addresses it. One place that knows the tree."""
+        for i, n in enumerate(nodes):
+            path = f"{parent}/{n['slug']}" if parent else n["slug"]
+            yield path, n, i, parent
+            for item in walk(n.get("children", []), path):
+                yield item
+
+    ALL = list(walk(V))
+
+    def tile(path, node, i):
+        return (f'<button class="obj" data-go="{path}" data-find="{H.escape(node.get("find", ""))}">'
+                f'<span class="thumb"><span class="ico">{icon_for(node)}</span></span>'
+                f'<span class="n">({i + 1:02d})</span>'
+                f'<span class="label">{H.escape(node["label"])} '
+                f'<span class="arrow">&rarr;</span></span></button>')
+
+    objects = "".join(tile(p2, n, i) for p2, n, i, parent in ALL if not parent)
+
+    panes = []
+    for path, n, i, parent in ALL:
+        head = (f'<div class="wrap view-head"><span class="n">({i + 1:02d})</span>'
+                f'<h2>{H.escape(n["title"])}</h2>'
+                f'<p class="lead">{H.escape(n["lede"])}</p></div>')
+        if n.get("children"):
+            # A node with children is a poster of its own: same tiles, same behaviour.
+            kids = "".join(tile(f'{path}/{k["slug"]}', k, j)
+                           for j, k in enumerate(n["children"]))
+            inner = f'<div class="wrap"><div class="objects sub">{kids}</div></div>'
+        else:
+            inner = f'<div class="wrap view-body">{n["body"]}</div>'
+        panes.append(f'<article class="pane" data-pane="{path}" hidden>{head}{inner}</article>')
+    panes = "".join(panes)
 
     # Every one checked for contrast on the paper background and with white text on it.
     ACCENTS = [("Cobalt", "#2F4FD4"), ("Forest", "#1F6B4A"), ("Rust", "#B3431E"),
                ("Oxblood", "#8C2130"), ("Violet", "#5B33B5"), ("Teal", "#11636E")]
     swatches = "".join(
-        f'<button class="sw" data-accent="{hx}" title="{n}" aria-label="{n}" '
-        f'aria-pressed="{"true" if i == 0 else "false"}" '
-        f'style="background:{hx}"></button>' for i, (n, hx) in enumerate(ACCENTS))
+        f'<button class="sw" data-accent="{hx}" title="{n2}" aria-label="{n2}" '
+        f'aria-pressed="{"true" if j == 0 else "false"}" '
+        f'style="background:{hx}"></button>' for j, (n2, hx) in enumerate(ACCENTS))
 
-    objects = "".join(
-        f'<button class="obj" data-go="{v["slug"]}" data-find="{H.escape(v["find"])}" '
-        f'style="--x:{SPOTS[i][0]};--y:{SPOTS[i][1]};--r:{SPOTS[i][2]}">'
-        f'<span class="thumb"><span class="ico">{I[v["slug"]]}</span></span>'
-        f'<span class="n">({i + 1:02d})</span>'
-        f'<span class="label">{H.escape(v["label"])} <span class="arrow">&rarr;</span></span>'
-        f'</button>' for i, v in enumerate(V))
-
-    panes = "".join(
-        f'<article class="pane" data-pane="{v["slug"]}" hidden>'
-        f'<div class="wrap view-head"><span class="n">({i + 1:02d})</span>'
-        f'<h2>{H.escape(v["title"])}</h2>'
-        f'<p class="lead">{H.escape(v["lede"])}</p></div>'
-        f'<div class="wrap view-body">{v["body"]}</div>'
-        f'</article>' for i, v in enumerate(V))
+    PATHS = json.dumps([p2 for p2, n, i, parent in ALL])
+    LABELS = json.dumps({p2: n["label"] for p2, n, i, parent in ALL})
+    PARENTS = json.dumps({p2: parent for p2, n, i, parent in ALL})
 
     page = f"""<!doctype html>
 <html lang="en"><head>
@@ -709,8 +786,9 @@ def build():
 <script type="application/json" id="content">{json.dumps(c)}</script>
 <script>
 const C = JSON.parse(document.getElementById("content").textContent);
-const SLUGS = {json.dumps([v["slug"] for v in V])};
-const TITLES = {json.dumps({v["slug"]: v["label"] for v in V})};
+const SLUGS = {PATHS};        /* every addressable node, "projects/ownr" and so on */
+const TITLES = {LABELS};
+const PARENTS = {PARENTS};    /* so back climbs one level instead of jumping home */
 
 document.querySelectorAll("pre[data-block]").forEach(function (el) {{
   if (C[el.dataset.block]) el.textContent = C[el.dataset.block];
@@ -764,14 +842,28 @@ document.querySelectorAll("[data-copy]").forEach(function (btn) {{
    item can be linked to directly. */
 const panes = document.querySelectorAll("[data-pane]");
 const whereEl = document.getElementById("where");
+const backBtn = document.getElementById("back");
+
+function crumb(path) {{
+  /* "projects/ownr" reads as "My projects / Ownr" */
+  const out2 = [];
+  let p3 = path;
+  while (p3) {{ out2.unshift(TITLES[p3] || p3); p3 = PARENTS[p3] || ""; }}
+  return out2.join("  /  ");
+}}
 
 function apply(slug) {{
   const valid = SLUGS.indexOf(slug) > -1;
   document.body.classList.toggle("open", valid);
   panes.forEach(function (p) {{ p.hidden = p.dataset.pane !== slug; }});
-  whereEl.textContent = valid ? TITLES[slug] : "";
+  whereEl.textContent = valid ? crumb(slug) : "";
   document.title = valid ? TITLES[slug] + " — How to Build with AI"
                          : "How to Build with AI";
+  if (valid) {{
+    const parent = PARENTS[slug] || "";
+    backBtn.textContent = parent ? "\u2190 " + TITLES[parent] : "\u2190 All of it";
+    backBtn.dataset.up = parent;
+  }}
   window.scrollTo(0, 0);
   if (valid) reveal(document.querySelector('[data-pane="' + slug + '"]'));
 }}
@@ -803,7 +895,7 @@ window.addEventListener("hashchange", function () {{
 document.querySelectorAll("[data-go]").forEach(function (b) {{
   b.addEventListener("click", function () {{ go(b.dataset.go); }});
 }});
-document.getElementById("back").addEventListener("click", function () {{ go(null); }});
+backBtn.addEventListener("click", function () {{ go(backBtn.dataset.up || null); }});
 window.addEventListener("popstate", function () {{
   apply(location.hash.replace("#", ""));
 }});
@@ -861,7 +953,7 @@ function reveal(pane) {{
    height of the centre block. */
 function layoutScatter() {{
   const wide = window.matchMedia("(min-width: 850px)").matches;
-  const objsAll = [...document.querySelectorAll(".obj")];
+  const objsAll = [...hub.querySelectorAll(".obj")];   /* poster tiles only, not a folder's */
   if (!wide || q.value.trim()) {{ hub.classList.remove("scatter"); clearSpots(objsAll); return; }}
 
   hub.classList.add("scatter");
@@ -875,7 +967,16 @@ function layoutScatter() {{
   const probe = objsAll[0].getBoundingClientRect();
   const ow = probe.width || 132, oh = probe.height || 170;
 
+  /* Measure the headline's text, not its block: .poster-title spans the full width,
+     so using its box would always claim there is no room beside it. */
+  function textWidth(el) {{
+    const rng = document.createRange();
+    rng.selectNodeContents(el);
+    const r2 = rng.getBoundingClientRect();
+    return r2.width || el.getBoundingClientRect().width;
+  }}
   const title = document.querySelector(".poster-title").getBoundingClientRect();
+  const titleText = textWidth(document.querySelector(".poster-title h1"));
   const search = document.querySelector(".search").getBoundingClientRect();
   const hubTop = hub.getBoundingClientRect().top;
   const centreTop = title.top - hubTop, centreBottom = search.bottom - hubTop;
@@ -888,14 +989,32 @@ function layoutScatter() {{
   const roomBot = botY - centreBottom;
   if (roomTop < 8 || roomBot < 8) {{ hub.classList.remove("scatter"); clearSpots(objsAll); return; }}
 
-  const midY = Math.max(topY + oh + 8, Math.min(centreTop + (centreBottom - centreTop) / 2 - oh / 2,
-                                                botY - oh - 8));
-  const cols = [pad, (W - ow) / 2, W - ow - pad];
-  const spots = [
-    [cols[0], topY], [cols[1], topY], [cols[2], topY],
-    [pad, midY], [W - ow - pad, midY],
-    [cols[0], botY], [cols[1], botY], [cols[2], botY]
-  ];
+  /* Slots are generated for however many objects exist, so adding one to the tree
+     never leaves it stacked on another. Two sit beside the title when it leaves
+     room; the rest spread along the top and the bottom. */
+  const N = objsAll.length;
+  const widest = Math.max(titleText, search.width);
+  const useSides = ((W - widest) / 2 - pad * 2) >= ow && N >= 6;
+  const spots = [];
+
+  function row(count, y) {{
+    if (count <= 0) return;
+    const span = W - ow - pad * 2;
+    for (let i = 0; i < count; i++) {{
+      spots.push([pad + (count > 1 ? (span / (count - 1)) * i : span / 2), y]);
+    }}
+  }}
+
+  const rest = N - (useSides ? 2 : 0);
+  const topCount = Math.ceil(rest / 2);
+  row(topCount, topY);
+  if (useSides) {{
+    const midY = Math.max(topY + oh + 8,
+      Math.min(centreTop + (centreBottom - centreTop) / 2 - oh / 2, botY - oh - 8));
+    spots.push([pad, midY]);
+    spots.push([W - ow - pad, midY]);
+  }}
+  row(rest - topCount, botY);
   objsAll.forEach(function (o, i) {{
     const sp = spots[i] || spots[spots.length - 1];
     o.style.left = Math.round(x0 + sp[0]) + "px";
@@ -914,7 +1033,7 @@ function clearSpots(list) {{
 const hub = document.getElementById("hub");
 const q = document.getElementById("q");
 const countEl = document.getElementById("count");
-const objs = [...document.querySelectorAll(".obj")];
+const objs = [...hub.querySelectorAll(".obj")];
 
 function runSearch() {{
   const terms = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -1062,7 +1181,7 @@ resetBtn.hidden = !Object.keys(placed).length;
 resetBtn.addEventListener("click", function () {{
   placed = {{}};
   store(DRAG_KEY, "{{}}");
-  document.querySelectorAll(".obj").forEach(function (o) {{ o.style.left = ""; o.style.top = ""; }});
+  hub.querySelectorAll(".obj").forEach(function (o) {{ o.style.left = ""; o.style.top = ""; }});
   layoutScatter();
   resetBtn.hidden = true;
 }});
@@ -1074,7 +1193,7 @@ resetBtn.addEventListener("click", function () {{
    no JavaScript the objects are simply there. */
 function playOpening() {{
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const objs2 = [...document.querySelectorAll(".obj")];
+  const objs2 = [...hub.querySelectorAll(".obj")];
   objs2.forEach(function (o, i) {{ o.style.setProperty("--d", (0.04 + i * 0.055) + "s"); }});
   document.documentElement.classList.add("anim");
   /* Drop the class once it has played, so a later relayout does not replay it. */
