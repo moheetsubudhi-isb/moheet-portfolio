@@ -46,6 +46,83 @@ def content():
     return c
 
 
+def session_notes():
+    """The session, written out from the deck's own slide copy.
+
+    The spec also carries the speaker notes, which are delivery direction and would
+    give away the reveal, so every 'Say / notes' line is dropped here.
+    """
+    src = (HERE.parent / "session-content-spec.md").read_text(encoding="utf-8")
+    parts, current = [], None
+    for raw in src.split("\n"):
+        line = raw.rstrip()
+        if line.startswith("## "):
+            name = line[3:].split(" — ")[0].strip()
+            if name.lower().startswith(("controls", "you drive")):
+                current = None
+                continue
+            current = {"name": name, "items": []}
+            parts.append(current)
+        elif current is None:
+            continue
+        elif line.startswith("### "):
+            current["items"].append(("h", re.sub(r"^\d+\.\s*", "", line[4:]).strip()))
+        elif line.startswith("**Say / notes."):
+            continue
+        elif line.startswith("- "):
+            current["items"].append(("li", line[2:].strip()))
+    return [p2 for p2 in parts if p2["items"]]
+
+
+def md_inline(t):
+    t = H.escape(t)
+    t = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", t)
+    t = re.sub(r"`(.+?)`", r"<code>\1</code>", t)
+    return t
+
+
+# When the notes mention something that has its own page here, link it. First
+# mention per section only, so the notes stay readable rather than turning blue.
+LINKS = [
+    (r"\bsoul file", "soul"), (r"\bloop\b", "loop"), (r"\bMCP\b", "tools"),
+    (r"\bconnector", "tools"), (r"\bskills?\b", "skills"),
+    (r"\bmemory\b", "memory"), (r"\blocal model", "local"),
+    (r"\bOllama\b", "local"), (r"\bgenerator\b", "generator"),
+]
+
+
+def crosslink(html, used):
+    for pattern, slug in LINKS:
+        if slug in used:
+            continue
+        m = re.search(pattern + r"(?![^<]*</a>)", html, re.I)
+        if not m:
+            continue
+        used.add(slug)
+        html = (html[:m.start()] + f'<a href="#{slug}" data-jump="{slug}">'
+                + m.group(0) + "</a>" + html[m.end():])
+    return html
+
+
+def notes_html():
+    out = []
+    for p2 in session_notes():
+        out.append(f'<h3 class="note-h">{H.escape(p2["name"])}</h3>')
+        buf = []
+        for kind, text in p2["items"]:
+            if kind == "h":
+                if buf:
+                    out.append("<ul>" + "".join(buf) + "</ul>")
+                    buf = []
+                out.append(f'<p class="note-slide">{md_inline(text)}</p>')
+            else:
+                buf.append(f"<li>{md_inline(text)}</li>")
+        if buf:
+            out.append("<ul>" + "".join(buf) + "</ul>")
+    used = set()
+    return "".join(crosslink(chunk, used) for chunk in out)
+
+
 def art():
     return json.loads((HERE / "art-light.json").read_text(encoding="utf-8"))
 
@@ -68,7 +145,9 @@ CSS = """
   --paper:#F2EEE3; --paper-2:#EAE4D6; --paper-3:#E2DBC9;
   --ink:#17150F; --muted:#5C574C; --faint:#8C8573;
   --line:rgba(23,21,15,.13); --line-2:rgba(23,21,15,.26);
-  --accent:#2F4FD4; --accent-soft:rgba(47,79,212,.10);
+  --accent:#2F4FD4; --accent-rgb:47,79,212;
+  --accent-2:#8094E4; --accent-2-rgb:128,148,228;
+  --accent-soft:rgba(var(--accent-rgb),.10);
   --display:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
   --body:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -76,6 +155,18 @@ CSS = """
   --r:10px;
 }
 html{-webkit-text-size-adjust:100%;background:var(--paper)}
+
+/* Paper. A fixed, non-interactive overlay so the grain never repaints while
+   anything scrolls: fibre speckle, a faint rule, and a soft vignette. */
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  opacity:.55;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E")}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 31px, rgba(23,21,15,.045) 31px 32px),
+    radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(23,21,15,.07) 100%)}
+body > *{position:relative;z-index:1}
+@media (prefers-reduced-transparency: reduce){body::before{display:none}}
 body{background:var(--paper);color:var(--ink);font-family:var(--body);
   line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 .wrap{max-width:820px;margin:0 auto;padding:0 20px}
@@ -119,7 +210,10 @@ body.open #poster{display:none}
   #hub.scatter .obj .label{font-size:13px;line-height:1.15}
   #hub.scatter .obj .thumb{padding:10px}
   #hub.scatter .obj:hover,#hub.scatter .obj:focus-visible{
-    transform:rotate(0deg) translateY(-4px) scale(1.04);z-index:3}
+    transform:rotate(0deg) translateY(-4px) scale(1.04);z-index:4}
+  #hub.scatter .obj{cursor:grab;touch-action:none}
+  #hub.scatter .obj.dragging{cursor:grabbing;z-index:5;transform:rotate(0deg) scale(1.06);
+    filter:drop-shadow(0 10px 18px rgba(23,21,15,.18))}
   #hub.scatter .obj .thumb{aspect-ratio:1/1}
 }
 .obj{position:relative;display:flex;flex-direction:column;gap:4px;text-align:left;
@@ -155,6 +249,15 @@ body.open #poster{display:none}
 .search input::placeholder{color:var(--faint)}
 .search .count{font-family:var(--mono);font-size:10.5px;color:var(--faint);
   text-align:center;margin-top:9px;min-height:14px}
+
+/* ---------- accent picker ---------- */
+.swatches{position:relative;z-index:2;display:flex;justify-content:center;gap:7px;
+  margin-top:clamp(10px,1.8vh,16px)}
+.sw{width:17px;height:17px;border-radius:999px;border:1px solid rgba(23,21,15,.2);
+  cursor:pointer;padding:0;transition:transform .15s var(--e),box-shadow .15s var(--e)}
+.sw:hover{transform:scale(1.18)}
+.sw[aria-pressed=true]{box-shadow:0 0 0 2px var(--paper),0 0 0 3.5px var(--ink)}
+.sw:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 
 /* ---------- contact ---------- */
 .contact{position:relative;z-index:2;display:flex;justify-content:center;gap:8px;
@@ -254,6 +357,17 @@ ul li{color:var(--muted);font-size:clamp(15px,3.6vw,16.5px);padding:8px 0 8px 20
 ul li::before{content:"";position:absolute;left:0;top:17px;width:8px;height:1px;
   background:var(--faint)}
 
+/* the session notes */
+.notes{margin-top:26px}
+.note-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--accent);margin-top:30px;padding-bottom:7px;border-bottom:1px solid var(--line-2)}
+.note-h:first-child{margin-top:0}
+.note-slide{font-family:var(--display);font-weight:600;font-size:clamp(16px,3.4vw,19px);
+  color:var(--ink);letter-spacing:-.01em;margin-top:18px}
+.notes ul{margin-top:8px}
+.notes li{padding:6px 0 6px 18px;font-size:clamp(14px,3.4vw,15.5px)}
+.notes li::before{top:15px;width:6px}
+
 .rule{font-family:var(--display);font-weight:800;font-size:clamp(21px,4.8vw,32px);
   line-height:1.22;letter-spacing:-.02em;color:var(--ink);max-width:21ch;margin-top:22px}
 .formula{font-family:var(--mono);font-size:clamp(11.5px,2.9vw,14px);line-height:2;
@@ -274,6 +388,13 @@ html.reveal .view-body > *.in{opacity:1;transform:none}
   html.reveal .view-body > *{opacity:1;transform:none}
 }
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes settle{
+  from{opacity:0;transform:rotate(var(--r)) translateY(-14px) scale(.94)}
+  to{opacity:1;transform:rotate(var(--r))}
+}
+html.anim .obj{animation:settle .5s var(--e) both;animation-delay:var(--d,0s)}
+html.anim #hub.scatter .obj{animation-name:settle}
+@media (prefers-reduced-motion: reduce){html.anim .obj{animation:none}}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.26s}
 """
 
@@ -456,7 +577,10 @@ genuinely fixes it.</p>"""))
 <tr><td>Context</td><td>What it can see right now. It fills up, and things fall out.</td></tr>
 <tr><td>Memory</td><td>What survives the conversation ending.</td></tr>
 </tbody></table>
-{fig(A, "loopring", "The loop is why anything finishes")}"""))
+<h2 style="margin-top:46px">The whole session, written out</h2>
+<p>Everything that was on screen, in order. Generated from the deck itself, so it stays
+true to what was actually said rather than to what I meant to say.</p>
+<div class="notes">{notes_html()}</div>"""))
     # Words people are likely to type that the prose does not happen to contain.
     KEYWORDS = {
         "generator": "prompt interview setup start here chatgpt claude gemini copilot custom instructions",
@@ -490,6 +614,14 @@ def build():
              ("72%", "3%", "-3deg"), ("85%", "34%", "4deg"),
              ("0%", "36%", "4deg"), ("5%", "71%", "-4deg"),
              ("40%", "74%", "-3deg"), ("74%", "71%", "5deg")]
+
+    # Every one checked for contrast on the paper background and with white text on it.
+    ACCENTS = [("Cobalt", "#2F4FD4"), ("Forest", "#1F6B4A"), ("Rust", "#B3431E"),
+               ("Oxblood", "#8C2130"), ("Violet", "#5B33B5"), ("Teal", "#11636E")]
+    swatches = "".join(
+        f'<button class="sw" data-accent="{hx}" title="{n}" aria-label="{n}" '
+        f'aria-pressed="{"true" if i == 0 else "false"}" '
+        f'style="background:{hx}"></button>' for i, (n, hx) in enumerate(ACCENTS))
 
     objects = "".join(
         f'<button class="obj" data-go="{v["slug"]}" data-find="{H.escape(v["find"])}" '
@@ -533,6 +665,7 @@ def build():
     <input type="search" id="q" placeholder="Search the pack" autocomplete="off"
            aria-label="Search the pack">
   </label><div class="count" id="count"></div></div>
+  <div class="swatches" role="group" aria-label="Accent colour">{swatches}</div>
   <div class="objects">{objects}</div>
 </main>
 
@@ -542,7 +675,8 @@ def build():
     <a id="mail" href="#">{I["mail"]}Email</a>
     <a href="{WHATSAPP}" target="_blank" rel="noopener">{I["whatsapp"]}WhatsApp</a>
   </div>
-  <div class="hub-foot">Moheet Subudhi &middot; questions welcome</div>
+  <div class="hub-foot">Moheet Subudhi &middot; questions welcome
+    <button id="resetSpots" class="reset" hidden>reset layout</button></div>
 </div>
 </div>
 
@@ -758,6 +892,7 @@ function layoutScatter() {{
     o.style.left = Math.round(x0 + sp[0]) + "px";
     o.style.top = Math.round(sp[1]) + "px";
   }});
+  if (typeof applyPlaced === "function") applyPlaced();
 }}
 function clearSpots(list) {{
   list.forEach(function (o) {{ o.style.left = ""; o.style.top = ""; }});
@@ -803,7 +938,126 @@ q.addEventListener("keydown", function (e) {{
 const mail = document.getElementById("mail");
 mail.href = "mailto:" + "moheetsubudhi" + "@" + "gmail.com";
 
+/* ---------- accent ----------
+   Only the accent moves; paper and ink stay put, so contrast holds whichever is
+   picked. Stored per visitor, and a blocked localStorage must not break the page. */
+function store(k, v) {{ try {{ localStorage.setItem(k, v); }} catch (e) {{}} }}
+function recall(k) {{ try {{ return localStorage.getItem(k); }} catch (e) {{ return null; }} }}
+
+function hexRgb(hex) {{
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}}
+function setAccent(hex) {{
+  const [r, g, b] = hexRgb(hex);
+  const root = document.documentElement.style;
+  root.setProperty("--accent", hex);
+  root.setProperty("--accent-rgb", r + "," + g + "," + b);
+  /* the second tint is the accent lifted toward the paper, so diagrams stay legible */
+  const mix = function (c, p) {{ return Math.round(c + (p - c) * 0.52); }};
+  const l = [mix(r, 242), mix(g, 238), mix(b, 227)];
+  root.setProperty("--accent-2", "rgb(" + l.join(",") + ")");
+  root.setProperty("--accent-2-rgb", l.join(","));
+  document.querySelectorAll("[data-accent]").forEach(function (b2) {{
+    b2.setAttribute("aria-pressed", String(b2.dataset.accent === hex));
+  }});
+  store("accent", hex);
+}}
+document.querySelectorAll("[data-accent]").forEach(function (b2) {{
+  b2.addEventListener("click", function () {{ setAccent(b2.dataset.accent); }});
+}});
+const savedAccent = recall("accent");
+if (savedAccent && /^#[0-9a-f]{{6}}$/i.test(savedAccent)) setAccent(savedAccent);
+
+/* ---------- dragging the objects ----------
+   Pointer events so it works with a mouse, a trackpad and a finger. A press that
+   travels under a few pixels is still a click, so opening an item never breaks.
+   Positions are remembered, and layoutScatter restores them on the next visit. */
+const DRAG_KEY = "spots";
+let placed = {{}};
+try {{ placed = JSON.parse(recall(DRAG_KEY) || "{{}}") || {{}}; }} catch (e) {{ placed = {{}}; }}
+
+function applyPlaced() {{
+  if (!hub.classList.contains("scatter")) return;
+  Object.keys(placed).forEach(function (slug) {{
+    const el = document.querySelector('[data-go="' + slug + '"]');
+    if (!el) return;
+    el.style.left = placed[slug][0] + "px";
+    el.style.top = placed[slug][1] + "px";
+  }});
+}}
+
+document.querySelectorAll(".obj").forEach(function (el) {{
+  let sx = 0, sy = 0, ox = 0, oy = 0, moved = false, id = null;
+
+  el.addEventListener("pointerdown", function (e) {{
+    if (!hub.classList.contains("scatter") || e.button) return;
+    id = e.pointerId; moved = false;
+    sx = e.clientX; sy = e.clientY;
+    ox = parseFloat(el.style.left) || el.offsetLeft;
+    oy = parseFloat(el.style.top) || el.offsetTop;
+    el.setPointerCapture(id);
+  }});
+
+  el.addEventListener("pointermove", function (e) {{
+    if (id === null || e.pointerId !== id) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (!moved && Math.abs(dx) + Math.abs(dy) < 5) return;   /* still a click */
+    moved = true;
+    el.classList.add("dragging");
+    const w = hub.clientWidth - el.offsetWidth, h = hub.clientHeight - el.offsetHeight;
+    const nx = Math.max(0, Math.min(w, ox + dx));
+    const ny = Math.max(0, Math.min(h, oy + dy));
+    el.style.left = nx + "px";
+    el.style.top = ny + "px";
+    placed[el.dataset.go] = [Math.round(nx), Math.round(ny)];
+  }});
+
+  function end(e) {{
+    if (id === null || (e && e.pointerId !== id)) return;
+    try {{ el.releasePointerCapture(id); }} catch (e2) {{}}
+    id = null;
+    if (moved) {{
+      el.classList.remove("dragging");
+      store(DRAG_KEY, JSON.stringify(placed));
+      resetBtn.hidden = false;
+    }}
+  }}
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+
+  /* a drag must not also open the item */
+  el.addEventListener("click", function (e) {{
+    if (moved) {{ e.stopImmediatePropagation(); e.preventDefault(); moved = false; }}
+  }}, true);
+}});
+
+const resetBtn = document.getElementById("resetSpots");
+resetBtn.hidden = !Object.keys(placed).length;
+resetBtn.addEventListener("click", function () {{
+  placed = {{}};
+  store(DRAG_KEY, "{{}}");
+  document.querySelectorAll(".obj").forEach(function (o) {{ o.style.left = ""; o.style.top = ""; }});
+  layoutScatter();
+  resetBtn.hidden = true;
+}});
+
+/* ---------- the opening ----------
+   The objects settle into place once, when the poster first loads. Added by script
+   after the positions are set, so nothing animates from the wrong spot, and never
+   on the way back from an opened item. The class is only ever added here, so with
+   no JavaScript the objects are simply there. */
+function playOpening() {{
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const objs2 = [...document.querySelectorAll(".obj")];
+  objs2.forEach(function (o, i) {{ o.style.setProperty("--d", (0.04 + i * 0.055) + "s"); }});
+  document.documentElement.classList.add("anim");
+  /* Drop the class once it has played, so a later relayout does not replay it. */
+  setTimeout(function () {{ document.documentElement.classList.remove("anim"); }}, 1400);
+}}
+
 layoutScatter();
+playOpening();
 window.addEventListener("resize", layoutScatter);
 if (document.fonts && document.fonts.ready) {{
   document.fonts.ready.then(layoutScatter);

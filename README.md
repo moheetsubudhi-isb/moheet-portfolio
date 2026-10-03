@@ -17,6 +17,12 @@ node extract-art.js   # refresh the diagrams from the deck (writes art.json)
 python3 build.py      # rebuild index.html
 ```
 
+The session notes on the "seven parts" page are generated the same way, from
+`session-content-spec.md`, which is itself generated from the deck. Edit the deck,
+regenerate the spec, run `build.py`, and the notes follow. The speaker notes in that
+file are delivery direction and are stripped out, so only what was on screen is
+published.
+
 Diagrams come from the session deck and are recoloured for the paper theme.
 Icons are [Phosphor](https://phosphoricons.com) (MIT), inlined at build time so the
 page needs no CDN for them at runtime.
