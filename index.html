@@ -89,6 +89,21 @@ body.open #poster{display:none}
    eats their clicks. It is only text, so it takes no pointer events. */
 .poster-title{text-align:center;padding:0 20px;position:relative;z-index:2;
   pointer-events:none}
+/* Ink settling: each word arrives slightly late and slightly out of focus,
+   then sets. The old heading leaves as one block rather than word by word, so
+   the change reads as a relabel and not as two animations fighting. */
+@keyframes inkIn{
+  from{opacity:0;transform:translateY(9px);filter:blur(7px)}
+  to{opacity:1;transform:none;filter:blur(0)}
+}
+.poster-title h1 .w{display:inline-block;animation:inkIn .38s var(--e) both;
+  animation-delay:var(--d,0s)}
+.poster-title h1,.poster-title .sub{transition:opacity .16s var(--e),filter .16s var(--e)}
+.poster-title h1.out,.poster-title .sub.out{opacity:0;filter:blur(5px)}
+.poster-title .sub .w{display:inline-block;animation:inkIn .38s var(--e) both .12s}
+@media (prefers-reduced-motion: reduce){
+  .poster-title h1 .w,.poster-title .sub .w{animation:none}
+}
 .poster-title .sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--faint);margin-top:clamp(8px,1.4vh,14px)}
 @media(min-width:520px){.poster-title .sub{font-size:11px;letter-spacing:.24em}}
@@ -436,7 +451,7 @@ Copilot custom instructions, or <code>AGENTS.md</code> in a project folder.</p>
 </svg><div class="cap">The harness is everything around the model</div></div></div></article><article class="pane" data-pane="build/loop" hidden><div class="wrap view-head"><span class="n">(04)</span><h2>Make it finish instead of wander</h2><p class="lead">Four lines above any task: the goal, the check, the stop, the limit.</p></div><div class="wrap view-body">
 <p><strong>The check is the one people skip and the one that matters.</strong> "I will review it
 carefully" is not a check. "Both totals match the source file" is, because it can fail.</p>
-<div class="fig"><svg viewBox="0 0 1000 300">
+<div class="fig"><svg viewBox="0 -16 1000 318">
  <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
   <path d="M0 0 L10 5 L0 10 z" fill="#8C8573"/></marker></defs>
  <g transform="translate(280,150)">
@@ -729,33 +744,40 @@ function resolvePath(raw) {
   return hit.length === 1 ? hit[0] : "";
 }
 
-/* The heading untypes and retypes rather than cutting, so moving into a folder
-   reads as the same sheet of paper being relabelled. Timers, not frames: a
-   throttled tab drops frames and would otherwise leave it half-erased. */
-let typeTimers = [];
+/* The heading changes the way ink arrives on paper, not the way a terminal
+   types: the old words blur away together, the new ones settle in one after
+   another. Typing a word at a time out of nothing read as a glitch at any speed
+   fast enough not to be annoying. CSS animations, so a throttled tab still
+   lands on the finished state. */
+let headTimers = [];
+function words(text) {
+  return text.split(" ").map(function (w2, i) {
+    return '<span class="w" style="--d:' + (0.055 * i).toFixed(3) + 's">' +
+      w2.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span>";
+  }).join(" ");
+}
 function setHeading(text, sub, animate) {
-  typeTimers.forEach(clearTimeout);
-  typeTimers = [];
+  headTimers.forEach(clearTimeout);
+  headTimers = [];
   hubTitle.setAttribute("aria-label", text);
-  hubSub.textContent = sub;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const from = hubTitle.textContent;
-  if (!animate || reduced || from === text) { hubTitle.textContent = text; return; }
-  const stepOut = Math.max(1, Math.ceil(from.length / 11));
-  const stepIn = Math.max(1, Math.ceil(text.length / 11));
-  let t = 0;
-  for (let n2 = from.length - stepOut; n2 > 0; n2 -= stepOut) {
-    const cut = n2;
-    typeTimers.push(setTimeout(function () { hubTitle.textContent = from.slice(0, cut); }, t += 16));
-  }
-  typeTimers.push(setTimeout(function () { hubTitle.textContent = ""; }, t += 16));
-  for (let n2 = stepIn; n2 < text.length; n2 += stepIn) {
-    const cut = n2;
-    typeTimers.push(setTimeout(function () { hubTitle.textContent = text.slice(0, cut); }, t += 16));
-  }
-  /* Whatever the timers above do, the title ends up correct. */
-  typeTimers.push(setTimeout(function () { hubTitle.textContent = text; }, t + 16));
-  typeTimers.push(setTimeout(function () { hubTitle.textContent = text; }, 900));
+  const same = hubTitle.textContent.trim() === text;
+  const write = function () {
+    hubTitle.innerHTML = words(text);
+    hubSub.innerHTML = '<span class="w">' +
+      sub.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span>";
+    hubTitle.classList.remove("out");
+    hubSub.classList.remove("out");
+  };
+  if (!animate || reduced || same) { write(); return; }
+  hubTitle.classList.add("out");
+  hubSub.classList.add("out");
+  headTimers.push(setTimeout(write, 170));
+  /* A backstop for a dropped timer, not a second run: rewriting unconditionally
+     replaced the words and started the whole settle again. */
+  headTimers.push(setTimeout(function () {
+    if (hubTitle.textContent.trim() !== text) write();
+  }, 700));
 }
 
 let hubPath = "";
@@ -888,7 +910,9 @@ function layoutScatter() {
   /* Clamp the field to a band around the title. Anchored to the container edges,
      the objects end up half a screen from the headline on a wide monitor. */
   const H = hub.clientHeight;
-  const band = Math.min(hub.clientWidth, 1180);
+  /* Held in around the heading rather than pushed to the edges of the monitor:
+     at 1440 the full width put the corner objects a screen away from the title. */
+  const band = Math.min(hub.clientWidth * 0.84, 1020);
   const x0 = (hub.clientWidth - band) / 2;
   const W = band;
   const pad = 14;
@@ -909,7 +933,7 @@ function layoutScatter() {
   const hubTop = hub.getBoundingClientRect().top;
   const centreTop = title.top - hubTop, centreBottom = search.bottom - hubTop;
 
-  const fieldH = Math.min(H, 820);
+  const fieldH = Math.min(H, 700);
   const y0 = (H - fieldH) / 2;
   const topY = y0 + pad;
   const botY = y0 + fieldH - oh - pad;
