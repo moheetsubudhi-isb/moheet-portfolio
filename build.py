@@ -46,83 +46,6 @@ def content():
     return c
 
 
-def session_notes():
-    """The session, written out from the deck's own slide copy.
-
-    The spec also carries the speaker notes, which are delivery direction and would
-    give away the reveal, so every 'Say / notes' line is dropped here.
-    """
-    src = (HERE.parent / "session-content-spec.md").read_text(encoding="utf-8")
-    parts, current = [], None
-    for raw in src.split("\n"):
-        line = raw.rstrip()
-        if line.startswith("## "):
-            name = line[3:].split(" — ")[0].strip()
-            if name.lower().startswith(("controls", "you drive")):
-                current = None
-                continue
-            current = {"name": name, "items": []}
-            parts.append(current)
-        elif current is None:
-            continue
-        elif line.startswith("### "):
-            current["items"].append(("h", re.sub(r"^\d+\.\s*", "", line[4:]).strip()))
-        elif line.startswith("**Say / notes."):
-            continue
-        elif line.startswith("- "):
-            current["items"].append(("li", line[2:].strip()))
-    return [p2 for p2 in parts if p2["items"]]
-
-
-def md_inline(t):
-    t = H.escape(t)
-    t = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", t)
-    t = re.sub(r"`(.+?)`", r"<code>\1</code>", t)
-    return t
-
-
-# When the notes mention something that has its own page here, link it. First
-# mention per section only, so the notes stay readable rather than turning blue.
-LINKS = [
-    (r"\bsoul file", "soul"), (r"\bloop\b", "loop"), (r"\bMCP\b", "tools"),
-    (r"\bconnector", "tools"), (r"\bskills?\b", "skills"),
-    (r"\bmemory\b", "memory"), (r"\blocal model", "local"),
-    (r"\bOllama\b", "local"), (r"\bgenerator\b", "generator"),
-]
-
-
-def crosslink(html, used):
-    for pattern, slug in LINKS:
-        if slug in used:
-            continue
-        m = re.search(pattern + r"(?![^<]*</a>)", html, re.I)
-        if not m:
-            continue
-        used.add(slug)
-        html = (html[:m.start()] + f'<a href="#{slug}" data-jump="{slug}">'
-                + m.group(0) + "</a>" + html[m.end():])
-    return html
-
-
-def notes_html():
-    out = []
-    for p2 in session_notes():
-        out.append(f'<h3 class="note-h">{H.escape(p2["name"])}</h3>')
-        buf = []
-        for kind, text in p2["items"]:
-            if kind == "h":
-                if buf:
-                    out.append("<ul>" + "".join(buf) + "</ul>")
-                    buf = []
-                out.append(f'<p class="note-slide">{md_inline(text)}</p>')
-            else:
-                buf.append(f"<li>{md_inline(text)}</li>")
-        if buf:
-            out.append("<ul>" + "".join(buf) + "</ul>")
-    used = set()
-    return "".join(crosslink(chunk, used) for chunk in out)
-
-
 def art():
     return json.loads((HERE / "art-light.json").read_text(encoding="utf-8"))
 
@@ -357,17 +280,6 @@ ul li{color:var(--muted);font-size:clamp(15px,3.6vw,16.5px);padding:8px 0 8px 20
 ul li::before{content:"";position:absolute;left:0;top:17px;width:8px;height:1px;
   background:var(--faint)}
 
-/* the session notes */
-.notes{margin-top:26px}
-.note-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--accent);margin-top:30px;padding-bottom:7px;border-bottom:1px solid var(--line-2)}
-.note-h:first-child{margin-top:0}
-.note-slide{font-family:var(--display);font-weight:600;font-size:clamp(16px,3.4vw,19px);
-  color:var(--ink);letter-spacing:-.01em;margin-top:18px}
-.notes ul{margin-top:8px}
-.notes li{padding:6px 0 6px 18px;font-size:clamp(14px,3.4vw,15.5px)}
-.notes li::before{top:15px;width:6px}
-
 .rule{font-family:var(--display);font-weight:800;font-size:clamp(21px,4.8vw,32px);
   line-height:1.22;letter-spacing:-.02em;color:var(--ink);max-width:21ch;margin-top:22px}
 .formula{font-family:var(--mono);font-size:clamp(11.5px,2.9vw,14px);line-height:2;
@@ -375,6 +287,33 @@ ul li::before{content:"";position:absolute;left:0;top:17px;width:8px;height:1px;
 .f-op{color:var(--faint)}.f-key{color:var(--accent)}
 .f-out{color:var(--ink);font-weight:500}
 .f-end{color:var(--ink);font-weight:700;border-bottom:2px solid var(--accent)}
+
+/* bottom-right corner: a hand-drawn nudge that you can move things, then the
+   reset once something has actually been moved */
+.corner{position:fixed;right:clamp(14px,2.4vw,30px);bottom:clamp(14px,2.4vh,28px);
+  z-index:6;display:flex;flex-direction:column;align-items:flex-end;gap:8px;
+  pointer-events:none}
+body.open .corner{display:none}
+.corner > *{pointer-events:auto}
+.hint{display:flex;flex-direction:column;align-items:flex-end;gap:1px;
+  font-family:var(--mono);font-size:10.5px;line-height:1.35;letter-spacing:.06em;
+  color:var(--faint);text-align:right;animation:hintIn .6s var(--e) both .9s}
+.hint svg{width:72px;height:36px;fill:none;stroke:var(--faint);stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;transform:scaleX(-1);margin-right:6px}
+.hint svg path{stroke-dasharray:170;stroke-dashoffset:170;
+  animation:draw 1.1s var(--e) forwards 1.25s}
+.hint.gone{animation:hintOut .4s var(--e) both}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes hintIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes hintOut{to{opacity:0;transform:translateY(4px)}}
+.reset{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--faint);
+  background:rgba(255,255,255,.4);border:1px solid var(--line-2);border-radius:999px;
+  cursor:pointer;padding:6px 12px}
+.reset:hover{color:var(--accent);border-color:var(--accent)}
+@media (prefers-reduced-motion: reduce){
+  .hint{animation:none}
+  .hint svg path{animation:none;stroke-dashoffset:0}
+}
 
 footer{border-top:1px solid var(--line);margin-top:30px;padding:36px 0 60px}
 .foot-links{display:flex;flex-wrap:wrap;gap:18px;margin-top:16px;
@@ -562,37 +501,41 @@ genuinely fixes it.</p>"""))
     v.append(dict(
         slug="parts", label="The seven parts", art="loopring", glyph=None,
         title="The seven parts",
-        lede="Everything in the session was one of these. Each builds on the one before it.",
-        body=f"""
+        lede="Six of these seven are not the model. Six of these seven are where things "
+             "actually break.",
+        body="""
+<p>Nearly everyone starts at the model and stops there, which is why most attempts stall at
+something that talks back well and does nothing. The model is one part. The other six are the
+work, and they are all things you control.</p>
 <div class="panel"><div class="panel-head"><span class="t">The whole thing, in one line</span></div>
 <div style="padding:18px 15px">
 <div class="formula"><span class="f-key">Model</span><span class="f-op">+</span><span class="f-key">Harness</span><span class="f-op">+</span><span class="f-key">Loop</span><span class="f-op">+</span><span class="f-key">MCP</span><span class="f-op">+</span><span class="f-key">Skills</span><span class="f-op">+</span><span class="f-key">Memory</span><span class="f-op">=</span><span class="f-end">your idea, working</span></div>
 </div></div>
 <table><thead><tr><th>Part</th><th>What it is</th></tr></thead><tbody>
-<tr><td>Model</td><td>The thing that predicts text. On its own it can only talk back.</td></tr>
-<tr><td>Harness</td><td>Everything around it: the files it reads, what it may touch, who it is.</td></tr>
-<tr><td>Loop</td><td>Do a step, check the result, decide whether to go again.</td></tr>
-<tr><td>MCP</td><td>One standard for connecting tools, so each needs no integration of its own.</td></tr>
-<tr><td>Skills</td><td>One task written down once, loaded only when that task comes up.</td></tr>
-<tr><td>Context</td><td>What it can see right now. It fills up, and things fall out.</td></tr>
-<tr><td>Memory</td><td>What survives the conversation ending.</td></tr>
+<tr><td>Model</td><td>Predicts text. On its own it can only talk back.</td></tr>
+<tr><td>Harness</td><td>What it reads, what it may touch, who it is. <a href="#soul" data-jump="soul">Start here</a>.</td></tr>
+<tr><td>Loop</td><td>Do, check, decide whether to go again. Why work finishes. <a href="#loop" data-jump="loop">Here</a>.</td></tr>
+<tr><td>MCP</td><td>One standard for reaching tools. <a href="#tools" data-jump="tools">Here</a>.</td></tr>
+<tr><td>Skills</td><td>One task, written down once. <a href="#skills" data-jump="skills">Here</a>.</td></tr>
+<tr><td>Context</td><td>What it sees right now. It fills up, and things fall out.</td></tr>
+<tr><td>Memory</td><td>What survives the conversation ending. <a href="#memory" data-jump="memory">Here</a>.</td></tr>
 </tbody></table>
-<h2 style="margin-top:46px">The whole session, written out</h2>
-<p>Everything that was on screen, in order. Generated from the deck itself, so it stays
-true to what was actually said rather than to what I meant to say.</p>
-<div class="notes">{notes_html()}</div>"""))
+<p>The order matters. Each one is only worth adding once the one before it holds.</p>"""))
+
     # Words people are likely to type that the prose does not happen to contain.
     KEYWORDS = {
         "generator": "prompt interview setup start here chatgpt claude gemini copilot custom instructions",
-        "soul": "persona role tone voice style system prompt consultant data ops product marketing",
+        "soul": "persona role tone voice style system prompt consultant data ops product marketing harness",
         "loop": "agent wander stuck retry goal check stop limit finish done",
         "tools": "mcp connector server integration access permissions registry composio",
-        "memory": "remember forget context corrections agents.md claude.md learning secondary brain second ownr shared memory",
-        "skills": "business analytics skills bas repo github machine learning statistics optimisation optimization pricing price elasticity "
-                  "regression clustering forecasting ab test experiment recommender data engineering "
-                  "toolkit install plugin marketplace",
+        "memory": "remember forget context corrections agents.md claude.md learning "
+                  "second brain secondary ownr shared memory",
+        "skills": "business analytics skills bas repo github machine learning statistics "
+                  "optimisation optimization pricing price elasticity regression clustering "
+                  "forecasting ab test experiment recommender data engineering toolkit "
+                  "install plugin marketplace",
         "local": "ollama offline privacy compliance laptop cpu ram gpu model qwen llama gemma phi",
-        "parts": "model harness loop mcp skills context memory overview recap formula",
+        "parts": "model harness loop mcp skills context memory overview recap formula summary",
     }
     for item in v:
         words = (item["title"] + " " + item["lede"] + " "
@@ -675,8 +618,14 @@ def build():
     <a id="mail" href="#">{I["mail"]}Email</a>
     <a href="{WHATSAPP}" target="_blank" rel="noopener">{I["whatsapp"]}WhatsApp</a>
   </div>
-  <div class="hub-foot">Moheet Subudhi &middot; questions welcome
-    <button id="resetSpots" class="reset" hidden>reset layout</button></div>
+  <div class="hub-foot">Moheet Subudhi &middot; questions welcome</div>
+  <div class="corner">
+    <div class="hint" id="dragHint" hidden>
+      <span>drag the folders<br>anywhere you like</span>
+      <svg viewBox="0 0 90 46" aria-hidden="true"><path d="M86 6C70 2 44 4 26 14 8 24 4 36 10 40c5 3 14-2 12-9-2-6-9-7-14-4"/><path d="M4 28l-1 11 11-3"/></svg>
+    </div>
+    <button id="resetSpots" class="reset" hidden>reset layout</button>
+  </div>
 </div>
 </div>
 
@@ -687,12 +636,13 @@ def build():
   </div></div>
   {panes}
   <footer><div class="wrap">
-    <h3>One thing tonight</h3>
-    <p style="margin-top:10px">Pick the task you redo every week and resented doing last time.
-    Run the generator on that, not on something impressive. Ten minutes.</p>
+    <h3>Start with the boring one</h3>
+    <p style="margin-top:10px">The task you redo every week and resented doing last time.
+    Not something impressive. Ten minutes tonight beats a plan for Saturday.</p>
     <div class="foot-links">
-      <a href="{REPO}">The skills repository</a>
-      <a href="https://agentskills.io">What a skill actually is</a>
+      <a href="#" data-jump="generator">Run the generator</a>
+      <a href="{REPO}">The 36 skills</a>
+      <a href="https://ownr.digital" target="_blank" rel="noopener">Ownr</a>
     </div>
   </div></footer>
 </div>
@@ -1021,6 +971,7 @@ document.querySelectorAll(".obj").forEach(function (el) {{
       el.classList.remove("dragging");
       store(DRAG_KEY, JSON.stringify(placed));
       resetBtn.hidden = false;
+      dismissHint();
     }}
   }}
   el.addEventListener("pointerup", end);
@@ -1031,6 +982,21 @@ document.querySelectorAll(".obj").forEach(function (el) {{
     if (moved) {{ e.stopImmediatePropagation(); e.preventDefault(); moved = false; }}
   }}, true);
 }});
+
+/* The nudge shows once, only where dragging is possible, and only to someone who
+   has not already moved something. It leaves as soon as they do. */
+const dragHint = document.getElementById("dragHint");
+function maybeHint() {{
+  const canDrag = hub.classList.contains("scatter");
+  const known = recall("draghint") === "seen" || Object.keys(placed).length > 0;
+  dragHint.hidden = !canDrag || known;
+}}
+function dismissHint() {{
+  if (dragHint.hidden) return;
+  dragHint.classList.add("gone");
+  store("draghint", "seen");
+  setTimeout(function () {{ dragHint.hidden = true; dragHint.classList.remove("gone"); }}, 400);
+}}
 
 const resetBtn = document.getElementById("resetSpots");
 resetBtn.hidden = !Object.keys(placed).length;
@@ -1057,8 +1023,9 @@ function playOpening() {{
 }}
 
 layoutScatter();
+maybeHint();
 playOpening();
-window.addEventListener("resize", layoutScatter);
+window.addEventListener("resize", function () {{ layoutScatter(); maybeHint(); }});
 if (document.fonts && document.fonts.ready) {{
   document.fonts.ready.then(layoutScatter);
 }}
