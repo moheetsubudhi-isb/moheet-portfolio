@@ -1,0 +1,821 @@
+#!/usr/bin/env python3
+"""Build index.html from the giveaway markdown, so the page cannot drift from the files.
+
+  node extract-art.js     refresh the deck's diagrams (art.json)
+  python3 build.py        rebuild index.html
+
+Paper theme. A poster of numbered objects; clicking one opens it as its own
+scrollable view. Everything the visitor copies is pulled from giveaways/*.md at
+build time, never retyped here.
+"""
+import html as H
+import json
+import pathlib
+import re
+
+HERE = pathlib.Path(__file__).resolve().parent
+GIVE = HERE.parent / "giveaways"
+REPO = "https://github.com/moheetsubudhi-isb/business-analytics-skills"
+
+
+def read(name):
+    return (GIVE / name).read_text(encoding="utf-8")
+
+
+def between(txt, a, b):
+    return txt.split(a)[1].split(b)[0].replace("```", "").strip()
+
+
+def content():
+    c = {}
+    c["generator"] = between(read("01-generator-prompt.md"),
+                             "===== COPY FROM HERE =====", "===== COPY TO HERE =====")
+    souls = read("02-soul-files.md")
+    c["souls"] = [{"name": m.group(1).strip(), "body": m.group(2).strip()}
+                  for m in re.finditer(r"^## \d+ · (.+?)\n+```\n(.*?)\n```", souls, re.S | re.M)]
+    loop = read("03-loop-checklist.md")
+    c["loopChat"] = between(loop, "===== COPY FROM HERE =====", "===== COPY TO HERE =====")
+    c["loopFile"] = re.search(r"Then the block:\n+```\n(.*?)\n```", loop, re.S).group(1).strip()
+    reg = re.findall(r"```\n(.*?)\n```", read("04-tool-registry.md"), re.S)
+    c["regTemplate"], c["regExample"], c["regChat"] = (b.strip() for b in reg[:3])
+    c["installClaude"] = ("/plugin marketplace add moheetsubudhi-isb/business-analytics-skills\n"
+                          "/plugin install statistics-toolkit@business-analytics-skills")
+    c["installCodex"] = "codex plugin marketplace add moheetsubudhi-isb/business-analytics-skills"
+    c["installCli"] = "npx skills add moheetsubudhi-isb/business-analytics-skills --list"
+    c["ollama"] = "ollama run qwen3:1.7b"
+    return c
+
+
+def art():
+    return json.loads((HERE / "art-light.json").read_text(encoding="utf-8"))
+
+
+def icons():
+    """Phosphor Icons, MIT, fetched once by fetch-icons and inlined at build time so
+    the page needs no icon CDN at runtime."""
+    return json.loads((HERE / "icons.json").read_text(encoding="utf-8"))
+
+
+LINKEDIN = "https://www.linkedin.com/in/moheetsubudhi/"
+WHATSAPP = "https://wa.me/919861379000"
+MAIL_USER = "moheetsubudhi"
+MAIL_HOST = "gmail.com"
+
+
+CSS = """
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --paper:#F2EEE3; --paper-2:#EAE4D6; --paper-3:#E2DBC9;
+  --ink:#17150F; --muted:#5C574C; --faint:#8C8573;
+  --line:rgba(23,21,15,.13); --line-2:rgba(23,21,15,.26);
+  --accent:#2F4FD4; --accent-soft:rgba(47,79,212,.10);
+  --display:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --e:cubic-bezier(.2,.8,.2,1);
+  --r:10px;
+}
+html{-webkit-text-size-adjust:100%;background:var(--paper)}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);
+  line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:820px;margin:0 auto;padding:0 20px}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(47,79,212,.3)}
+a:hover{border-bottom-color:var(--accent)}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.025em}
+h1{font-weight:800;line-height:.94;font-size:clamp(38px,min(9vw,10vh),84px)}
+h2{font-weight:800;line-height:1.04;font-size:clamp(27px,5.4vw,42px)}
+h3{font-weight:600;font-size:clamp(17px,3.4vw,21px);letter-spacing:-.01em}
+p{color:var(--muted);font-size:clamp(15px,3.6vw,17px)}
+p + p{margin-top:13px}
+p strong,li strong{color:var(--ink);font-weight:600}
+.lead{font-size:clamp(16px,4vw,19px);max-width:56ch}
+
+/* ---------- the poster ----------
+   Objects sit around the title at wide widths, the way a printed poster would lay
+   them out. Below 1040px, and whenever a search is running, they fall back to a
+   plain grid: a scatter cannot survive a narrow screen or a changing item count. */
+/* The poster is exactly one screen: the objects and the contact row share it, so a
+   laptop never scrolls to reach either. */
+#poster{min-height:100dvh;display:flex;flex-direction:column;justify-content:center}
+body.open #poster{display:none}
+#hub{display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(12px,2.4vh,28px) 0 clamp(8px,1.2vh,14px);position:relative;flex:0 0 auto}
+/* The heading is a full-width block, so it sits over the objects beside it and
+   eats their clicks. It is only text, so it takes no pointer events. */
+.poster-title{text-align:center;padding:0 20px;position:relative;z-index:2;
+  pointer-events:none}
+.poster-title .sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin-top:clamp(8px,1.4vh,14px)}
+@media(min-width:520px){.poster-title .sub{font-size:11px;letter-spacing:.24em}}
+.objects{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;
+  max-width:980px;margin:clamp(14px,2.4vh,30px) auto 0;padding:0 14px}
+@media(min-width:720px){.objects{grid-template-columns:repeat(4,1fr);gap:10px}}
+@media(min-width:850px){
+  #hub.scatter .objects{display:block;position:absolute;inset:0;max-width:none;
+    margin:0;padding:0;pointer-events:none}
+  #hub.scatter{min-height:calc(100dvh - 104px)}
+  #hub.scatter .obj{position:absolute;width:124px;pointer-events:auto;padding:7px;z-index:3;
+    transform:rotate(var(--r))}
+  #hub.scatter .obj .label{font-size:13px;line-height:1.15}
+  #hub.scatter .obj .thumb{padding:10px}
+  #hub.scatter .obj:hover,#hub.scatter .obj:focus-visible{
+    transform:rotate(0deg) translateY(-4px) scale(1.04);z-index:3}
+  #hub.scatter .obj .thumb{aspect-ratio:1/1}
+}
+.obj{position:relative;display:flex;flex-direction:column;gap:4px;text-align:left;
+  background:transparent;border:0;padding:7px 7px 9px;cursor:pointer;
+  border-radius:var(--r);transition:transform .22s var(--e),background .22s var(--e);
+  font-family:inherit;color:inherit}
+.obj:hover,.obj:focus-visible{background:rgba(23,21,15,.045);transform:translateY(-3px)}
+.obj:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.obj:active{transform:translateY(-1px)}
+.obj .thumb{aspect-ratio:16/11;display:grid;place-items:center;overflow:hidden;
+  border-radius:8px;background:var(--paper-2);padding:6px;
+  border:1px solid rgba(23,21,15,.07);max-height:clamp(52px,8.6vh,104px)}
+.obj .thumb svg{width:100%;height:auto;max-height:100%}
+.obj .thumb .ico{width:clamp(30px,38%,52px);height:auto;color:var(--accent)}
+.obj .thumb .ico svg{width:100%;height:100%}
+.obj .thumb .glyph{font-family:var(--display);font-weight:800;
+  font-size:clamp(26px,6vw,40px);color:var(--accent);letter-spacing:-.03em}
+.obj .n{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--faint)}
+.obj .label{font-family:var(--display);font-weight:600;font-size:clamp(13px,3.2vw,15.5px);
+  line-height:1.18;letter-spacing:-.01em}
+.obj .label .arrow{color:var(--accent);opacity:0;transition:opacity .2s}
+.obj:hover .label .arrow{opacity:1}
+
+/* ---------- search ---------- */
+.search{position:relative;z-index:2;max-width:360px;margin:clamp(12px,2vh,20px) auto 0;
+  padding:0 20px}
+.search .box{display:flex;align-items:center;gap:9px;border:1px solid var(--line-2);
+  border-radius:999px;padding:9px 15px;background:rgba(255,255,255,.4)}
+.search .box:focus-within{border-color:var(--accent)}
+.search svg{width:16px;height:16px;color:var(--faint);flex:none}
+.search input{flex:1;border:0;background:transparent;font-family:var(--body);
+  font-size:15px;color:var(--ink);outline:none;min-width:0}
+.search input::placeholder{color:var(--faint)}
+.search .count{font-family:var(--mono);font-size:10.5px;color:var(--faint);
+  text-align:center;margin-top:9px;min-height:14px}
+
+/* ---------- contact ---------- */
+.contact{position:relative;z-index:2;display:flex;justify-content:center;gap:8px;
+  flex-wrap:wrap;margin-top:clamp(14px,2.4vh,26px);padding:0 20px}
+.contact a{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+  font-size:12px;letter-spacing:.03em;color:var(--muted);border:1px solid var(--line);
+  border-radius:999px;padding:8px 15px;background:rgba(255,255,255,.35)}
+.contact a:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.contact svg{width:16px;height:16px;flex:none}
+.hub-foot{text-align:center;margin-top:10px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.1em;color:var(--faint)}
+.hub-contact{padding:0 0 clamp(14px,2.4vh,30px);flex:0 0 auto}
+
+/* ---------- a detail view ---------- */
+#view{display:none}
+body.open #hub{display:none}
+body.open #view{display:block}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(242,238,227,.9);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line)}
+.topbar .inner{max-width:820px;margin:0 auto;padding:11px 20px;
+  display:flex;align-items:center;gap:14px}
+.back{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--ink);
+  border:1px solid var(--line-2);border-radius:999px;padding:7px 14px;background:transparent;
+  cursor:pointer;white-space:nowrap}
+.back:hover{border-color:var(--accent);color:var(--accent)}
+.topbar .where{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint);overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.view-head{padding:clamp(40px,10vw,72px) 0 0}
+.view-head .n{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent)}
+.view-head h2{margin-top:12px}
+.view-head .lead{margin-top:16px}
+.view-body{padding:22px 0 clamp(50px,11vw,86px)}
+.view-body > * + *{margin-top:18px}
+
+/* ---------- shared blocks ---------- */
+.panel{border:1px solid var(--line);border-radius:var(--r);background:var(--paper-2);
+  margin-top:24px;overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:12px;padding:12px 15px;
+  border-bottom:1px solid var(--line)}
+.panel-head .t{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.05em}
+.panel-head .note{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;
+  color:var(--faint);margin-left:auto;text-align:right}
+pre{font-family:var(--mono);font-size:12.5px;line-height:1.62;color:var(--ink);
+  padding:15px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;max-height:340px}
+.copy{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;padding:7px 14px;
+  border-radius:999px;border:1px solid var(--line-2);background:transparent;color:var(--ink);
+  cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s,background .15s}
+.copy:hover{border-color:var(--accent);color:var(--accent)}
+.copy.done{border-color:var(--accent);color:#fff;background:var(--accent)}
+.btn{font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;padding:11px 18px;
+  border-radius:999px;border:1px solid var(--line-2);color:var(--ink);background:transparent;
+  cursor:pointer;display:inline-block}
+.btn:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.btn.primary:hover{background:#2440b8;border-color:#2440b8;color:#fff}
+
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:22px}
+.tab{font-family:var(--mono);font-size:11.5px;padding:8px 13px;border-radius:999px;
+  border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.tab:hover{color:var(--ink);border-color:var(--line-2)}
+.tab[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.split{display:grid;gap:16px;margin-top:24px}
+@media(min-width:760px){.split{grid-template-columns:1fr 1fr}.split .panel{margin-top:0}}
+
+details{border:1px solid var(--line);border-radius:var(--r);background:var(--paper-2);
+  margin-top:12px;overflow:hidden}
+summary{padding:13px 15px;cursor:pointer;font-family:var(--mono);font-size:12.5px;
+  color:var(--ink);list-style:none;display:flex;align-items:center;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary .arrow{color:var(--faint);transition:transform .15s}
+details[open] summary .arrow{transform:rotate(90deg)}
+summary .note{color:var(--faint);font-size:11px;margin-left:auto}
+details .bar{display:flex;justify-content:flex-end;padding:10px 15px 0;
+  border-top:1px solid var(--line)}
+
+.fig{margin-top:24px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--paper-2);padding:16px;overflow:hidden}
+.fig svg{display:block;width:100%;height:auto}
+.fig .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--faint);margin-top:11px}
+
+table{width:100%;border-collapse:collapse;margin-top:20px;font-size:14.5px}
+th,td{text-align:left;padding:11px 12px 11px 0;vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--faint);font-weight:400;border-bottom:1px solid var(--line-2)}
+td{color:var(--muted);border-bottom:1px solid var(--line)}
+td:first-child{color:var(--ink);font-weight:600;white-space:nowrap;padding-right:18px}
+code{font-family:var(--mono);font-size:.88em;color:var(--ink);
+  background:var(--paper-3);padding:2px 6px;border-radius:5px}
+
+ul{list-style:none;margin-top:16px}
+ul li{color:var(--muted);font-size:clamp(15px,3.6vw,16.5px);padding:8px 0 8px 20px;
+  position:relative}
+ul li::before{content:"";position:absolute;left:0;top:17px;width:8px;height:1px;
+  background:var(--faint)}
+
+.rule{font-family:var(--display);font-weight:800;font-size:clamp(21px,4.8vw,32px);
+  line-height:1.22;letter-spacing:-.02em;color:var(--ink);max-width:21ch;margin-top:22px}
+.formula{font-family:var(--mono);font-size:clamp(11.5px,2.9vw,14px);line-height:2;
+  display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}
+.f-op{color:var(--faint)}.f-key{color:var(--accent)}
+.f-out{color:var(--ink);font-weight:500}
+.f-end{color:var(--ink);font-weight:700;border-bottom:2px solid var(--accent)}
+
+footer{border-top:1px solid var(--line);margin-top:30px;padding:36px 0 60px}
+.foot-links{display:flex;flex-wrap:wrap;gap:18px;margin-top:16px;
+  font-family:var(--mono);font-size:12.5px}
+
+html.reveal .view-body > *{opacity:0;transform:translateY(16px);
+  transition:opacity .5s var(--e),transform .5s var(--e)}
+html.reveal .view-body > *.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important;animation:none!important}
+  html.reveal .view-body > *{opacity:1;transform:none}
+}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.26s}
+"""
+
+
+def panel(key, label, note=""):
+    n = f'<span class="note">{H.escape(note)}</span>' if note else ""
+    return (f'<div class="panel"><div class="panel-head"><span class="t">{H.escape(label)}</span>{n}'
+            f'<button class="copy" data-copy="{key}">Copy</button></div>'
+            f'<pre data-block="{key}"></pre></div>')
+
+
+def disclosure(key, summary, note=""):
+    n = f'<span class="note">{H.escape(note)}</span>' if note else ""
+    return (f'<details><summary><span class="arrow">&#9656;</span>{H.escape(summary)}{n}</summary>'
+            f'<pre data-block="{key}"></pre>'
+            f'<div class="bar"><button class="copy" data-copy="{key}">Copy</button></div></details>')
+
+
+def fig(A, key, caption):
+    return f'<div class="fig">{A[key]}<div class="cap">{H.escape(caption)}</div></div>'
+
+
+def views(A, c):
+    """Each entry: slug, poster label, thumbnail art key or glyph, title, lede, body."""
+    tabs = "".join(
+        f'<button class="tab" role="tab" data-soul="{i}" aria-selected="{"true" if i == 0 else "false"}">'
+        f'{H.escape(s["name"])}</button>' for i, s in enumerate(c["souls"]))
+
+    v = []
+    v.append(dict(
+        slug="generator", label="The generator", art=None, glyph="?",
+        title="The generator",
+        lede="One prompt. It interviews you for five minutes, then writes four files for "
+             "your actual job.",
+        body=f"""
+<p>It asks what you do, what you redo every week and resent, how you do it now, and what keeps
+going wrong. Then it writes: how it should behave, how it should work, what it can reach, and
+how you do that one task.</p>
+<p>Paste it as the first message in any chat. Claude, ChatGPT, Gemini, Copilot. It works in a
+terminal agent too, and on a phone.</p>
+{panel("generator", "The generator", "about 5 minutes")}
+<p><strong>The third question is the one people rush.</strong> Walk it through how you actually
+do the thing, fiddly parts included. The skill it writes is only as good as that answer.</p>"""))
+
+    v.append(dict(
+        slug="soul", label="Five soul files", art="harness", glyph=None,
+        title="Five soul files",
+        lede="Who the AI is when it works with you: its standards, its voice, what it never "
+             "does.",
+        body=f"""
+<p>Same model, different colleague. Pick the closest to your job, then change two lines so it
+sounds like you. That is the whole setup.</p>
+<div class="tabs" role="tablist">{tabs}</div>
+<div class="panel"><div class="panel-head"><span class="t" id="soul-name"></span>
+<button class="copy" data-copy="soul">Copy</button></div>
+<pre data-block="soul"></pre></div>
+<p>Where it goes: ChatGPT Custom Instructions or a Project, Gemini Gems, a Claude Project,
+Copilot custom instructions, or <code>AGENTS.md</code> in a project folder.</p>
+{fig(A, "harness", "The harness is everything around the model")}"""))
+
+    v.append(dict(
+        slug="loop", label="The loop checklist", art="loop", glyph=None,
+        title="Make it finish instead of wander",
+        lede="Four lines above any task: the goal, the check, the stop, the limit.",
+        body=f"""
+<p><strong>The check is the one people skip and the one that matters.</strong> "I will review it
+carefully" is not a check. "Both totals match the source file" is, because it can fail.</p>
+{fig(A, "loop", "Do a step, check it, decide whether to go again")}
+<div class="split">
+{panel("loopChat", "For a chat", "paste above your task")}
+{panel("loopFile", "For a project folder", "goes in AGENTS.md")}
+</div>
+<p>Without a stop rule, a model will try variations of the same broken idea until you interrupt
+it. With one, it comes back after two.</p>"""))
+
+    v.append(dict(
+        slug="tools", label="The tool registry", art="mcp", glyph=None,
+        title="Stop it reaching for the wrong thing",
+        lede="Which tool answers which kind of question, and which ones to ignore.",
+        body=f"""
+<p>Once an agent has more than about three tools, it starts guessing. It searches the web for
+something sitting in your own files, or proposes a plan built on access it does not have.</p>
+<p>Pasted into a plain chat with no tools at all, this tells the model what access <em>you</em>
+have, so it stops suggesting things you cannot do and starts asking for what it needs.</p>
+{disclosure("regChat", "If you have no tools connected", "start here")}
+{disclosure("regTemplate", "The blank template")}
+{disclosure("regExample", "A filled example, someone in data")}
+{fig(A, "mcp", "One standard, so each tool needs no integration of its own")}
+<p><strong>Before you connect anything:</strong> who wrote it, what access is it asking for, when
+was it last updated, and would you be fine if it could see everything you point it at.</p>"""))
+
+    v.append(dict(
+        slug="memory", label="Second Brain", art="memory", glyph=None,
+        title="Second Brain",
+        lede="A memory that outlives the conversation, so you stop re-explaining yourself "
+             "every Monday.",
+        body=f"""
+<p>Context is what it can see right now. It fills up, and things fall out. Memory is what
+survives the conversation ending, and it is the whole difference between a tool you operate
+and a colleague who already knows the background.</p>
+<p class="rule">Once is a correction. Twice is a missing line in a file.</p>
+<p>Correcting it in the moment costs nothing and teaches it nothing. The second time the same
+thing happens, write the line down. Some tools now save your corrections for you. Go and read
+what they saved, because they get it wrong sometimes.</p>
+<table><thead><tr><th>Tool</th><th>Where to look</th></tr></thead><tbody>
+<tr><td>Claude Code</td><td>Type <code>/memory</code>. On by default.</td></tr>
+<tr><td>ChatGPT</td><td>Settings, Personalization, Memory. Separate from Custom Instructions.</td></tr>
+<tr><td>Claude</td><td>Settings, Memory. A separate memory per Project.</td></tr>
+<tr><td>Gemini</td><td>Settings, Personal context, Memory.</td></tr>
+<tr><td>Cursor, Copilot, Codex</td><td>Nothing is saved for you. Write it in <code>AGENTS.md</code> yourself.</td></tr>
+</tbody></table>
+{fig(A, "memory", "Context is this conversation. Memory is every conversation.")}
+<p>Worth saying plainly: <strong>it does not get smarter.</strong> The model is fixed. What
+changes is how much it knows about you and your work, and that is worth a lot on its own.</p>
+<div class="panel"><div class="panel-head"><span class="t">Built on exactly this</span></div>
+<div style="padding:16px 15px">
+<p style="margin:0">Every tool above keeps its own memory, in its own format, locked to itself.
+Correct something in one and the others never hear about it. <strong>Ownr</strong> is the
+version of this I am building: one memory, shared across every assistant you use.</p>
+<p style="margin-top:12px"><a href="https://ownr.digital" target="_blank" rel="noopener">
+ownr.digital &rarr;</a></p>
+</div></div>"""))
+
+    v.append(dict(
+        slug="skills", label="Business Analytics Skills", art="skill", glyph=None,
+        title="Business Analytics Skills",
+        lede="Thirty-six skills across machine learning, statistics, optimisation, pricing, "
+             "decision analysis, data engineering and recommenders.",
+        body=f"""
+<p>Each one asks what the work is for, follows a real method, checks its own logic, and hands
+back a decision rather than a number. MIT licensed, yours to change.</p>
+<p>They install as seven toolkits from a marketplace, or as plain folders in any tool that
+reads the open Agent Skills format. The repository is
+<code>moheetsubudhi-isb/business-analytics-skills</code>.</p>
+<div class="split">
+{panel("installClaude", "Claude Code")}
+{panel("installCodex", "Codex")}
+</div>
+<p>Any other tool, or several at once:</p>
+{panel("installCli", "Cursor, Copilot, Gemini CLI and more")}
+{fig(A, "skill", "A skill is one task, written down once")}
+<p>Browse them first at <a href="{REPO}">the repository</a>.</p>"""))
+
+    v.append(dict(
+        slug="local", label="Run it on your laptop", art="context", glyph=None,
+        title="When the data cannot leave",
+        lede="A model on your own machine. No graphics card, free, and it works with the wifi "
+             "off.",
+        body=f"""
+<p>Good enough for pulling fields out of messy text, summarising, classifying, and first drafts.
+Worse than a frontier model at hard reasoning, and that is fine.</p>
+<p class="rule">The local model filters. The cloud model finishes.</p>
+<p>Run the local one over anything sensitive, send only what is left to the better model. That
+is also the answer when someone asks whether you are allowed to use this at work.</p>
+<ul>
+<li>Check your RAM first. 8 GB is comfortable, 4 GB works with the smallest models.</li>
+<li>Install from <a href="https://ollama.com/download">ollama.com/download</a>. Mac, Windows and Linux, no account needed.</li>
+<li>In the picker, avoid anything with <code>:cloud</code> in the name. Those run on someone else&rsquo;s servers.</li>
+</ul>
+{panel("ollama", "Your first model", "1.4 GB download")}
+<p>If it will not load you will see <code>model requires more system memory than is
+available</code>. It checks free memory, not installed, so closing a browser with forty tabs
+genuinely fixes it.</p>"""))
+
+    v.append(dict(
+        slug="parts", label="The seven parts", art="loopring", glyph=None,
+        title="The seven parts",
+        lede="Everything in the session was one of these. Each builds on the one before it.",
+        body=f"""
+<div class="panel"><div class="panel-head"><span class="t">The whole thing, in one line</span></div>
+<div style="padding:18px 15px">
+<div class="formula"><span class="f-key">Model</span><span class="f-op">+</span><span class="f-key">Harness</span><span class="f-op">+</span><span class="f-key">Loop</span><span class="f-op">+</span><span class="f-key">MCP</span><span class="f-op">+</span><span class="f-key">Skills</span><span class="f-op">+</span><span class="f-key">Memory</span><span class="f-op">=</span><span class="f-end">your idea, working</span></div>
+</div></div>
+<table><thead><tr><th>Part</th><th>What it is</th></tr></thead><tbody>
+<tr><td>Model</td><td>The thing that predicts text. On its own it can only talk back.</td></tr>
+<tr><td>Harness</td><td>Everything around it: the files it reads, what it may touch, who it is.</td></tr>
+<tr><td>Loop</td><td>Do a step, check the result, decide whether to go again.</td></tr>
+<tr><td>MCP</td><td>One standard for connecting tools, so each needs no integration of its own.</td></tr>
+<tr><td>Skills</td><td>One task written down once, loaded only when that task comes up.</td></tr>
+<tr><td>Context</td><td>What it can see right now. It fills up, and things fall out.</td></tr>
+<tr><td>Memory</td><td>What survives the conversation ending.</td></tr>
+</tbody></table>
+{fig(A, "loopring", "The loop is why anything finishes")}"""))
+    # Words people are likely to type that the prose does not happen to contain.
+    KEYWORDS = {
+        "generator": "prompt interview setup start here chatgpt claude gemini copilot custom instructions",
+        "soul": "persona role tone voice style system prompt consultant data ops product marketing",
+        "loop": "agent wander stuck retry goal check stop limit finish done",
+        "tools": "mcp connector server integration access permissions registry composio",
+        "memory": "remember forget context corrections agents.md claude.md learning secondary brain second ownr shared memory",
+        "skills": "business analytics skills bas repo github machine learning statistics optimisation optimization pricing price elasticity "
+                  "regression clustering forecasting ab test experiment recommender data engineering "
+                  "toolkit install plugin marketplace",
+        "local": "ollama offline privacy compliance laptop cpu ram gpu model qwen llama gemma phi",
+        "parts": "model harness loop mcp skills context memory overview recap formula",
+    }
+    for item in v:
+        words = (item["title"] + " " + item["lede"] + " "
+                 + re.sub(r"<[^>]+>", " ", item["body"]) + " "
+                 + KEYWORDS.get(item["slug"], ""))
+        item["find"] = re.sub(r"\s+", " ", (item["label"] + " " + words)).strip().lower()[:1200]
+    return v
+
+
+def build():
+    c = content()
+    A = art()
+    I = icons()
+    V = views(A, c)
+
+    # Where each object sits on the poster at wide widths, and how far it is tilted.
+    # Kept clear of the centre, which the title occupies.
+    SPOTS = [("4%", "3%", "-5deg"), ("38%", "0%", "3deg"),
+             ("72%", "3%", "-3deg"), ("85%", "34%", "4deg"),
+             ("0%", "36%", "4deg"), ("5%", "71%", "-4deg"),
+             ("40%", "74%", "-3deg"), ("74%", "71%", "5deg")]
+
+    objects = "".join(
+        f'<button class="obj" data-go="{v["slug"]}" data-find="{H.escape(v["find"])}" '
+        f'style="--x:{SPOTS[i][0]};--y:{SPOTS[i][1]};--r:{SPOTS[i][2]}">'
+        f'<span class="thumb"><span class="ico">{I[v["slug"]]}</span></span>'
+        f'<span class="n">({i + 1:02d})</span>'
+        f'<span class="label">{H.escape(v["label"])} <span class="arrow">&rarr;</span></span>'
+        f'</button>' for i, v in enumerate(V))
+
+    panes = "".join(
+        f'<article class="pane" data-pane="{v["slug"]}" hidden>'
+        f'<div class="wrap view-head"><span class="n">({i + 1:02d})</span>'
+        f'<h2>{H.escape(v["title"])}</h2>'
+        f'<p class="lead">{H.escape(v["lede"])}</p></div>'
+        f'<div class="wrap view-body">{v["body"]}</div>'
+        f'</article>' for i, v in enumerate(V))
+
+    page = f"""<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>How to Build with AI</title>
+<meta name="description" content="The take-home pack: a prompt that writes your own setup, five ready-made ones, and 36 analytics skills. Plain text, nothing to install.">
+<meta name="theme-color" content="#F2EEE3">
+<meta property="og:title" content="How to Build with AI">
+<meta property="og:description" content="Everything from the session. Plain text, nothing to install, and it works on your phone.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Hanken+Grotesk:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>{CSS}</style>
+</head><body>
+
+<div id="poster">
+<main id="hub" class="scatter">
+  <div class="poster-title">
+    <h1>How to build<br>with AI.</h1>
+    <div class="sub">Pick one. All of it is yours.</div>
+  </div>
+  <div class="search"><label class="box">
+    {I["search"]}
+    <input type="search" id="q" placeholder="Search the pack" autocomplete="off"
+           aria-label="Search the pack">
+  </label><div class="count" id="count"></div></div>
+  <div class="objects">{objects}</div>
+</main>
+
+<div class="hub-contact">
+  <div class="contact">
+    <a href="{LINKEDIN}" target="_blank" rel="noopener">{I["linkedin"]}LinkedIn</a>
+    <a id="mail" href="#">{I["mail"]}Email</a>
+    <a href="{WHATSAPP}" target="_blank" rel="noopener">{I["whatsapp"]}WhatsApp</a>
+  </div>
+  <div class="hub-foot">Moheet Subudhi &middot; questions welcome</div>
+</div>
+</div>
+
+<div id="view">
+  <div class="topbar"><div class="inner">
+    <button class="back" id="back">&larr; All of it</button>
+    <span class="where" id="where"></span>
+  </div></div>
+  {panes}
+  <footer><div class="wrap">
+    <h3>One thing tonight</h3>
+    <p style="margin-top:10px">Pick the task you redo every week and resented doing last time.
+    Run the generator on that, not on something impressive. Ten minutes.</p>
+    <div class="foot-links">
+      <a href="{REPO}">The skills repository</a>
+      <a href="https://agentskills.io">What a skill actually is</a>
+    </div>
+  </div></footer>
+</div>
+
+<script type="application/json" id="content">{json.dumps(c)}</script>
+<script>
+const C = JSON.parse(document.getElementById("content").textContent);
+const SLUGS = {json.dumps([v["slug"] for v in V])};
+const TITLES = {json.dumps({v["slug"]: v["label"] for v in V})};
+
+document.querySelectorAll("pre[data-block]").forEach(function (el) {{
+  if (C[el.dataset.block]) el.textContent = C[el.dataset.block];
+}});
+
+/* ---------- soul picker ---------- */
+let currentSoul = 0;
+const soulName = document.getElementById("soul-name");
+const soulBody = document.querySelector('pre[data-block="soul"]');
+function showSoul(i) {{
+  currentSoul = i;
+  soulName.textContent = C.souls[i].name;
+  soulBody.textContent = C.souls[i].body;
+  document.querySelectorAll("[data-soul]").forEach(function (t) {{
+    t.setAttribute("aria-selected", String(Number(t.dataset.soul) === i));
+  }});
+}}
+document.querySelectorAll("[data-soul]").forEach(function (t) {{
+  t.addEventListener("click", function () {{ showSoul(Number(t.dataset.soul)); }});
+}});
+showSoul(0);
+
+/* ---------- copy ---------- */
+document.querySelectorAll("[data-copy]").forEach(function (btn) {{
+  btn.addEventListener("click", async function () {{
+    const key = btn.dataset.copy;
+    const text = key === "soul" ? C.souls[currentSoul].body : C[key];
+    let ok = false;
+    try {{
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    }} catch (e) {{
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:absolute;left:-9999px;top:0";
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      try {{ ok = document.execCommand("copy"); }} catch (e2) {{ ok = false; }}
+      document.body.removeChild(ta);
+    }}
+    btn.textContent = ok ? "Copied" : "Select and copy";
+    btn.classList.toggle("done", ok);
+    setTimeout(function () {{ btn.textContent = "Copy"; btn.classList.remove("done"); }}, 2000);
+  }});
+}});
+
+/* ---------- routing: the poster, then one view at a time ----------
+   Hash based, so it is a plain static file with no server rules, and any single
+   item can be linked to directly. */
+const panes = document.querySelectorAll("[data-pane]");
+const whereEl = document.getElementById("where");
+
+function apply(slug) {{
+  const valid = SLUGS.indexOf(slug) > -1;
+  document.body.classList.toggle("open", valid);
+  panes.forEach(function (p) {{ p.hidden = p.dataset.pane !== slug; }});
+  whereEl.textContent = valid ? TITLES[slug] : "";
+  document.title = valid ? TITLES[slug] + " — How to Build with AI"
+                         : "How to Build with AI";
+  window.scrollTo(0, 0);
+  if (valid) reveal(document.querySelector('[data-pane="' + slug + '"]'));
+}}
+
+/* history.pushState throws on file:// and inside some sandboxed previews, which
+   would otherwise break every link on the page. Fall back to setting the hash. */
+function setUrl(slug) {{
+  try {{
+    history.pushState(null, "", slug ? "#" + slug : location.pathname + location.search);
+  }} catch (e) {{
+    if (slug) location.hash = slug;
+    else if (location.hash) location.hash = "";
+  }}
+}}
+
+function go(slug) {{
+  const run = function () {{ setUrl(slug); apply(slug); }};
+  if (document.startViewTransition &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {{
+    try {{ document.startViewTransition(run); }} catch (e) {{ run(); }}
+  }} else {{
+    run();
+  }}
+}}
+window.addEventListener("hashchange", function () {{
+  apply(location.hash.replace("#", ""));
+}});
+
+document.querySelectorAll("[data-go]").forEach(function (b) {{
+  b.addEventListener("click", function () {{ go(b.dataset.go); }});
+}});
+document.getElementById("back").addEventListener("click", function () {{ go(null); }});
+window.addEventListener("popstate", function () {{
+  apply(location.hash.replace("#", ""));
+}});
+document.addEventListener("keydown", function (e) {{
+  if (e.key === "Escape" && document.body.classList.contains("open")) go(null);
+}});
+
+/* ---------- reveal on scroll ----------
+   A CSS class, not a JavaScript tween: a transition still lands on its final state
+   when frames are dropped, so a throttled tab never leaves content invisible. The
+   class is only added by script, so with no JavaScript the page is simply visible. */
+let io = null;
+function reveal(pane) {{
+  if (!pane) return;
+  const items = pane.querySelectorAll(".view-body > *");
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !("IntersectionObserver" in window)) {{
+    items.forEach(function (el) {{ el.classList.add("in"); }});
+    return;
+  }}
+  document.documentElement.classList.add("reveal");
+  if (io) io.disconnect();
+  io = new IntersectionObserver(function (entries) {{
+    entries.forEach(function (e) {{
+      if (e.isIntersecting || e.boundingClientRect.top < 0) {{
+        e.target.classList.add("in");
+        io.unobserve(e.target);
+      }}
+    }});
+  }}, {{ rootMargin: "0px 0px -6% 0px" }});
+  items.forEach(function (el) {{ el.classList.remove("in"); io.observe(el); }});
+
+  /* Anything already on screen is shown at once rather than waiting for the observer,
+     which is delivered on a rendering step and can be throttled. Without this the
+     first screenful of an opened view can sit blank. */
+  function showOnScreen() {{
+    items.forEach(function (el) {{
+      if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add("in");
+    }});
+  }}
+  /* Deferred by a frame. Adding the start and end states in one go means the
+     browser never sees a change to transition between, which is why nothing moved. */
+  if (window.requestAnimationFrame) {{
+    requestAnimationFrame(function () {{ requestAnimationFrame(showOnScreen); }});
+  }}
+  setTimeout(showOnScreen, 220);
+  setTimeout(function () {{ items.forEach(function (el) {{ el.classList.add("in"); }}); }}, 2500);
+}}
+
+/* ---------- poster scatter ----------
+   Positions are measured, not guessed. Eight slots are laid around the title: three
+   along the top, one at each side, three along the bottom. If the viewport cannot
+   hold them clear of the title, the poster stays a grid instead of overlapping
+   itself. Re-run on resize and once the fonts have settled, since both change the
+   height of the centre block. */
+function layoutScatter() {{
+  const wide = window.matchMedia("(min-width: 850px)").matches;
+  const objsAll = [...document.querySelectorAll(".obj")];
+  if (!wide || q.value.trim()) {{ hub.classList.remove("scatter"); clearSpots(objsAll); return; }}
+
+  hub.classList.add("scatter");
+  /* Clamp the field to a band around the title. Anchored to the container edges,
+     the objects end up half a screen from the headline on a wide monitor. */
+  const H = hub.clientHeight;
+  const band = Math.min(hub.clientWidth, 1180);
+  const x0 = (hub.clientWidth - band) / 2;
+  const W = band;
+  const pad = 14;
+  const probe = objsAll[0].getBoundingClientRect();
+  const ow = probe.width || 132, oh = probe.height || 170;
+
+  const title = document.querySelector(".poster-title").getBoundingClientRect();
+  const search = document.querySelector(".search").getBoundingClientRect();
+  const hubTop = hub.getBoundingClientRect().top;
+  const centreTop = title.top - hubTop, centreBottom = search.bottom - hubTop;
+
+  const fieldH = Math.min(H, 820);
+  const y0 = (H - fieldH) / 2;
+  const topY = y0 + pad;
+  const botY = y0 + fieldH - oh - pad;
+  const roomTop = centreTop - (topY + oh);
+  const roomBot = botY - centreBottom;
+  if (roomTop < 8 || roomBot < 8) {{ hub.classList.remove("scatter"); clearSpots(objsAll); return; }}
+
+  const midY = Math.max(topY + oh + 8, Math.min(centreTop + (centreBottom - centreTop) / 2 - oh / 2,
+                                                botY - oh - 8));
+  const cols = [pad, (W - ow) / 2, W - ow - pad];
+  const spots = [
+    [cols[0], topY], [cols[1], topY], [cols[2], topY],
+    [pad, midY], [W - ow - pad, midY],
+    [cols[0], botY], [cols[1], botY], [cols[2], botY]
+  ];
+  objsAll.forEach(function (o, i) {{
+    const sp = spots[i] || spots[spots.length - 1];
+    o.style.left = Math.round(x0 + sp[0]) + "px";
+    o.style.top = Math.round(sp[1]) + "px";
+  }});
+}}
+function clearSpots(list) {{
+  list.forEach(function (o) {{ o.style.left = ""; o.style.top = ""; }});
+}}
+
+/* ---------- search ----------
+   Matches every word typed against each item's title, lede and body text. While a
+   search is running the poster drops out of scatter into a grid, because a scatter
+   with items removed from it reads as broken rather than filtered. */
+const hub = document.getElementById("hub");
+const q = document.getElementById("q");
+const countEl = document.getElementById("count");
+const objs = [...document.querySelectorAll(".obj")];
+
+function runSearch() {{
+  const terms = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!terms.length) {{
+    objs.forEach(function (o) {{ o.hidden = false; }});
+    countEl.textContent = "";
+    layoutScatter();
+    return;
+  }}
+  hub.classList.remove("scatter");
+  clearSpots(objs);
+  let hits = 0;
+  objs.forEach(function (o) {{
+    const hay = o.dataset.find;
+    const match = terms.every(function (t) {{ return hay.indexOf(t) > -1; }});
+    o.hidden = !match;
+    if (match) hits++;
+  }});
+  countEl.textContent = hits === 0 ? "Nothing matches that"
+    : hits + (hits === 1 ? " match" : " matches");
+}}
+q.addEventListener("input", runSearch);
+q.addEventListener("keydown", function (e) {{
+  if (e.key !== "Enter") return;
+  const first = objs.filter(function (o) {{ return !o.hidden; }})[0];
+  if (first) go(first.dataset.go);
+}});
+
+/* Assembled at runtime so the address is not sitting in the markup for scrapers. */
+const mail = document.getElementById("mail");
+mail.href = "mailto:" + "moheetsubudhi" + "@" + "gmail.com";
+
+layoutScatter();
+window.addEventListener("resize", layoutScatter);
+if (document.fonts && document.fonts.ready) {{
+  document.fonts.ready.then(layoutScatter);
+}}
+
+apply(location.hash.replace("#", ""));
+</script>
+</body></html>
+"""
+    (HERE / "index.html").write_text(page, encoding="utf-8")
+    print(f"wrote index.html  {len(page):,} bytes  ·  {len(V)} views  ·  {len(c['souls'])} soul files")
+
+
+if __name__ == "__main__":
+    build()
