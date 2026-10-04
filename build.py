@@ -14,7 +14,7 @@ import pathlib
 import re
 
 HERE = pathlib.Path(__file__).resolve().parent
-GIVE = HERE.parent / "giveaways"
+GIVE = HERE / "giveaways" if (HERE / "giveaways").is_dir() else HERE.parent / "giveaways"
 REPO = "https://github.com/moheetsubudhi-isb/business-analytics-skills"
 
 
@@ -47,7 +47,12 @@ def content():
 
 
 def art():
-    return json.loads((HERE / "art-light.json").read_text(encoding="utf-8"))
+    a = json.loads((HERE / "art-light.json").read_text(encoding="utf-8"))
+    # The deck drew the loop with its top circle at y=-6 (centre 150, offset -110,
+    # radius 45 plus stroke), which the 0-origin viewBox cut off. Give it the room
+    # rather than move the drawing.
+    a["loop"] = a["loop"].replace('viewBox="0 0 1000 300"', 'viewBox="0 -16 1000 318"', 1)
+    return a
 
 
 def icons():
@@ -64,6 +69,9 @@ MAIL_HOST = "gmail.com"
 
 CSS = """
 *{margin:0;padding:0;box-sizing:border-box}
+/* Every tile for every folder is in the markup and all but one set is hidden.
+   A display rule on the element beats the attribute, so say it once, here. */
+[hidden]{display:none!important}
 :root{
   --paper:#F2EEE3; --paper-2:#EAE4D6; --paper-3:#E2DBC9;
   --ink:#17150F; --muted:#5C574C; --faint:#8C8573;
@@ -76,6 +84,7 @@ CSS = """
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --e:cubic-bezier(.2,.8,.2,1);
   --r:10px;
+  --panel:#FAF8F3;     /* the results panel, and so also the wipe that reveals the arrow */
   --rule:29px;          /* the ruling pitch, and the body line-height, so text sits on it */
 }
 html{-webkit-text-size-adjust:100%;background:var(--paper)}
@@ -85,13 +94,13 @@ html{-webkit-text-size-adjust:100%;background:var(--paper)}
 body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
   opacity:.55;mix-blend-mode:multiply;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E")}
-/* The ruling belongs to the paper, so it scrolls with the text rather than sitting
-   under it like a screen overlay. The vignette stays fixed: it is light, not paper. */
-body{background-image:repeating-linear-gradient(to bottom,
-  transparent 0 calc(var(--rule) - 1px), rgba(23,21,15,.05) calc(var(--rule) - 1px) var(--rule));
-  background-attachment:scroll}
+/* The ruling and the vignette are light on the page, not ink on it: both stay put
+   while the content moves over them. Fixed rather than attached, because iOS Safari
+   ignores background-attachment:fixed. */
 body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(23,21,15,.07) 100%)}
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 31px, rgba(23,21,15,.045) 31px 32px),
+    radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(23,21,15,.07) 100%)}
 body > *{position:relative;z-index:1}
 @media (prefers-reduced-transparency: reduce){body::before{display:none}}
 body{background-color:var(--paper);color:var(--ink);font-family:var(--body);
@@ -114,24 +123,69 @@ p strong,li strong{color:var(--ink);font-weight:600}
    plain grid: a scatter cannot survive a narrow screen or a changing item count. */
 /* The poster is exactly one screen: the objects and the contact row share it, so a
    laptop never scrolls to reach either. */
-#poster{min-height:100dvh;display:flex;flex-direction:column;justify-content:center}
+/* One shell: the poster or an opened item, and under either of them the same
+   contact bar. Nothing is duplicated, so the bar cannot drift between the two. */
+#shell{min-height:100dvh;display:flex;flex-direction:column}
+#poster{flex:1;display:flex;flex-direction:column;justify-content:center}
 body.open #poster{display:none}
+/* The poster fills what the bar and the contact row leave, and centres its own
+   contents inside that, so the bar stays at the top of the page. */
 #hub{display:flex;flex-direction:column;justify-content:center;
-  padding:clamp(12px,2.4vh,28px) 0 clamp(8px,1.2vh,14px);position:relative;flex:0 0 auto}
+  padding:clamp(12px,2.4vh,28px) 0 clamp(8px,1.2vh,14px);position:relative;flex:1}
+#hub.scatter{flex:1}
+/* Climbing out of a folder, back to whatever holds it. */
+/* A poster inside a folder uses the same bar as an opened item, at the top of
+   the page rather than floating over the heading. */
+#poster > .topbar{position:sticky;flex:0 0 auto}
+#poster > .topbar .inner{max-width:none;padding-left:clamp(14px,3vw,34px);
+  padding-right:clamp(14px,3vw,34px)}
+@media(max-width:639px){#poster > .topbar .where{display:none}}
 /* The heading is a full-width block, so it sits over the objects beside it and
    eats their clicks. It is only text, so it takes no pointer events. */
 .poster-title{text-align:center;padding:0 20px;position:relative;z-index:2;
   pointer-events:none}
+/* Ink settling: each word arrives slightly late and slightly out of focus,
+   then sets. The old heading leaves as one block rather than word by word, so
+   the change reads as a relabel and not as two animations fighting. */
+@keyframes inkIn{
+  from{opacity:0;transform:translateY(9px);filter:blur(7px)}
+  to{opacity:1;transform:none;filter:blur(0)}
+}
+.poster-title h1 .w{display:inline-block;animation:inkIn .38s var(--e) both;
+  animation-delay:var(--d,0s)}
+.poster-title h1,.poster-title .sub{transition:opacity .16s var(--e),filter .16s var(--e)}
+.poster-title h1.out,.poster-title .sub.out{opacity:0;filter:blur(5px)}
+.poster-title .sub .w{display:inline-block;animation:inkIn .38s var(--e) both .12s}
+@media (prefers-reduced-motion: reduce){
+  .poster-title h1 .w,.poster-title .sub .w{animation:none}
+}
 .poster-title .sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--faint);margin-top:clamp(8px,1.4vh,14px)}
 @media(min-width:520px){.poster-title .sub{font-size:11px;letter-spacing:.24em}}
 .objects{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;
   max-width:980px;margin:clamp(14px,2.4vh,30px) auto 0;padding:0 14px}
 @media(min-width:720px){.objects{grid-template-columns:repeat(4,1fr);gap:10px}}
+/* A full folder on a phone goes three across rather than two, so it still fits
+   one screen instead of asking for a scroll to see the last row. */
+@media(max-width:719px){
+  .objects.many{grid-template-columns:repeat(3,1fr);gap:6px;
+    margin-top:clamp(10px,1.6vh,20px)}
+  .objects.many .obj{padding:5px 4px 7px}
+  .objects.many .obj .thumb{max-height:62px;padding:4px}
+  .objects.many .obj .label{font-size:12.5px}
+}
+/* Two or three objects are a row in the middle, not a stripe across the page. */
+/* auto side margins on a column flex item shrink it to its content, so the width
+   has to be stated or the row collapses */
+/* One or two objects centre as a row at the same size as every other tile.
+   Scaling them up to fill the space changed the proportion of the icon to the
+   card, which is the thing that made the poster read. */
+.objects.few{display:flex;width:100%;justify-content:center;
+  gap:clamp(12px,2.5vw,26px);max-width:560px}
+.objects.few .obj{flex:0 1 200px}
 @media(min-width:850px){
   #hub.scatter .objects{display:block;position:absolute;inset:0;max-width:none;
     margin:0;padding:0;pointer-events:none}
-  #hub.scatter{min-height:calc(100dvh - 104px)}
   #hub.scatter .obj{position:absolute;width:124px;pointer-events:auto;padding:7px;z-index:3;
     transform:rotate(var(--r))}
   #hub.scatter .obj .label{font-size:13px;line-height:1.15}
@@ -162,13 +216,18 @@ body.open #poster{display:none}
 .obj .label{font-family:var(--display);font-weight:600;font-size:clamp(13px,3.2vw,15.5px);
   line-height:1.18;letter-spacing:-.01em}
 .obj .label .arrow{color:var(--accent);opacity:0;transition:opacity .2s}
+/* While a search is open the objects step back rather than crowd the panel.
+   Faded, not removed: in the scatter they are positioned absolutely, so this
+   hides them without anything reflowing. */
+#hub.searching .obj{opacity:0;pointer-events:none;transition:opacity .18s var(--e)}
 .obj:hover .label .arrow{opacity:1}
 
 /* ---------- search ---------- */
 .search{position:relative;z-index:2;max-width:360px;margin:clamp(12px,2vh,20px) auto 0;
   padding:0 20px}
-.search .box{display:flex;align-items:center;gap:9px;border:1px solid var(--line-2);
-  border-radius:999px;padding:9px 15px;background:rgba(255,255,255,.4)}
+.search .box{position:relative;display:flex;align-items:center;gap:9px;
+  border:1px solid var(--line-2);border-radius:999px;padding:9px 15px;
+  background:rgba(255,255,255,.4)}
 .search .box:focus-within{border-color:var(--accent)}
 .search svg{width:16px;height:16px;color:var(--faint);flex:none}
 .search input{flex:1;border:0;background:transparent;font-family:var(--body);
@@ -176,6 +235,46 @@ body.open #poster{display:none}
 .search input::placeholder{color:var(--faint)}
 .search .count{font-family:var(--mono);font-size:10.5px;color:var(--faint);
   text-align:center;margin-top:9px;min-height:14px}
+
+/* Search is a list of every node, not a filter over the tiles: once most of the
+   page lives inside folders, hiding root tiles would find almost nothing. */
+/* Anchored under the box rather than placed in the flow: the heading, the
+   search and the objects must not move while someone is typing. */
+/* One width, set by the viewport and not by what happens to match, so the
+   panel does not resize itself under the cursor as someone types. */
+.results{position:absolute;z-index:8;top:calc(100% + 9px);left:50%;
+  transform:translateX(-50%);width:min(min(560px,78vw),calc(100vw - 32px));
+  text-align:left}
+.results[hidden]{display:none}
+/* Solid, not translucent: the nothing-found arrow is revealed by sliding a
+   panel-coloured cover off it, and the cover has to match exactly. */
+.results ol{list-style:none;margin:0;border:1px solid var(--line-2);border-radius:var(--r);
+  background:var(--panel);overflow:hidden;max-height:min(46vh,340px);overflow-y:auto}
+.results li + li{border-top:1px solid var(--line)}
+.results button{width:100%;display:flex;align-items:center;gap:11px;text-align:left;
+  background:transparent;border:0;padding:10px 13px;cursor:pointer;font-family:inherit;
+  color:inherit}
+.results button:hover,.results button.on{background:var(--accent-soft)}
+.results .ico{width:18px;height:18px;flex:none;color:var(--accent)}
+.results .ico svg{width:100%;height:100%}
+.results .t{flex:1;min-width:0;font-family:var(--display);font-weight:600;font-size:14.5px;
+  letter-spacing:-.01em;line-height:1.25;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+/* The trail is pushed to the far end rather than following the name, which is
+   what made the two read as one run-on word. */
+.results .c{flex:none;margin-left:14px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.08em;color:var(--faint);text-transform:uppercase;white-space:nowrap}
+@media(max-width:519px){.results .c{display:none}}
+
+/* Nothing found is not an error, it is an invitation. */
+.results .none{padding:20px 16px;display:flex;flex-direction:column;
+  align-items:center;gap:2px;text-align:center}
+
+.results .none .say{font-family:var(--display);font-weight:600;font-size:15.5px;
+  letter-spacing:-.01em}
+.results .none .sub2{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
+  color:var(--faint);text-transform:uppercase;margin-top:4px}
+
 
 /* ---------- accent picker ---------- */
 .swatches{position:relative;z-index:2;display:flex;justify-content:center;gap:7px;
@@ -196,7 +295,19 @@ body.open #poster{display:none}
 .contact svg{width:16px;height:16px;flex:none}
 .hub-foot{text-align:center;margin-top:10px;font-family:var(--mono);font-size:10.5px;
   letter-spacing:.1em;color:var(--faint)}
-.hub-contact{padding:0 0 clamp(14px,2.4vh,30px);flex:0 0 auto}
+/* The same bar under the poster and under an opened item: how to reach me, the
+   accent, and the reset once anything has been moved. */
+#chrome{flex:0 0 auto;border-top:1px solid var(--line);margin-top:auto;
+  padding:clamp(12px,2vh,20px) 20px clamp(14px,2.4vh,26px)}
+#chrome .row{max-width:980px;margin:0 auto;display:flex;align-items:center;
+  justify-content:center;gap:10px;flex-wrap:wrap}
+#chrome .contact{margin-top:0;padding:0;gap:8px}
+#chrome .swatches{margin-top:0}
+#chrome .tail{position:relative;display:flex;align-items:center;gap:10px}
+.corner{position:fixed;left:clamp(14px,2.4vw,30px);bottom:clamp(14px,2.4vh,26px);z-index:7;
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none}
+.corner > *{pointer-events:auto}
+body.open .corner{display:none}
 
 /* ---------- a detail view ---------- */
 #view{display:none}
@@ -211,9 +322,23 @@ body.open #view{display:block}
   border:1px solid var(--line-2);border-radius:999px;padding:7px 14px;background:transparent;
   cursor:pointer;white-space:nowrap}
 .back:hover{border-color:var(--accent);color:var(--accent)}
-.topbar .where{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+.where{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--faint);overflow:hidden;text-overflow:ellipsis;
-  white-space:nowrap}
+  white-space:nowrap;min-width:0}
+.topbar .search{margin:0 0 0 auto;padding:0;flex:0 1 268px;min-width:132px;z-index:41}
+.topbar .search .box{padding:7px 13px}
+.topbar .search input{font-size:13.5px}
+.topbar .search .count{display:none}
+/* Anchored to the right edge of the box here, not centred on it, or it would
+   hang off the side of the window. */
+.topbar .search .results{left:auto;right:0;transform:none;
+  width:min(420px,calc(100vw - 28px))}
+/* On a narrow screen the trail gives way to the input: the heading underneath
+   already says where you are. */
+@media(max-width:639px){
+  .topbar .where{display:none}
+  .topbar .search{flex:1 1 auto}
+}
 /* Written on the lines: prose uses the ruling pitch for its line-height, and the
    page starts on a whole number of rules so the two stay in step as you scroll. */
 #view{padding-top:0}
@@ -234,6 +359,7 @@ body.open #view{display:block}
 .panel-head .t{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.05em}
 .panel-head .note{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;
   color:var(--faint);margin-left:auto;text-align:right}
+.panel-head .t + .copy{margin-left:auto}
 pre{font-family:var(--mono);font-size:12.5px;line-height:1.62;color:var(--ink);
   padding:15px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;max-height:340px}
 .copy{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;padding:7px 14px;
@@ -254,13 +380,6 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.62;color:var(--ink);
 .tab:hover{color:var(--ink);border-color:var(--line-2)}
 .tab[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:#fff}
 
-/* a node with children renders its own poster inside the view */
-.objects.sub{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;
-  max-width:none;margin:var(--rule) 0 0;padding:0}
-@media(min-width:720px){.objects.sub{grid-template-columns:repeat(3,1fr);gap:14px}}
-.objects.sub .obj{position:static!important;width:auto!important;transform:none!important}
-.objects.sub .obj .thumb{max-height:none;aspect-ratio:16/10}
-
 .split{display:grid;gap:16px;margin-top:24px}
 @media(min-width:760px){.split{grid-template-columns:1fr 1fr}.split .panel{margin-top:0}}
 
@@ -272,8 +391,8 @@ summary::-webkit-details-marker{display:none}
 summary .arrow{color:var(--faint);transition:transform .15s}
 details[open] summary .arrow{transform:rotate(90deg)}
 summary .note{color:var(--faint);font-size:11px;margin-left:auto}
-details .bar{display:flex;justify-content:flex-end;padding:10px 15px 0;
-  border-top:1px solid var(--line)}
+summary .copy{margin-left:auto}
+summary .note + .copy{margin-left:14px}
 
 .fig{margin-top:24px;border:1px solid var(--line);border-radius:var(--r);
   background:var(--paper-2);padding:16px;overflow:hidden}
@@ -304,24 +423,22 @@ ul li::before{content:"";position:absolute;left:0;top:17px;width:8px;height:1px;
 .f-out{color:var(--ink);font-weight:500}
 .f-end{color:var(--ink);font-weight:700;border-bottom:2px solid var(--accent)}
 
-/* bottom-right corner: a hand-drawn nudge that you can move things, then the
-   reset once something has actually been moved */
-.corner{position:fixed;right:clamp(14px,2.4vw,30px);bottom:clamp(14px,2.4vh,28px);
-  z-index:6;display:flex;flex-direction:column;align-items:flex-end;gap:8px;
-  pointer-events:none}
-body.open .corner{display:none}
-.corner > *{pointer-events:auto}
-.hint{display:flex;flex-direction:column;align-items:flex-end;gap:3px;
+/* The nudge sits above the reset in the bar, so the arrow points past it at the
+   folders rather than at the button under it. */
+.hint{display:flex;flex-direction:column;align-items:flex-start;gap:3px;white-space:nowrap;
   font-family:var(--mono);font-size:10.5px;line-height:1.35;letter-spacing:.06em;
-  color:var(--faint);text-align:right;animation:hintIn .6s var(--e) both .9s}
-.hint svg{width:78px;height:44px;fill:none;stroke:var(--faint);stroke-width:1.7;
-  stroke-linecap:round;stroke-linejoin:round;margin-right:10px}
+  color:var(--faint);text-align:left;animation:hintIn .6s var(--e) both .9s}
+.hint svg{width:68px;height:38px;fill:none;stroke:var(--faint);stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round;margin-left:6px}
+/* Two passes over the same line, the way a pencil actually leaves one. */
 .hint svg path{stroke-dasharray:170;stroke-dashoffset:170;
   animation:draw 1.1s var(--e) forwards 1.25s}
+.hint svg .pass2{opacity:.45;animation-delay:1.45s;animation-duration:.95s}
 .hint.gone{animation:hintOut .4s var(--e) both}
 @keyframes draw{to{stroke-dashoffset:0}}
 @keyframes hintIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes hintOut{to{opacity:0;transform:translateY(4px)}}
+body.open .hint,body.open .reset{display:none}
 .reset{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--faint);
   background:rgba(255,255,255,.4);border:1px solid var(--line-2);border-radius:999px;
   cursor:pointer;padding:6px 12px}
@@ -330,10 +447,6 @@ body.open .corner{display:none}
   .hint{animation:none}
   .hint svg path{animation:none;stroke-dashoffset:0}
 }
-
-footer{border-top:1px solid var(--line);margin-top:30px;padding:36px 0 60px}
-.foot-links{display:flex;flex-wrap:wrap;gap:18px;margin-top:16px;
-  font-family:var(--mono);font-size:12.5px}
 
 html.reveal .view-body > *{opacity:0;transform:translateY(16px);
   transition:opacity .5s var(--e),transform .5s var(--e)}
@@ -363,9 +476,9 @@ def panel(key, label, note=""):
 
 def disclosure(key, summary, note=""):
     n = f'<span class="note">{H.escape(note)}</span>' if note else ""
-    return (f'<details><summary><span class="arrow">&#9656;</span>{H.escape(summary)}{n}</summary>'
-            f'<pre data-block="{key}"></pre>'
-            f'<div class="bar"><button class="copy" data-copy="{key}">Copy</button></div></details>')
+    return (f'<details><summary><span class="arrow">&#9656;</span>{H.escape(summary)}{n}'
+            f'<button class="copy" data-copy="{key}">Copy</button></summary>'
+            f'<pre data-block="{key}"></pre></details>')
 
 
 def fig(A, key, caption):
@@ -380,17 +493,17 @@ def views(A, c):
 
     v = []
     v.append(dict(
-        slug="generator", label="The generator", art=None, glyph="?",
-        title="The generator",
-        lede="One prompt. It interviews you for five minutes, then writes four files for "
-             "your actual job.",
+        slug="generator", label="The Setup Interview", art=None, glyph="?",
+        title="The Setup Interview",
+        lede="One prompt. It asks you questions for five minutes, then writes four files "
+             "for your actual job.",
         body=f"""
 <p>It asks what you do, what you redo every week and resent, how you do it now, and what keeps
 going wrong. Then it writes: how it should behave, how it should work, what it can reach, and
 how you do that one task.</p>
 <p>Paste it as the first message in any chat. Claude, ChatGPT, Gemini, Copilot. It works in a
 terminal agent too, and on a phone.</p>
-{panel("generator", "The generator", "about 5 minutes")}
+{panel("generator", "The Setup Interview", "about 5 minutes")}
 <p><strong>The third question is the one people rush.</strong> Walk it through how you actually
 do the thing, fiddly parts included. The skill it writes is only as good as that answer.</p>"""))
 
@@ -567,7 +680,7 @@ counts. That is the pattern worth stealing, and the one that gets signed off.</p
     v.append(dict(
         slug="projects", label="My projects", art=None, icon="projects",
         title="Things I am building",
-        lede="Side projects, mostly built to scratch an itch, mostly still being worked on.",
+        lede="Built to scratch an itch.",
         children=[
             dict(slug="ownr", label="Ownr", icon="memory",
                  title="Ownr",
@@ -579,29 +692,7 @@ you explained on Friday.</p>
 <p>Ownr is one memory that sits outside all of them. Your standing rules, your projects, the
 decisions you have already made and why. Any tool can read it and write to it, so a correction
 given once holds everywhere.</p>
-<p><a href="https://ownr.digital" target="_blank" rel="noopener">ownr.digital &rarr;</a></p>"""),
-            dict(slug="skills-repo", label="Business Analytics Skills", icon="analytics",
-                 title="Business Analytics Skills",
-                 lede="Thirty-six skills that make an assistant work like a decision scientist "
-                      "rather than a calculator.",
-                 body="""
-<p>Machine learning, statistics, optimisation, pricing, decision analysis, data engineering and
-recommenders. Each skill asks what the work is for, follows a real method, runs a check where
-there is logic to verify, and hands back a decision brief rather than a number.</p>
-<p>Open format, so the same folder works in Claude Code, Codex, Cursor, Copilot and Gemini CLI
-without changes. Two marketplaces, a CLI installer, or plain folders. MIT licensed.</p>
-<p><a href="https://github.com/moheetsubudhi-isb/business-analytics-skills" target="_blank" rel="noopener">The repository &rarr;</a></p>"""),
-            dict(slug="this-page", label="This page", icon="site",
-                 title="How to Build with AI",
-                 lede="The session this page came from, and the page itself.",
-                 body="""
-<p>A session for my cohort on building with AI, and the take-home pack that goes with it: a
-prompt that interviews you and writes your own setup, five ready-made ones, a loop checklist, a
-tool registry, and the 36 skills.</p>
-<p>The page is one static file with no build step and no framework. Everything you can copy
-here is pulled from the source markdown when the page is built, so what the page hands out and
-what the files say cannot drift apart.</p>
-<p><a href="https://github.com/moheetsubudhi-isb/build-with-ai" target="_blank" rel="noopener">How it is put together &rarr;</a></p>"""),
+<p><a class="btn primary" href="https://ownr.digital/#waitlist" target="_blank" rel="noopener">Join the waitlist</a>\n<a class="btn" href="https://ownr.digital" target="_blank" rel="noopener">ownr.digital</a></p>"""),
         ]))
 
     v.append(dict(
@@ -619,12 +710,12 @@ work, and they are all things you control.</p>
 </div></div>
 <table><thead><tr><th>Part</th><th>What it is</th></tr></thead><tbody>
 <tr><td>Model</td><td>Predicts text. On its own it can only talk back.</td></tr>
-<tr><td>Harness</td><td>What it reads, what it may touch, who it is. <a href="#soul" data-jump="soul">Start here</a>.</td></tr>
-<tr><td>Loop</td><td>Do, check, decide whether to go again. Why work finishes. <a href="#loop" data-jump="loop">Here</a>.</td></tr>
-<tr><td>MCP</td><td>One standard for reaching tools. <a href="#tools" data-jump="tools">Here</a>.</td></tr>
+<tr><td>Harness</td><td>What it reads, what it may touch, who it is. <a href="#build/soul" data-jump="build/soul">Start here</a>.</td></tr>
+<tr><td>Loop</td><td>Do, check, decide whether to go again. Why work finishes. <a href="#build/loop" data-jump="build/loop">Here</a>.</td></tr>
+<tr><td>MCP</td><td>One standard for reaching tools. <a href="#build/tools" data-jump="build/tools">Here</a>.</td></tr>
 <tr><td>Skills</td><td>One task, written down once. <a href="#skills" data-jump="skills">Here</a>.</td></tr>
 <tr><td>Context</td><td>What it sees right now. It fills up, and things fall out.</td></tr>
-<tr><td>Memory</td><td>What survives the conversation ending. <a href="#memory" data-jump="memory">Here</a>.</td></tr>
+<tr><td>Memory</td><td>What survives the conversation ending. <a href="#build/memory" data-jump="build/memory">Here</a>.</td></tr>
 </tbody></table>
 <p>The order matters. Each one is only worth adding once the one before it holds.</p>"""))
 
@@ -642,7 +733,10 @@ work, and they are all things you control.</p>
                   "install plugin marketplace",
         "local": "ollama offline privacy compliance laptop cpu ram gpu open source weights licence llama qwen gemma mistral phi deepseek gpt-oss hugging face lm studio jan",
         "parts": "model harness loop mcp skills context memory overview recap formula summary",
-        "projects": "projects ownr portfolio work building side product repo",
+        "projects": "projects ownr portfolio work building side product repo "
+                    "things i am building side project unfinished",
+        "build": "session talk presentation how to build with ai giveaway pack take home "
+                 "seven parts model harness loop mcp skills context memory plain text tonight",
     }
     def index(item):
         """A node is searchable on its own words plus, if it is a folder, its children's."""
@@ -655,9 +749,21 @@ work, and they are all things you control.</p>
                           KEYWORDS.get(item["slug"], "")])
         item["find"] = re.sub(r"\s+", " ", item["label"] + " " + words).strip().lower()[:1400]
 
-    for item in v:
+    # The root is a portfolio. One folder holds everything from the session, in the
+    # order it is taught; the other holds the work. Both grow by adding a child.
+    by = {n["slug"]: n for n in v}
+    ORDER = ["parts", "generator", "soul", "loop", "tools", "memory", "local"]
+    root = [
+        dict(slug="build", label="How to Build with AI", art=None, icon="loop",
+             title="How to Build with AI",
+             lede="Everything from the session.",
+             children=[by[k] for k in ORDER]),
+        by["skills"],
+        by["projects"],
+    ]
+    for item in root:
         index(item)
-    return v
+    return root
 
 
 def build():
@@ -682,29 +788,33 @@ def build():
 
     ALL = list(walk(V))
 
-    def tile(path, node, i):
-        return (f'<button class="obj" data-go="{path}" data-find="{H.escape(node.get("find", ""))}">'
+    def tile(path, node, i, parent):
+        """Every tile for every folder is rendered once; the poster shows one set."""
+        return (f'<button class="obj" data-go="{path}" data-parent="{parent}" '
+                f'data-find="{H.escape(node.get("find", ""))}">'
                 f'<span class="thumb"><span class="ico">{icon_for(node)}</span></span>'
                 f'<span class="n">({i + 1:02d})</span>'
                 f'<span class="label">{H.escape(node["label"])} '
                 f'<span class="arrow">&rarr;</span></span></button>')
 
-    objects = "".join(tile(p2, n, i) for p2, n, i, parent in ALL if not parent)
+    objects = "".join(tile(p2, n, i, parent) for p2, n, i, parent in ALL)
 
-    panes = []
+    # Only a leaf gets a pane. A folder opens the poster again, retitled.
+    panes = "".join(
+        f'<article class="pane" data-pane="{path}" hidden>'
+        f'<div class="wrap view-head"><span class="n">({i + 1:02d})</span>'
+        f'<h2>{H.escape(n["title"])}</h2>'
+        f'<p class="lead">{H.escape(n["lede"])}</p></div>'
+        f'<div class="wrap view-body">{n["body"]}</div></article>'
+        for path, n, i, parent in ALL if not n.get("children"))
+
+    # The poster can stand at the root or inside any folder, so each needs a heading.
+    HOME = ("Hey, I\u2019m Moheet.", "Steal anything.")
+    FOLDERS = {"": {"t": HOME[0], "s": HOME[1]}}
     for path, n, i, parent in ALL:
-        head = (f'<div class="wrap view-head"><span class="n">({i + 1:02d})</span>'
-                f'<h2>{H.escape(n["title"])}</h2>'
-                f'<p class="lead">{H.escape(n["lede"])}</p></div>')
         if n.get("children"):
-            # A node with children is a poster of its own: same tiles, same behaviour.
-            kids = "".join(tile(f'{path}/{k["slug"]}', k, j)
-                           for j, k in enumerate(n["children"]))
-            inner = f'<div class="wrap"><div class="objects sub">{kids}</div></div>'
-        else:
-            inner = f'<div class="wrap view-body">{n["body"]}</div>'
-        panes.append(f'<article class="pane" data-pane="{path}" hidden>{head}{inner}</article>')
-    panes = "".join(panes)
+            FOLDERS[path] = {"t": n["title"], "s": n["lede"]}
+    ICONS_BY_PATH = {p2: icon_for(n) for p2, n, i, parent in ALL}
 
     # Every one checked for contrast on the paper background and with white text on it.
     ACCENTS = [("Cobalt", "#2F4FD4"), ("Forest", "#1F6B4A"), ("Rust", "#B3431E"),
@@ -714,6 +824,8 @@ def build():
         f'aria-pressed="{"true" if j == 0 else "false"}" '
         f'style="background:{hx}"></button>' for j, (n2, hx) in enumerate(ACCENTS))
 
+    FOLDERS_JSON = json.dumps(FOLDERS)
+    ICONS_JSON = json.dumps(ICONS_BY_PATH)
     PATHS = json.dumps([p2 for p2, n, i, parent in ALL])
     LABELS = json.dumps({p2: n["label"] for p2, n, i, parent in ALL})
     PARENTS = json.dumps({p2: parent for p2, n, i, parent in ALL})
@@ -722,65 +834,64 @@ def build():
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>How to Build with AI</title>
-<meta name="description" content="The take-home pack: a prompt that writes your own setup, five ready-made ones, and 36 analytics skills. Plain text, nothing to install.">
+<title>Moheet Subudhi</title>
+<meta name="description" content="Things I am building, and the whole How to Build with AI pack: a prompt that writes your own setup, five ready-made ones, and 36 analytics skills.">
 <meta name="theme-color" content="#F2EEE3">
-<meta property="og:title" content="How to Build with AI">
-<meta property="og:description" content="Everything from the session. Plain text, nothing to install, and it works on your phone.">
+<meta property="og:title" content="Moheet Subudhi">
+<meta property="og:description" content="Everything I am building, and everything I would hand over. Plain text, nothing to install, and it works on your phone.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Hanken+Grotesk:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>{CSS}</style>
 </head><body>
 
+<div id="shell">
 <div id="poster">
+<div class="topbar" id="hubBar" hidden><div class="inner">
+  <button class="back" id="hubUp">&larr; Back</button>
+  <span class="where" id="hubWhere"></span>
+</div></div>
 <main id="hub" class="scatter">
   <div class="poster-title">
-    <h1>How to build<br>with AI.</h1>
-    <div class="sub">Pick one. All of it is yours.</div>
+    <h1 id="hubTitle">{HOME[0]}</h1>
+    <div class="sub" id="hubSub">{HOME[1]}</div>
   </div>
   <div class="search"><label class="box">
     {I["search"]}
-    <input type="search" id="q" placeholder="Search the pack" autocomplete="off"
-           aria-label="Search the pack">
+    <input type="search" id="q" placeholder="Search everything" autocomplete="off"
+           aria-label="Search everything">
+    <div class="results" id="results" hidden></div>
   </label><div class="count" id="count"></div></div>
-  <div class="swatches" role="group" aria-label="Accent colour">{swatches}</div>
   <div class="objects">{objects}</div>
 </main>
+</div>
 
-<div class="hub-contact">
+<div id="view">
+  <div class="topbar"><div class="inner">
+    <button class="back" id="back">&larr; Back</button>
+    <span class="where" id="where"></span>
+  </div></div>
+  {panes}
+</div>
+
+<div id="chrome"><div class="row">
   <div class="contact">
     <a href="{LINKEDIN}" target="_blank" rel="noopener">{I["linkedin"]}LinkedIn</a>
     <a id="mail" href="#">{I["mail"]}Email</a>
     <a href="{WHATSAPP}" target="_blank" rel="noopener">{I["whatsapp"]}WhatsApp</a>
   </div>
-  <div class="hub-foot">Moheet Subudhi &middot; questions welcome</div>
-  <div class="corner">
-    <div class="hint" id="dragHint" hidden>
-      <svg viewBox="0 0 96 54" aria-hidden="true"><path d="M88 50C74 48 46 44 26 30 16 23 11 16 9 9"/><path d="M6 8l13 2M6 8l3 13"/></svg>
-      <span>drag the folders<br>anywhere you like</span>
-    </div>
-    <button id="resetSpots" class="reset" hidden>reset layout</button>
+  <div class="tail">
+    <div class="swatches" role="group" aria-label="Accent colour">{swatches}</div>
   </div>
-</div>
-</div>
+</div></div>
 
-<div id="view">
-  <div class="topbar"><div class="inner">
-    <button class="back" id="back">&larr; All of it</button>
-    <span class="where" id="where"></span>
-  </div></div>
-  {panes}
-  <footer><div class="wrap">
-    <h3>Start with the boring one</h3>
-    <p style="margin-top:10px">The task you redo every week and resented doing last time.
-    Not something impressive. Ten minutes tonight beats a plan for Saturday.</p>
-    <div class="foot-links">
-      <a href="#" data-jump="generator">Run the generator</a>
-      <a href="{REPO}">The 36 skills</a>
-      <a href="https://ownr.digital" target="_blank" rel="noopener">Ownr</a>
-    </div>
-  </div></footer>
+<div class="corner">
+  <div class="hint" id="dragHint" hidden>
+    <svg viewBox="0 0 96 54" aria-hidden="true"><path d="M8 50C22 48 50 44 70 30 80 23 85 16 87 9"/><path class="pass2" d="M9 52C23 50 51 45 71 31 81 24 85 17 86.5 10"/><path d="M90 8l-13 2M90 8l-3 13"/></svg>
+    <span>drag the folders<br>anywhere you like</span>
+  </div>
+  <button id="resetSpots" class="reset" hidden>reset layout</button>
+</div>
 </div>
 
 <script type="application/json" id="content">{json.dumps(c)}</script>
@@ -789,6 +900,8 @@ const C = JSON.parse(document.getElementById("content").textContent);
 const SLUGS = {PATHS};        /* every addressable node, "projects/ownr" and so on */
 const TITLES = {LABELS};
 const PARENTS = {PARENTS};    /* so back climbs one level instead of jumping home */
+const FOLDERS = {FOLDERS_JSON};   /* a path the poster can stand at, and its heading */
+const PICS = {ICONS_JSON};        /* each node's icon, reused in the search results */
 
 document.querySelectorAll("pre[data-block]").forEach(function (el) {{
   if (C[el.dataset.block]) el.textContent = C[el.dataset.block];
@@ -813,7 +926,10 @@ showSoul(0);
 
 /* ---------- copy ---------- */
 document.querySelectorAll("[data-copy]").forEach(function (btn) {{
-  btn.addEventListener("click", async function () {{
+  btn.addEventListener("click", async function (ev) {{
+    /* The button sits inside a <summary>, so a click on it would also open or
+       close the disclosure. Copying is not opening. */
+    if (btn.closest("summary")) {{ ev.preventDefault(); ev.stopPropagation(); }}
     const key = btn.dataset.copy;
     const text = key === "soul" ? C.souls[currentSoul].body : C[key];
     let ok = false;
@@ -852,20 +968,97 @@ function crumb(path) {{
   return out2.join("  /  ");
 }}
 
-function apply(slug) {{
-  const valid = SLUGS.indexOf(slug) > -1;
-  document.body.classList.toggle("open", valid);
-  panes.forEach(function (p) {{ p.hidden = p.dataset.pane !== slug; }});
-  whereEl.textContent = valid ? crumb(slug) : "";
-  document.title = valid ? TITLES[slug] + " — How to Build with AI"
-                         : "How to Build with AI";
-  if (valid) {{
-    const parent = PARENTS[slug] || "";
-    backBtn.textContent = parent ? "\u2190 " + TITLES[parent] : "\u2190 All of it";
+const hubTitle = document.getElementById("hubTitle");
+const hubSub = document.getElementById("hubSub");
+const hubUp = document.getElementById("hubUp");
+const hubBar = document.getElementById("hubBar");
+const hubWhere = document.getElementById("hubWhere");
+const SITE = "Moheet Subudhi";
+
+/* An old link, or one written before the tree grew a level, still resolves: an
+   unknown hash falls back to the one node whose own slug matches it. */
+function resolvePath(raw) {{
+  if (!raw) return "";
+  if (raw in FOLDERS || SLUGS.indexOf(raw) > -1) return raw;
+  /* Compare last segments, so a node that has since moved up a level resolves
+     too: #build/skills still finds skills now that it sits at the root. */
+  const tail = raw.split("/").pop();
+  const hit = SLUGS.filter(function (s2) {{ return s2.split("/").pop() === tail; }});
+  return hit.length === 1 ? hit[0] : "";
+}}
+
+/* The heading changes the way ink arrives on paper, not the way a terminal
+   types: the old words blur away together, the new ones settle in one after
+   another. Typing a word at a time out of nothing read as a glitch at any speed
+   fast enough not to be annoying. CSS animations, so a throttled tab still
+   lands on the finished state. */
+let headTimers = [];
+function words(text) {{
+  return text.split(" ").map(function (w2, i) {{
+    return '<span class="w" style="--d:' + (0.055 * i).toFixed(3) + 's">' +
+      w2.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span>";
+  }}).join(" ");
+}}
+function setHeading(text, sub, animate) {{
+  headTimers.forEach(clearTimeout);
+  headTimers = [];
+  hubTitle.setAttribute("aria-label", text);
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const same = hubTitle.textContent.trim() === text;
+  const write = function () {{
+    hubTitle.innerHTML = words(text);
+    hubSub.innerHTML = '<span class="w">' +
+      sub.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span>";
+    hubTitle.classList.remove("out");
+    hubSub.classList.remove("out");
+  }};
+  if (!animate || reduced || same) {{ write(); return; }}
+  hubTitle.classList.add("out");
+  hubSub.classList.add("out");
+  headTimers.push(setTimeout(write, 170));
+  /* A backstop for a dropped timer, not a second run: rewriting unconditionally
+     replaced the words and started the whole settle again. */
+  headTimers.push(setTimeout(function () {{
+    if (hubTitle.textContent.trim() !== text) write();
+  }}, 700));
+}}
+
+let hubPath = "";
+function showFolder(path, animate) {{
+  hubPath = path;
+  const f = FOLDERS[path] || FOLDERS[""];
+  setHeading(f.t, f.s, animate);
+  hubBar.hidden = !path;
+  if (path) {{
+    hubUp.textContent = "\u2190 " + (PARENTS[path] ? TITLES[PARENTS[path]] : SITE);
+    hubWhere.textContent = TITLES[path];
+  }}
+  document.title = path ? TITLES[path] + " \u2014 " + SITE : SITE;
+  if (q.value.trim()) {{ q.value = ""; }}
+  runSearch();
+  maybeHint();
+}}
+
+function apply(raw, animate) {{
+  const path = resolvePath(raw);
+  const leaf = SLUGS.indexOf(path) > -1 && !(path in FOLDERS);
+  document.body.classList.toggle("open", leaf);
+  if (q.value.trim()) {{ q.value = ""; runSearch(); }}
+  placeSearch(leaf);
+  panes.forEach(function (p) {{ p.hidden = p.dataset.pane !== path; }});
+  if (leaf) {{
+    /* The button beside it already says what it came out of. */
+    whereEl.textContent = TITLES[path];
+    document.title = TITLES[path] + " \u2014 " + SITE;
+    const parent = PARENTS[path] || "";
+    backBtn.textContent = "\u2190 " + (parent ? TITLES[parent] : SITE);
     backBtn.dataset.up = parent;
+  }} else {{
+    whereEl.textContent = "";
+    showFolder(path in FOLDERS ? path : "", animate);
   }}
   window.scrollTo(0, 0);
-  if (valid) reveal(document.querySelector('[data-pane="' + slug + '"]'));
+  if (leaf) reveal(document.querySelector('[data-pane="' + path + '"]'));
 }}
 
 /* history.pushState throws on file:// and inside some sandboxed previews, which
@@ -880,7 +1073,7 @@ function setUrl(slug) {{
 }}
 
 function go(slug) {{
-  const run = function () {{ setUrl(slug); apply(slug); }};
+  const run = function () {{ setUrl(slug); apply(slug, true); }};
   if (document.startViewTransition &&
       !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {{
     try {{ document.startViewTransition(run); }} catch (e) {{ run(); }}
@@ -896,6 +1089,7 @@ document.querySelectorAll("[data-go]").forEach(function (b) {{
   b.addEventListener("click", function () {{ go(b.dataset.go); }});
 }});
 backBtn.addEventListener("click", function () {{ go(backBtn.dataset.up || null); }});
+hubUp.addEventListener("click", function () {{ go(PARENTS[hubPath] || null); }});
 window.addEventListener("popstate", function () {{
   apply(location.hash.replace("#", ""));
 }});
@@ -953,14 +1147,21 @@ function reveal(pane) {{
    height of the centre block. */
 function layoutScatter() {{
   const wide = window.matchMedia("(min-width: 850px)").matches;
-  const objsAll = [...hub.querySelectorAll(".obj")];   /* poster tiles only, not a folder's */
-  if (!wide || q.value.trim()) {{ hub.classList.remove("scatter"); clearSpots(objsAll); return; }}
+  /* No minimum. A folder holding one thing lays out and drags like a folder
+     holding seven; otherwise the page changes its own rules as it fills up. */
+  const objsAll = [...hub.querySelectorAll(".obj")].filter(function (o) {{ return !o.hidden; }});
+  if (!objsAll.length) {{ hub.classList.remove("scatter"); return; }}
+  if (!wide) {{
+    hub.classList.remove("scatter"); clearSpots(objsAll); return;
+  }}
 
   hub.classList.add("scatter");
   /* Clamp the field to a band around the title. Anchored to the container edges,
      the objects end up half a screen from the headline on a wide monitor. */
   const H = hub.clientHeight;
-  const band = Math.min(hub.clientWidth, 1180);
+  /* Held in around the heading rather than pushed to the edges of the monitor:
+     at 1440 the full width put the corner objects a screen away from the title. */
+  const band = Math.min(hub.clientWidth * 0.84, 1020);
   const x0 = (hub.clientWidth - band) / 2;
   const W = band;
   const pad = 14;
@@ -981,7 +1182,7 @@ function layoutScatter() {{
   const hubTop = hub.getBoundingClientRect().top;
   const centreTop = title.top - hubTop, centreBottom = search.bottom - hubTop;
 
-  const fieldH = Math.min(H, 820);
+  const fieldH = Math.min(H, 700);
   const y0 = (H - fieldH) / 2;
   const topY = y0 + pad;
   const botY = y0 + fieldH - oh - pad;
@@ -1006,7 +1207,9 @@ function layoutScatter() {{
   }}
 
   const rest = N - (useSides ? 2 : 0);
-  const topCount = Math.ceil(rest / 2);
+  /* One or two sit under the heading rather than above it: a lone object over
+     the title reads as a mistake. */
+  const topCount = rest <= 2 ? 0 : Math.ceil(rest / 2);
   row(topCount, topY);
   if (useSides) {{
     const midY = Math.max(topY + oh + 8,
@@ -1024,6 +1227,10 @@ function layoutScatter() {{
 }}
 function clearSpots(list) {{
   list.forEach(function (o) {{ o.style.left = ""; o.style.top = ""; }});
+  const live = [...hub.querySelectorAll(".obj")].filter(function (o) {{ return !o.hidden; }});
+  const box = hub.querySelector(".objects");
+  box.classList.toggle("few", live.length > 0 && live.length < 3);
+  box.classList.toggle("many", live.length > 6);
 }}
 
 /* ---------- search ----------
@@ -1034,32 +1241,94 @@ const hub = document.getElementById("hub");
 const q = document.getElementById("q");
 const countEl = document.getElementById("count");
 const objs = [...hub.querySelectorAll(".obj")];
+const resultsEl = document.getElementById("results");
+const searchEl = document.querySelector(".search");
+const searchHome = searchEl.parentNode, searchAfter = searchEl.nextSibling;
+const topbarInner = document.querySelector(".topbar .inner");
+function placeSearch(open) {{
+  const want = open ? topbarInner : searchHome;
+  if (searchEl.parentNode === want) return;
+  if (open) want.appendChild(searchEl);
+  else want.insertBefore(searchEl, searchAfter);
+}}
+
+/* Search reaches every node from anywhere, including one nested two levels down,
+   and each hit says where it lives, so a name need not be unique on its own.
+   Filtering the tiles instead would find almost nothing once most of the page
+   sits inside folders. */
+const INDEX = objs.map(function (o) {{
+  return {{ path: o.dataset.go, find: o.dataset.find,
+           label: TITLES[o.dataset.go], where: crumb(PARENTS[o.dataset.go] || "") }};
+}});
+let shown = [], cursor = 0;
+
+function paint() {{
+  resultsEl.querySelectorAll("[data-go]").forEach(function (b, i) {{
+    b.classList.toggle("on", i === cursor);
+  }});
+}}
+function open_(path) {{ q.value = ""; runSearch(); go(path); }}
 
 function runSearch() {{
   const terms = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (!terms.length) {{
-    objs.forEach(function (o) {{ o.hidden = false; }});
+    shown = []; cursor = 0;
+    resultsEl.hidden = true;
+    resultsEl.innerHTML = "";
     countEl.textContent = "";
+    hub.classList.remove("searching");
+    objs.forEach(function (o) {{ o.hidden = o.dataset.parent !== hubPath; }});
     layoutScatter();
     return;
   }}
-  hub.classList.remove("scatter");
-  clearSpots(objs);
-  let hits = 0;
-  objs.forEach(function (o) {{
-    const hay = o.dataset.find;
-    const match = terms.every(function (t) {{ return hay.indexOf(t) > -1; }});
-    o.hidden = !match;
-    if (match) hits++;
+  hub.classList.add("searching");
+  /* A hit nearer the front of the indexed text is a more central one: the
+     string starts with the label, so a name match sorts above a body match. */
+  shown = INDEX.filter(function (it) {{
+    return terms.every(function (t) {{ return it.find.indexOf(t) > -1; }});
+  }}).sort(function (a, b) {{
+    const sc = function (it) {{
+      let n2 = 0;
+      terms.forEach(function (t) {{ n2 += it.find.indexOf(t); }});
+      return n2;
+    }};
+    return sc(a) - sc(b);
+  }}).slice(0, 8);
+  cursor = 0;
+  countEl.textContent = "";
+  resultsEl.hidden = false;
+  if (!shown.length) {{
+    resultsEl.innerHTML = '<ol><li class="none">' +
+      '<span class="say">Not here. Ask me.</span>' +
+      '<span class="sub2">Three ways below. I answer.</span>' +
+      "</li></ol>";
+    return;
+  }}
+  resultsEl.innerHTML = "<ol>" + shown.map(function (it) {{
+    /* Flat children: the name and the trail are both flex items of the row, so
+       the trail can be pushed to the far end. Nested in a wrapper they were not. */
+    return '<li><button data-go="' + it.path + '"><span class="ico">' +
+      (PICS[it.path] || "") + '</span><span class="t">' + it.label + '</span>' +
+      (it.where ? '<span class="c">' + it.where + '</span>' : '') +
+      '</button></li>';
+  }}).join("") + "</ol>";
+  resultsEl.querySelectorAll("[data-go]").forEach(function (b) {{
+    b.addEventListener("click", function () {{ open_(b.dataset.go); }});
   }});
-  countEl.textContent = hits === 0 ? "Nothing matches that"
-    : hits + (hits === 1 ? " match" : " matches");
+  paint();
 }}
 q.addEventListener("input", runSearch);
 q.addEventListener("keydown", function (e) {{
-  if (e.key !== "Enter") return;
-  const first = objs.filter(function (o) {{ return !o.hidden; }})[0];
-  if (first) go(first.dataset.go);
+  if (e.key === "Escape") {{ q.value = ""; runSearch(); q.blur(); return; }}
+  if (!shown.length) return;
+  if (e.key === "ArrowDown") {{ e.preventDefault(); cursor = (cursor + 1) % shown.length; paint(); }}
+  else if (e.key === "ArrowUp") {{ e.preventDefault(); cursor = (cursor - 1 + shown.length) % shown.length; paint(); }}
+  else if (e.key === "Enter") {{ e.preventDefault(); open_(shown[cursor].path); }}
+}});
+/* "/" anywhere puts the cursor in the box, the way every search field people
+   already use behaves. */
+document.addEventListener("keydown", function (e) {{
+  if (e.key === "/" && document.activeElement !== q) {{ e.preventDefault(); q.focus(); }}
 }});
 
 /* Assembled at runtime so the address is not sitting in the markup for scrapers. */
@@ -1108,8 +1377,8 @@ try {{ placed = JSON.parse(recall(DRAG_KEY) || "{{}}") || {{}}; }} catch (e) {{ 
 function applyPlaced() {{
   if (!hub.classList.contains("scatter")) return;
   Object.keys(placed).forEach(function (slug) {{
-    const el = document.querySelector('[data-go="' + slug + '"]');
-    if (!el) return;
+    const el = hub.querySelector('[data-go="' + slug + '"]');
+    if (!el || el.hidden) return;
     el.style.left = placed[slug][0] + "px";
     el.style.top = placed[slug][1] + "px";
   }});
@@ -1164,15 +1433,19 @@ document.querySelectorAll(".obj").forEach(function (el) {{
 /* The nudge shows once, only where dragging is possible, and only to someone who
    has not already moved something. It leaves as soon as they do. */
 const dragHint = document.getElementById("dragHint");
+let hintTimer = null;
 function maybeHint() {{
   const canDrag = hub.classList.contains("scatter");
-  const known = recall("draghint") === "seen" || Object.keys(placed).length > 0;
-  dragHint.hidden = !canDrag || known;
+  if (!canDrag) {{ dragHint.hidden = true; return; }}
+  if (dragHint.dataset.gone) return;
+  dragHint.hidden = false;
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(dismissHint, 7000);
 }}
 function dismissHint() {{
   if (dragHint.hidden) return;
+  dragHint.dataset.gone = "1";
   dragHint.classList.add("gone");
-  store("draghint", "seen");
   setTimeout(function () {{ dragHint.hidden = true; dragHint.classList.remove("gone"); }}, 400);
 }}
 
@@ -1193,14 +1466,14 @@ resetBtn.addEventListener("click", function () {{
    no JavaScript the objects are simply there. */
 function playOpening() {{
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const objs2 = [...hub.querySelectorAll(".obj")];
+  const objs2 = [...hub.querySelectorAll(".obj")].filter(function (o) {{ return !o.hidden; }});
   objs2.forEach(function (o, i) {{ o.style.setProperty("--d", (0.04 + i * 0.055) + "s"); }});
   document.documentElement.classList.add("anim");
   /* Drop the class once it has played, so a later relayout does not replay it. */
   setTimeout(function () {{ document.documentElement.classList.remove("anim"); }}, 1400);
 }}
 
-layoutScatter();
+apply(location.hash.replace("#", ""));
 maybeHint();
 playOpening();
 window.addEventListener("resize", function () {{ layoutScatter(); maybeHint(); }});
@@ -1208,7 +1481,6 @@ if (document.fonts && document.fonts.ready) {{
   document.fonts.ready.then(layoutScatter);
 }}
 
-apply(location.hash.replace("#", ""));
 </script>
 </body></html>
 """
