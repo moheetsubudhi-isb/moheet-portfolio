@@ -380,6 +380,42 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.62;color:var(--ink);
 .tab:hover{color:var(--ink);border-color:var(--line-2)}
 .tab[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:#fff}
 
+/* the PIN pop-up: the paper card, the mono kicker, the accent. No native dialog, so
+   it looks the same on every OS. */
+.scrim{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;
+  background:rgba(23,21,15,.38);opacity:0;transition:opacity .2s var(--e)}
+.scrim.on{opacity:1}
+.dialog{position:relative;width:min(380px,100%);background:var(--paper);
+  border:1px solid var(--line-2);border-radius:14px;padding:30px 28px 24px;text-align:center;
+  box-shadow:0 24px 60px rgba(23,21,15,.22);transform:translateY(10px) scale(.97);
+  transition:transform .24s var(--e)}
+.scrim.on .dialog{transform:none}
+.dlg-kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;color:var(--faint)}
+.dialog h3{margin-top:10px;font-size:clamp(24px,6vw,30px);font-weight:800;letter-spacing:-.025em}
+.dlg-hint{margin-top:6px;font-size:14.5px}
+.dlg-x{position:absolute;top:10px;right:12px;width:34px;height:34px;border:0;background:transparent;
+  font-size:24px;line-height:1;color:var(--faint);cursor:pointer;border-radius:8px}
+.dlg-x:hover{color:var(--ink);background:rgba(23,21,15,.06)}
+.cells{position:relative;display:flex;justify-content:center;gap:10px;margin-top:22px;cursor:text}
+.cells input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;
+  font-size:16px;caret-color:transparent}   /* 16px so iOS does not zoom the page */
+.cell{width:50px;height:60px;display:grid;place-items:center;border:1px solid var(--line-2);
+  border-radius:var(--r);background:rgba(255,255,255,.55);font-family:var(--mono);
+  font-size:26px;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.cell.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.cells.bad .cell{border-color:#B3431E}
+.cells.bad{animation:nope .34s}
+@keyframes nope{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.dlg-msg{min-height:var(--rule);margin-top:14px;font-family:var(--mono);font-size:12px;
+  letter-spacing:.04em;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){
+  .scrim,.dialog{transition:none}.cells.bad{animation:none}
+}
+/* a small lock on the tile, so it reads as locked before it is touched */
+.lockmark{position:absolute;right:7px;bottom:7px;width:17px;height:17px;color:var(--faint)}
+.lockmark svg{width:100%;height:100%}
+.thumb{position:relative}
+
 .split{display:grid;gap:16px;margin-top:24px}
 @media(min-width:760px){.split{grid-template-columns:1fr 1fr}.split .panel{margin-top:0}}
 
@@ -719,6 +755,15 @@ work, and they are all things you control.</p>
 </tbody></table>
 <p>The order matters. Each one is only worth adding once the one before it holds.</p>"""))
 
+    v.append(dict(
+        slug="slides", label="The slides", art=None, icon="slides",
+        title="The slides",
+        lede="From the session. Four digits.",
+        # A lock turns the tile into a pop-up that asks for a PIN. Any node can carry
+        # one, a folder as well as a page; "unlock" names what happens on success.
+        lock=dict(unlock="deck", hint="Four digits. Ask me for it."),
+        body="<p>Locked. Open it from the poster.</p>"))
+
     # Words people are likely to type that the prose does not happen to contain.
     KEYWORDS = {
         "generator": "prompt interview setup start here chatgpt claude gemini copilot custom instructions",
@@ -733,6 +778,7 @@ work, and they are all things you control.</p>
                   "install plugin marketplace",
         "local": "ollama offline privacy compliance laptop cpu ram gpu open source weights licence llama qwen gemma mistral phi deepseek gpt-oss hugging face lm studio jan",
         "parts": "model harness loop mcp skills context memory overview recap formula summary",
+        "slides": "slides deck presentation pin code locked session talk powerpoint",
         "projects": "projects ownr portfolio work building side product repo "
                     "things i am building side project unfinished",
         "build": "session talk presentation how to build with ai giveaway pack take home "
@@ -752,7 +798,7 @@ work, and they are all things you control.</p>
     # The root is a portfolio. One folder holds everything from the session, in the
     # order it is taught; the other holds the work. Both grow by adding a child.
     by = {n["slug"]: n for n in v}
-    ORDER = ["parts", "generator", "soul", "loop", "tools", "memory", "local"]
+    ORDER = ["parts", "generator", "soul", "loop", "tools", "memory", "local", "slides"]
     root = [
         dict(slug="build", label="How to Build with AI", art=None, icon="loop",
              title="How to Build with AI",
@@ -790,9 +836,10 @@ def build():
 
     def tile(path, node, i, parent):
         """Every tile for every folder is rendered once; the poster shows one set."""
-        return (f'<button class="obj" data-go="{path}" data-parent="{parent}" '
+        badge = f'<span class="lockmark" aria-label="locked">{I["lock"]}</span>' if node.get("lock") else ""
+        return (f'<button class="obj{" locked" if node.get("lock") else ""}" data-go="{path}" data-parent="{parent}" '
                 f'data-find="{H.escape(node.get("find", ""))}">'
-                f'<span class="thumb"><span class="ico">{icon_for(node)}</span></span>'
+                f'<span class="thumb"><span class="ico">{icon_for(node)}</span>{badge}</span>'
                 f'<span class="n">({i + 1:02d})</span>'
                 f'<span class="label">{H.escape(node["label"])} '
                 f'<span class="arrow">&rarr;</span></span></button>')
@@ -826,6 +873,8 @@ def build():
 
     FOLDERS_JSON = json.dumps(FOLDERS)
     ICONS_JSON = json.dumps(ICONS_BY_PATH)
+    LOCKS_JSON = json.dumps({p2: dict(title=n["title"], **n["lock"])
+                             for p2, n, i, parent in ALL if n.get("lock")})
     PATHS = json.dumps([p2 for p2, n, i, parent in ALL])
     LABELS = json.dumps({p2: n["label"] for p2, n, i, parent in ALL})
     PARENTS = json.dumps({p2: parent for p2, n, i, parent in ALL})
@@ -885,6 +934,22 @@ def build():
   </div>
 </div></div>
 
+<div class="scrim" id="pinScrim" hidden>
+  <div class="dialog" id="pinDialog" role="dialog" aria-modal="true" aria-labelledby="pinTitle">
+    <button class="dlg-x" id="pinX" type="button" aria-label="Close">&times;</button>
+    <div class="dlg-kicker">LOCKED</div>
+    <h3 id="pinTitle"></h3>
+    <p class="dlg-hint" id="pinHint"></p>
+    <label class="cells" for="pinIn">
+      <input id="pinIn" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4"
+             autocomplete="one-time-code" autocapitalize="off" spellcheck="false"
+             aria-label="Four digit PIN">
+      <span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span>
+    </label>
+    <p class="dlg-msg" id="pinMsg" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
 <div class="corner">
   <div class="hint" id="dragHint" hidden>
     <svg viewBox="0 0 96 54" aria-hidden="true"><path d="M8 50C22 48 50 44 70 30 80 23 85 16 87 9"/><path class="pass2" d="M9 52C23 50 51 45 71 31 81 24 85 17 86.5 10"/><path d="M90 8l-13 2M90 8l-3 13"/></svg>
@@ -901,7 +966,8 @@ const SLUGS = {PATHS};        /* every addressable node, "projects/ownr" and so 
 const TITLES = {LABELS};
 const PARENTS = {PARENTS};    /* so back climbs one level instead of jumping home */
 const FOLDERS = {FOLDERS_JSON};   /* a path the poster can stand at, and its heading */
-const PICS = {ICONS_JSON};        /* each node's icon, reused in the search results */
+const PICS = {ICONS_JSON};
+const LOCKS = {LOCKS_JSON};      /* nodes that ask for a PIN before they open */        /* each node's icon, reused in the search results */
 
 document.querySelectorAll("pre[data-block]").forEach(function (el) {{
   if (C[el.dataset.block]) el.textContent = C[el.dataset.block];
@@ -923,6 +989,78 @@ document.querySelectorAll("[data-soul]").forEach(function (t) {{
   t.addEventListener("click", function () {{ showSoul(Number(t.dataset.soul)); }});
 }});
 showSoul(0);
+
+/* ---------- the PIN pop-up ----------
+   The page never knows a PIN. It sends what was typed to a server, which checks it and
+   hands back a token that expires. Wrong answers come back slowly on purpose. A node
+   opts in with a lock flag in the tree; "unlock" says what a right answer does. */
+const DECK_API = "https://how-to-build-with-ai-deck.vercel.app";
+const UNLOCKERS = {{
+  deck: async function (pin) {{
+    const r = await fetch(DECK_API + "/api/unlock", {{
+      method: "POST", headers: {{ "Content-Type": "application/json" }},
+      body: JSON.stringify({{ pin: pin }})
+    }});
+    if (!r.ok) return false;
+    const d = await r.json();
+    location.href = DECK_API + "/api/deck?t=" + encodeURIComponent(d.token);
+    return true;
+  }}
+}};
+const scrim = document.getElementById("pinScrim"), pinIn = document.getElementById("pinIn"),
+      pinMsg = document.getElementById("pinMsg"), cellsEl = document.querySelector(".cells"),
+      cellEls = [...document.querySelectorAll(".cell")];
+let pinFor = null, pinBusy = false, pinReturn = null;
+
+function paintCells() {{
+  cellEls.forEach(function (c, i2) {{
+    c.textContent = pinIn.value[i2] ? "\u2022" : "";
+    c.classList.toggle("on", i2 === Math.min(pinIn.value.length, 3) && document.activeElement === pinIn);
+  }});
+}}
+function openLock(path) {{
+  const lock = LOCKS[path]; if (!lock) return;
+  pinFor = path; pinReturn = document.activeElement;
+  document.getElementById("pinTitle").textContent = lock.title;
+  document.getElementById("pinHint").textContent = lock.hint;
+  pinIn.value = ""; pinMsg.textContent = ""; cellsEl.classList.remove("bad");
+  scrim.hidden = false;
+  requestAnimationFrame(function () {{ scrim.classList.add("on"); }});
+  setTimeout(function () {{ scrim.classList.add("on"); }}, 40);   /* if frames are throttled */
+  pinIn.focus(); paintCells();
+}}
+function closeLock() {{
+  if (scrim.hidden) return;
+  scrim.classList.remove("on");
+  setTimeout(function () {{ scrim.hidden = true; }}, 220);
+  pinFor = null;
+  if (pinReturn && pinReturn.focus) try {{ pinReturn.focus(); }} catch (e) {{}}
+}}
+async function trySubmit() {{
+  if (pinBusy || pinIn.value.length !== 4 || !pinFor) return;
+  pinBusy = true; pinMsg.textContent = "Checking\u2026";
+  let ok = false;
+  try {{ ok = await UNLOCKERS[LOCKS[pinFor].unlock](pinIn.value); }}
+  catch (err) {{ pinMsg.textContent = "Could not reach the server. Try again."; pinBusy = false; return; }}
+  pinBusy = false;
+  if (ok) {{ pinMsg.textContent = "Opening\u2026"; return; }}
+  pinMsg.textContent = "Not that one.";
+  cellsEl.classList.remove("bad"); void cellsEl.offsetWidth; cellsEl.classList.add("bad");
+  pinIn.value = ""; paintCells();
+}}
+pinIn.addEventListener("input", function () {{
+  pinIn.value = pinIn.value.replace(/\D/g, "").slice(0, 4);
+  pinMsg.textContent = ""; cellsEl.classList.remove("bad");
+  paintCells(); trySubmit();
+}});
+pinIn.addEventListener("focus", paintCells);
+pinIn.addEventListener("blur", paintCells);
+document.getElementById("pinX").addEventListener("click", closeLock);
+scrim.addEventListener("mousedown", function (e) {{ if (e.target === scrim) closeLock(); }});
+scrim.addEventListener("keydown", function (e) {{
+  if (e.key === "Escape") {{ e.stopPropagation(); closeLock(); }}
+  if (e.key === "Tab") {{ e.preventDefault(); pinIn.focus(); }}   /* the pop-up holds focus */
+}});
 
 /* ---------- copy ---------- */
 document.querySelectorAll("[data-copy]").forEach(function (btn) {{
@@ -1040,7 +1178,14 @@ function showFolder(path, animate) {{
 }}
 
 function apply(raw, animate) {{
-  const path = resolvePath(raw);
+  let path = resolvePath(raw);
+  /* A pasted link to a locked node shows the folder it sits in and asks for the PIN. */
+  if (path && LOCKS[path]) {{
+    const lockPath = path;
+    path = PARENTS[path] || "";
+    try {{ history.replaceState(null, "", path ? "#" + path : location.pathname); }} catch (e) {{}}
+    setTimeout(function () {{ openLock(lockPath); }}, 60);
+  }}
   const leaf = SLUGS.indexOf(path) > -1 && !(path in FOLDERS);
   document.body.classList.toggle("open", leaf);
   if (q.value.trim()) {{ q.value = ""; runSearch(); }}
@@ -1073,6 +1218,7 @@ function setUrl(slug) {{
 }}
 
 function go(slug) {{
+  if (slug && LOCKS[slug]) {{ openLock(slug); return; }}
   const run = function () {{ setUrl(slug); apply(slug, true); }};
   if (document.startViewTransition &&
       !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {{
@@ -1094,6 +1240,7 @@ window.addEventListener("popstate", function () {{
   apply(location.hash.replace("#", ""));
 }});
 document.addEventListener("keydown", function (e) {{
+  if (e.key === "Escape" && !scrim.hidden) return;
   if (e.key === "Escape" && document.body.classList.contains("open")) go(null);
 }});
 
