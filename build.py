@@ -500,6 +500,88 @@ html.anim .obj{animation:settle .5s var(--e) both;animation-delay:var(--d,0s)}
 html.anim #hub.scatter .obj{animation-name:settle}
 @media (prefers-reduced-motion: reduce){html.anim .obj{animation:none}}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.26s}
+
+/* ---------- the stamp ----------
+   Same tile, same size, same drag. Only what sits inside the thumb changes: a
+   perforated postage stamp with a photo instead of an icon. Frame and lettering
+   take the accent, so the picker recolours it like every other icon. */
+/* Pinned to the thumb's box: the thumb's height comes from max-height, which a
+   percentage height inside it cannot see. */
+.stamp-wrap{position:absolute;inset:5px;display:flex;justify-content:center;
+  filter:drop-shadow(0 1px 1.5px rgba(23,21,15,.22))}
+.stamp{--p:2.6px;height:100%;aspect-ratio:4/5;flex:none;background:#FFFDF7;
+  padding:calc(var(--p)*2.2);display:grid;grid-template-rows:1fr auto;gap:2px;
+  -webkit-mask:radial-gradient(var(--p),#0000 97%,#000) round
+      calc(var(--p)*-1.5) calc(var(--p)*-1.5)/calc(var(--p)*3) calc(var(--p)*3),
+    linear-gradient(#000 0 0) no-repeat 50%/calc(100% - var(--p)*3) calc(100% - var(--p)*3);
+  mask:radial-gradient(var(--p),#0000 97%,#000) round
+      calc(var(--p)*-1.5) calc(var(--p)*-1.5)/calc(var(--p)*3) calc(var(--p)*3),
+    linear-gradient(#000 0 0) no-repeat 50%/calc(100% - var(--p)*3) calc(100% - var(--p)*3)}
+.stamp img{display:block;width:100%;height:100%;min-height:0;object-fit:cover;
+  object-position:50% 18%;outline:1px solid var(--accent);outline-offset:1px}
+.stamp .st{font-family:var(--mono);font-weight:500;font-size:7px;line-height:1;
+  letter-spacing:.14em;color:var(--accent);text-align:center;white-space:nowrap}
+
+/* ---------- the CV, as an old application form ----------
+   Restraint is the whole look: ruled boxes, mono small caps, one rubber stamp. */
+.cv-dl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cv-dl .note{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--faint)}
+.form{border:1.5px solid var(--ink);background:#FBF9F2;
+  box-shadow:3px 3px 0 rgba(23,21,15,.08)}
+.form-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  border-bottom:1.5px solid var(--ink);padding:9px 14px;font-family:var(--mono);
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink)}
+.fsec{padding:16px 14px 18px;border-bottom:1px solid var(--line-2)}
+.fsec:last-child{border-bottom:0}
+.fh{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink);display:flex;gap:10px;margin:0 0 12px}
+.fh b{color:var(--accent);font-weight:500}
+.form p,.form li{font-size:14.5px;line-height:1.55;color:var(--muted)}
+.form ul{margin-top:6px}
+.form li strong{color:var(--ink);font-weight:600}
+.form ul li{padding:2px 0 2px 16px}
+.form ul li::before{top:12px;width:7px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));
+  border-top:1px solid var(--line-2);border-left:1px solid var(--line-2)}
+.f{border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);
+  padding:7px 10px 8px;min-width:0}
+.f .k{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--faint)}
+.f .v{display:block;color:var(--ink);font-size:14.5px;line-height:1.4;overflow-wrap:anywhere}
+.f .v a{border-bottom:0}
+.particulars{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start}
+.photo{position:relative;width:clamp(84px,22vw,116px)}
+.photo img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;object-position:50% 18%;
+  border:1px solid var(--line-2);background:#fff;padding:3px}
+.photo .k{display:block;text-align:center;margin-top:5px;font-family:var(--mono);font-size:8.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.rubber{position:absolute;left:-16px;top:12px;transform:rotate(-14deg);
+  border:2px solid var(--accent);border-radius:4px;padding:3px 7px;
+  font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.18em;
+  color:var(--accent);background:rgba(251,249,242,.7);opacity:.9;white-space:nowrap;
+  pointer-events:none}
+.rec{display:grid;grid-template-columns:158px 1fr;gap:4px 16px;padding:12px 0;
+  border-top:1px dashed var(--line-2)}
+.rec:first-of-type{border-top:0;padding-top:2px}
+.rec .when{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+  padding-top:3px}
+.rec .who{font-family:var(--display);font-weight:600;font-size:16px;color:var(--ink);
+  letter-spacing:-.01em;line-height:1.3}
+.rec .who span{font-family:var(--body);font-weight:400;font-size:14px;color:var(--muted)}
+@media(max-width:559px){
+  .rec{grid-template-columns:1fr}
+  .particulars{grid-template-columns:1fr}
+  .photo{justify-self:start}
+  /* Beside the photo rather than over the face, which a narrow photo cannot spare. */
+  .rubber{left:calc(100% + 10px);top:38%}
+}
+.sign{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.sign .line{min-width:180px;border-bottom:1px solid var(--ink);padding:0 4px 2px;
+  font-family:var(--display);font-weight:800;font-size:20px;color:var(--ink);
+  transform:rotate(-2deg);transform-origin:left bottom}
+.sign .k{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--faint)}
 """
 
 
@@ -519,6 +601,122 @@ def disclosure(key, summary, note=""):
 
 def fig(A, key, caption):
     return f'<div class="fig">{A[key]}<div class="cap">{H.escape(caption)}</div></div>'
+
+
+# The CV, written as an old application form. Facts come from the CV itself; edit
+# them here and rebuild. The PDF beside it is the version to hand over.
+CV_PDF = "cv/moheet-subudhi-cv.pdf"
+
+def cv_rec(when, who, where, lines=()):
+    li = "".join(f"<li>{x}</li>" for x in lines)
+    return (f'<div class="rec"><div class="when">{when}</div><div>'
+            f'<div class="who">{who} <span>&middot; {where}</span></div>'
+            + (f"<ul>{li}</ul>" if li else "") + "</div></div>")
+
+def cv_field(k, v):
+    return f'<div class="f"><span class="k">{k}</span><span class="v">{v}</span></div>'
+
+DL = (f'<div class="cv-dl"><a class="btn primary" href="{CV_PDF}" download>Download the CV</a>'
+      f'<span class="note">PDF &middot; January 2026 edition</span></div>')
+
+CV = DL + f"""
+<div class="form">
+<div class="form-head"><span>Application for employment</span><span>Form CV &middot; 2026</span></div>
+
+<div class="fsec"><h3 class="fh"><b>1.</b> Particulars</h3>
+<div class="particulars">
+<div class="fgrid">
+{cv_field("Name", "Moheet Subudhi")}
+{cv_field("Present post", "Product Manager, Business Automation &middot; Mailmodo")}
+{cv_field("Email", '<a class="js-mail" href="#">email</a>')}
+{cv_field("Phone", '<a href="tel:+919861379000">+91 98613 79000</a>')}
+{cv_field("LinkedIn", '<a href="https://www.linkedin.com/in/moheetsubudhi/" target="_blank" rel="noopener">linkedin.com/in/moheetsubudhi</a>')}
+{cv_field("Languages", "English (fluent), Hindi, Odia")}
+</div>
+<div class="photo"><img src="cv/portrait.jpg" alt="Moheet Subudhi" width="350" height="350" loading="lazy">
+<span class="k">Photograph</span><span class="rubber">VERIFIED</span></div>
+</div></div>
+
+<div class="fsec"><h3 class="fh"><b>2.</b> In brief</h3>
+<p>I work on how a business runs: its processes, its compliance and its customers. Since 2020
+I have done this across SaaS, government and consulting.</p>
+<p>I redesign processes, automate the manual parts, and change systems without adding risk, so
+costs come down and customers have a better time. I am at home with data analysis, dashboards
+and projects that cut across teams.</p></div>
+
+<div class="fsec"><h3 class="fh"><b>3.</b> Employment record</h3>
+{cv_rec("Jul 2026 &ndash; now", "Product Manager, Business Automation", "Mailmodo (YC21), Bangalore")}
+{cv_rec("Jan 2024 &ndash; Jun 2026", "Customer Success &amp; Product Operations", "Mailmodo (YC21), Bangalore", [
+    "Ran customer success operations for 200+ SaaS accounts worth $27k MRR, and planned how each account would grow.",
+    "Doubled MRR on several accounts, month after month, while keeping a 75% customer retention rate.",
+    "Set up AI-powered workflows in Vitally to bring quiet customers back: a 4% reply rate and a better NPS.",
+    "Drove product adoption and stickiness with targeted rollouts, reaching 98.5% net revenue retention (NRR).",
+    "Ran self-serve accounts end to end, with automated touchpoints and success metrics, so support could scale and customers stayed happy.",
+    "Built dashboards joining HubSpot, Chargebee and Vitally, so compliance and KPI numbers came from one trusted place.",
+    "Designed a shared reporting framework between Customer Success and Onboarding, to track accounts as they moved between the two teams.",
+    "Automated the team&rsquo;s daily work with AI-enabled workflows in Pipedream, Slackbots and Google Apps Script."])}
+{cv_rec("Oct 2022 &ndash; Jan 2024", "Sales Development Representative", "Mailmodo (YC21), Bangalore", [
+    "Ran outbound sales for the US market end to end: LinkedIn, email campaigns, cold calls and website chatbots.",
+    "Brought in 10+ qualified leads every month, with 60%+ converting to demos, across SaaS, EdTech and D2C companies.",
+    "Used Apollo, Outplay, HubSpot and Walaaxy together to find and qualify prospects.",
+    "Reworked the website chatbot funnel so more visitors engaged and replied; chatbot leads grew to over 30% of the outbound pipeline."])}
+{cv_rec("Oct 2022 &ndash; Jan 2025", "Independent Consultant, Strategy &amp; Process Optimization", "Bizarc Ventures, Bhubaneswar", [
+    "<strong>NeoTeric.</strong> Designed and ran a government PR campaign with a 45-member team, standard SOPs and compliance checks on every outreach step. It reached 2,50,000+ impressions.",
+    "<strong>Mahabeer Inventory.</strong> Audited 120+ warehouse transactions a day and built a custom inventory system. Order accuracy went from 82% to 97%, billing compliance risk fell by 90%, and monthly orders tripled.",
+    "<strong>OSDA, Government of Odisha.</strong> Directed a &#8377;60-lakh digital transformation, keeping the product in line with the government&rsquo;s compliance goals. Launched a modular CMS, push notifications and analytics dashboards, making the work transparent for 12,000+ users.",
+    "<strong>IWD Secretary App.</strong> Built a reporting app for 2,400+ leaders across 60+ clubs. It automated their monthly and yearly compliance reports, made them audit-ready, and every club onboarded (100%).",
+    "<strong>Volunteer monitoring.</strong> Built custom modules to track volunteer hours, funds and beneficiaries. Manual effort fell by more than 80%, and the reports became ready for international review.",
+    "<strong>Royal Living Tangi.</strong> Ran a data governance project on a base of 34,000+ LPG customers. Led a 7-member team that cleaned 14,500+ records and verified 5,027+ addresses, then replaced the IVRS line with GSM-based outbound calling, projecting a 12&ndash;15% rise in digital LPG bookings.",
+    "<strong>Rural outreach under PMUY.</strong> Worked with self-help groups and Mission Shakti groups to get past language barriers, reaching 10,000+ beneficiaries.",
+    "Across government, nonprofit and small-business clients: careful diagnosis first, then tighter budgets, automation, and changes made without adding risk."])}
+{cv_rec("Feb 2021 &ndash; Oct 2022", "Head of Operations", "Bizarc Ventures, Bhubaneswar", [
+    "Managed a &#8377;5-lakh yearly marketing budget across 20+ client campaigns. Cost-benefit analysis on ad spend raised average ROAS by 30% for F&amp;B, retail and hospitality clients.",
+    "Built and led a 5-member in-house marketing team serving F&amp;B, e-commerce, personal care, retail, real estate and hospitality brands, from strategy to execution.",
+    "Ran data-backed campaigns for acquisition, engagement and retention, improving ROI across digital channels.",
+    "Built websites for hospitality clients, giving them direct bookings as a new source of revenue.",
+    "Handled 20+ B2B and B2C clients: strategy, campaigns, client communication and performance reviews.",
+    "Set up marketing automation and CRM tools so campaigns ran faster and internal work was simpler."])}
+{cv_rec("May 2020 &ndash; Feb 2021", "Founder", "V DO Hosting", [
+    "Started the company during the COVID-19 pandemic.",
+    "Built a working business around video conferencing and virtual meeting platforms.",
+    "Handled 500+ events with 60,000+ participants.",
+    "Led a team of 10 people who kept it running smoothly."])}
+{cv_rec("Feb 2020 &ndash; Apr 2020", "Telesales Representative", "Molson Coors Beverage Company, UK", [
+    "Worked in telesales, handling customers alongside 2 area managers.",
+    "Pitched the product to about 60 businesses a day and generated leads for the company.",
+    "Collected customer data and carried out sales audits."])}
+</div>
+
+<div class="fsec"><h3 class="fh"><b>4.</b> Education</h3>
+{cv_rec("Jan 2026 &ndash; Apr 2027", "Advanced Management Programme in Business Analytics", "Indian School of Business, Hyderabad")}
+{cv_rec("Sep 2018 &ndash; May 2021", "BSc Accounting and Finance, Class II Upper Division", "City St George&rsquo;s, University of London")}
+{cv_rec("Sep 2017 &ndash; Jun 2018", "International Foundation Programme, 86.86%", "INTO City University London")}
+</div>
+
+<div class="fsec"><h3 class="fh"><b>5.</b> Skills &amp; tools</h3>
+<div class="fgrid">
+{cv_field("Product &amp; growth", "GTM strategy, funnel optimization, customer lifecycle management")}
+{cv_field("Process", "BPM, workflow re-engineering, SOP design")}
+{cv_field("Ops &amp; analytics", "HubSpot, Chargebee, Vitally, Google Sheets (advanced), reporting automation, Apps Script")}
+{cv_field("Tools", "Excel (advanced), Google Sheets automation, Pipedream, Zapier, Postman, Amplitude, AI and automation workflows")}
+{cv_field("Compliance &amp; risk", "Audit tracking, KPI reporting, data governance")}
+{cv_field("Team", "Hiring, goal setting, cross-functional collaboration")}
+{cv_field("Soft skills", "Communication, teamwork, analytical thinking, fast learner")}
+{cv_field("Code", "Python, SQL")}
+</div></div>
+
+<div class="fsec"><h3 class="fh"><b>6.</b> Volunteering &amp; leadership</h3>
+{cv_rec("2017", "Led a team of 7 photographers documenting the event", "SICC Convention")}
+{cv_rec("2016", "One of a 10-member cultural team running the annual college fest", "SAI UNWIND")}
+{cv_rec("2014 &ndash; 15", "Core member, organising charitable initiatives", "Interact Club")}
+</div>
+
+<div class="fsec"><h3 class="fh"><b>7.</b> Declaration</h3>
+<div class="sign"><p>The particulars above are true.</p>
+<div><div class="line">Moheet Subudhi</div><span class="k">Signature of applicant</span></div></div>
+</div>
+</div>
+""" + DL
 
 
 def views(A, c):
@@ -732,6 +930,13 @@ given once holds everywhere.</p>
         ]))
 
     v.append(dict(
+        slug="cv", label="Moheet CV", icon="cv",
+        stamp=dict(img="cv/portrait.jpg", text="VERIFIED"),
+        title="My work, so far",
+        lede="Seven roles since 2020, in plain lines.",
+        body=CV))
+
+    v.append(dict(
         slug="parts", label="The seven parts", art="loopring", glyph=None,
         title="The seven parts",
         lede="Six of these seven are not the model. Six of these seven are where things "
@@ -784,15 +989,19 @@ work, and they are all things you control.</p>
         "build": "session talk presentation how to build with ai giveaway pack take home "
                  "seven parts model harness loop mcp skills context memory plain text tonight",
     }
+    KEYWORDS["cv"] = ("cv resume résumé experience work history employment career hire "
+                      "download pdf mailmodo bizarc v do hosting molson coors education skills "
+                      "osda odisha government lpg neoteric mahabeer iwd vitally hubspot")
     def index(item):
         """A node is searchable on its own words plus, if it is a folder, its children's."""
         kids = item.get("children", [])
         for k in kids:
             index(k)
-        words = " ".join([item["title"], item["lede"],
-                          re.sub(r"<[^>]+>", " ", item.get("body", "")),
-                          " ".join(k["find"] for k in kids),
-                          KEYWORDS.get(item["slug"], "")])
+        # Keywords go before the body: the index is cut at 1400 characters, and a long
+        # page would otherwise push them off the end.
+        words = " ".join([item["title"], item["lede"], KEYWORDS.get(item["slug"], ""),
+                          re.sub(r"&[#\w]+;", " ", re.sub(r"<[^>]+>", " ", item.get("body", ""))),
+                          " ".join(k["find"] for k in kids)])
         item["find"] = re.sub(r"\s+", " ", item["label"] + " " + words).strip().lower()[:1400]
 
     # The root is a portfolio. One folder holds everything from the session, in the
@@ -806,6 +1015,7 @@ work, and they are all things you control.</p>
              children=[by[k] for k in ORDER]),
         by["skills"],
         by["projects"],
+        by["cv"],
     ]
     for item in root:
         index(item)
@@ -834,12 +1044,20 @@ def build():
 
     ALL = list(walk(V))
 
+    def art_for(node):
+        """An icon, or for a node that names a stamp, a postage stamp with a photo."""
+        st = node.get("stamp")
+        if st:
+            return (f'<span class="stamp-wrap"><span class="stamp"><img src="{st["img"]}" alt="" draggable="false" '
+                    f'width="350" height="350"><span class="st">{H.escape(st["text"])}</span></span></span>')
+        return f'<span class="ico">{icon_for(node)}</span>'
+
     def tile(path, node, i, parent):
         """Every tile for every folder is rendered once; the poster shows one set."""
         badge = f'<span class="lockmark" aria-label="locked">{I["lock"]}</span>' if node.get("lock") else ""
         return (f'<button class="obj{" locked" if node.get("lock") else ""}" data-go="{path}" data-parent="{parent}" '
                 f'data-find="{H.escape(node.get("find", ""))}">'
-                f'<span class="thumb"><span class="ico">{icon_for(node)}</span>{badge}</span>'
+                f'<span class="thumb{" has-stamp" if node.get("stamp") else ""}">{art_for(node)}{badge}</span>'
                 f'<span class="n">({i + 1:02d})</span>'
                 f'<span class="label">{H.escape(node["label"])} '
                 f'<span class="arrow">&rarr;</span></span></button>')
@@ -1481,6 +1699,9 @@ document.addEventListener("keydown", function (e) {{
 /* Assembled at runtime so the address is not sitting in the markup for scrapers. */
 const mail = document.getElementById("mail");
 mail.href = "mailto:" + "moheetsubudhi" + "@" + "gmail.com";
+document.querySelectorAll(".js-mail").forEach(function (a) {{
+  a.href = mail.href; a.textContent = mail.href.slice(7);
+}});
 
 /* ---------- accent ----------
    Only the accent moves; paper and ink stay put, so contrast holds whichever is
