@@ -1321,7 +1321,9 @@ const objs = [...hub.querySelectorAll(".obj")];
 const resultsEl = document.getElementById("results");
 const searchEl = document.querySelector(".search");
 const searchHome = searchEl.parentNode, searchAfter = searchEl.nextSibling;
-const topbarInner = document.querySelector(".topbar .inner");
+/* The opened page's own bar. The folder poster has a top bar too, earlier in the page
+   and hidden while a page is open, so a bare ".topbar" would pick that one. */
+const topbarInner = document.querySelector("#view .topbar .inner");
 function placeSearch(open) {
   const want = open ? topbarInner : searchHome;
   if (searchEl.parentNode === want) return;
