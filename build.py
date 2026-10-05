@@ -960,22 +960,100 @@ classifying, redacting, and first drafts you were going to rewrite anyway.</p>
 the better model. Most of your data never leaves, and you still get a frontier answer where it
 counts. That is the pattern worth stealing, and the one that gets signed off.</p>"""))
 
+    # Every project page has the same four parts, so they read as a set. A part with
+    # nothing true to say is left out rather than filled.
+    def project(problem, did, result, tools="", links=""):
+        out = f"<h3>The problem</h3>\n<p>{problem}</p>\n<h3>What I did</h3>\n{did}\n"
+        out += f"<h3>What came of it</h3>\n<p>{result}</p>\n"
+        if tools:
+            out += f"<h3>Tools</h3>\n<p>{tools}</p>\n"
+        return out + (f"<p>{links}</p>" if links else "")
+
     v.append(dict(
         slug="projects", label="My projects", art=None, icon="projects",
-        title="Things I am building",
-        lede="Built to scratch an itch.",
+        title="Things I have built",
+        lede="Mine, and for clients.",
         children=[
             dict(slug="ownr", label="Ownr", icon="memory",
                  title="Ownr",
-                 lede="One memory, shared across every AI tool you use.",
-                 body="""
-<p>Every assistant keeps its own memory in its own format, locked to itself. Correct something
-in one and the others never hear about it, so you re-explain the same context on Monday that
-you explained on Friday.</p>
-<p>Ownr is one memory that sits outside all of them. Your standing rules, your projects, the
-decisions you have already made and why. Any tool can read it and write to it, so a correction
-given once holds everywhere.</p>
-<p><a class="btn primary" href="https://ownr.digital/#waitlist" target="_blank" rel="noopener">Join the waitlist</a>\n<a class="btn" href="https://ownr.digital" target="_blank" rel="noopener">ownr.digital</a></p>"""),
+                 lede="One memory. Every AI. Yours.",
+                 body=project(
+                     "Every AI keeps its own memory. Tell ChatGPT something on your phone and "
+                     "Claude on your laptop has never heard it, so you end up as the messenger "
+                     "between them.",
+                     "<p>I am building one memory that you own. ChatGPT, Claude, Cursor, Claude "
+                     "Code, Codex and your own agents all read it and write to it, so something "
+                     "said once holds everywhere.</p>\n"
+                     "<p>You never maintain it. It fills itself from what you already do: the "
+                     "decisions you make, the work you finish, the people you deal with. Only "
+                     "derived, domain-level or hashed data leaves your device; raw URLs, page "
+                     "titles, keystrokes and content never do. Each app sees only what you allow, "
+                     "every call is logged, and a revoked app is refused on its next call.</p>",
+                     "It already runs my own work across Claude, Codex and an agent on a server. "
+                     "Early access is open.",
+                     "MCP, Python, Docker, Airflow",
+                     '<a class="btn primary" href="https://ownr.digital/#waitlist" target="_blank" '
+                     'rel="noopener">Join the waitlist</a>\n<a class="btn" href="https://ownr.digital" '
+                     'target="_blank" rel="noopener">ownr.digital</a>')),
+            dict(slug="vdo-hosting", label="VDO Hosting", icon="video",
+                 title="VDO Hosting",
+                 lede="Virtual events for the people the lockdown left behind.",
+                 body=project(
+                     "When India locked down in 2020, meetings, ceremonies and AGMs had to move "
+                     "online overnight. Many of the people running them, most over 30, had never "
+                     "hosted anything online.",
+                     "<p>I founded VDO Hosting in May 2020 and ran it until February 2021 with a "
+                     "team of 10. We ran the whole event for the client: virtual events, talk "
+                     "shows, award ceremonies, corporate meetings, bank AGMs, live streams and "
+                     "online exams, with the design, editing and broadcast work around them.</p>",
+                     "500+ events and 60,000+ participants, for clients across India.",
+                     "Video conferencing and live-streaming platforms, video editing, graphic "
+                     "design")),
+            dict(slug="mahabeer", label="Mahabeer Inventory", icon="warehouse",
+                 title="Mahabeer Inventory",
+                 lede="An inventory app that tripled a rental business\u2019s orders.",
+                 body=project(
+                     "Mahabeer rents steel shuttering rods to construction sites and events from "
+                     "three warehouses, two in Delhi and one in Punjab. Stock lived in Excel, "
+                     "interstate E-way bills were done by hand, and rods going out and coming back "
+                     "were hard to track.",
+                     "<p>At Bizarc Ventures I audited their 120+ warehouse transactions a day, then "
+                     "we built a custom app around what they actually do: live stock across all "
+                     "three warehouses, orders allocated from one stock table, order history and "
+                     "tracking, and E-way bills generated for interstate moves.</p>",
+                     "Orders went from 30 to 90 a month within four months. Order accuracy rose "
+                     "from 82% to 97%, billing compliance risk fell by 90%, and missing rods "
+                     "now show up instead of going unaccounted for.")),
+            dict(slug="royal-living-tangi", label="Royal Living Tangi", icon="phone",
+                 title="Royal Living Tangi",
+                 lede="Cleaning a 34,000-customer gas agency database, by phone and on foot.",
+                 body=project(
+                     "Royal Living Tangi, an HPCL LPG agency, serves 34,000 customers. About 1% "
+                     "skipped booking and phoned the delivery staff directly, so orders and routes "
+                     "could not be tracked, and the customer records had drifted.",
+                     "<p>At Bizarc Ventures I cleaned the database first: duplicates merged, "
+                     "conflicts resolved. Then I led a remote team of 7, hired from the customers' "
+                     "own areas so language was never a barrier, to call customers, verify their "
+                     "details and show them online booking and the PMUY scheme. GSM-based outbound "
+                     "calling replaced the old IVRS line.</p>\n"
+                     "<p>For customers a call could not reach, we worked with self-help groups and "
+                     "Mission Shakti groups to verify them in person.</p>",
+                     "In two months, 14,500 records cleaned and 5,027 addresses verified, with "
+                     "digital bookings projected to rise 12&ndash;15%.")),
+            dict(slug="iwd-app", label="IWD Secretary App", icon="app",
+                 title="IWD Secretary App",
+                 lede="Taking 2,400+ women changemakers from paper to an app.",
+                 body=project(
+                     "Inner Wheel District 301 in Delhi has 2,400+ members across 60+ clubs, "
+                     "running events and projects all year, with no system to count them: who "
+                     "benefited, how many hours members gave, what each project cost.",
+                     "<p>At Bizarc Ventures we built the IWD Secretary App with them. Every club's "
+                     "projects sit in one place, each tracking beneficiaries, members' hours and "
+                     "spend. The monthly and yearly reports for the international body are "
+                     "generated automatically, and finance reports export as PDF.</p>",
+                     "Every club onboarded. Reporting that was manual is now automatic and "
+                     "audit-ready, and anyone outside the club can see the work the district "
+                     "does.")),
         ]))
 
     v.append(dict(
@@ -1033,8 +1111,12 @@ work, and they are all things you control.</p>
         "local": "ollama offline privacy compliance laptop cpu ram gpu open source weights licence llama qwen gemma mistral phi deepseek gpt-oss hugging face lm studio jan",
         "parts": "model harness loop mcp skills context memory overview recap formula summary",
         "slides": "slides deck presentation pin code locked session talk powerpoint",
-        "projects": "projects ownr portfolio work building side product repo "
-                    "things i am building side project unfinished",
+        "projects": "projects ownr portfolio work building side product repo client case study "
+                    "things i have built side project",
+        "vdo-hosting": "vdo hosting video virtual events webinar zoom lockdown covid founder startup",
+        "mahabeer": "mahabeer inventory warehouse stock e-way bill app rental steel bizarc",
+        "royal-living-tangi": "royal living tangi lpg gas hpcl database data cleaning pmuy ivrs gsm bizarc",
+        "iwd-app": "iwd inner wheel secretary app ngo club reports women bizarc",
         "build": "session talk presentation how to build with ai giveaway pack take home "
                  "seven parts model harness loop mcp skills context memory plain text tonight",
     }
