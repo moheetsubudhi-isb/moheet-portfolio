@@ -145,8 +145,12 @@ These came from repeated corrections. Treat them as requirements.
 ## Locking a page or folder behind a PIN
 
 A node can carry `lock=dict(unlock="deck", hint="...")`. A locked tile then opens a pop-up asking
-for a four-digit PIN instead of a page. Today only "The slides" uses it, and the check is a
-server function elsewhere (a Vercel project, `api/unlock.js`) that is **not in this repo**. A
+for a four-digit PIN instead of a page. Two nodes use it, with the same PIN: "The slides"
+(`unlock="deck"`, which leaves for the deck) and "Business Analytics Skills" (`unlock="open"`,
+which opens the page here and keeps it open for the visit). The check is a server function
+elsewhere (a Vercel project, `api/unlock.js`) that is **not in this repo**. That server only
+answers pages on an allowed origin (moheetsubudhi.com, the github.io address, and the staging
+previews), so a new domain has to be added there or every PIN will fail. A
 locked folder would need its own server-side check; the pop-up is reusable, the unlock is not.
 Do not invent a client-side PIN: it would sit in the page source and protect nothing.
 

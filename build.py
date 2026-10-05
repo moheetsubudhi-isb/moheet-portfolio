@@ -870,6 +870,8 @@ ownr.digital &rarr;</a></p>
     v.append(dict(
         slug="skills", label="Business Analytics Skills", art="skill", glyph=None,
         title="Business Analytics Skills",
+        # Same PIN as the slides. A right answer opens the page here instead of leaving.
+        lock=dict(unlock="open", hint="Four digits. Ask me for it."),
         lede="Thirty-six skills across machine learning, statistics, optimisation, pricing, "
              "decision analysis, data engineering and recommenders.",
         body=f"""
@@ -1270,8 +1272,25 @@ const UNLOCKERS = {{
     const d = await r.json();
     location.href = DECK_API + "/api/deck?t=" + encodeURIComponent(d.token);
     return true;
+  }},
+  /* Same check, but a right answer opens the locked page here and keeps it open for
+     the rest of the visit. A deterrent, like the slides: the server holds the PIN. */
+  open: async function (pin, path) {{
+    const r = await fetch(DECK_API + "/api/unlock", {{
+      method: "POST", headers: {{ "Content-Type": "application/json" }},
+      body: JSON.stringify({{ pin: pin }})
+    }});
+    if (!r.ok) return false;
+    unlocked[path] = true;
+    try {{ sessionStorage.setItem("unlocked", JSON.stringify(unlocked)); }} catch (e) {{}}
+    closeLock();
+    go(path);
+    return true;
   }}
 }};
+let unlocked = {{}};
+try {{ unlocked = JSON.parse(sessionStorage.getItem("unlocked") || "{{}}") || {{}}; }} catch (e) {{}}
+function isLocked(path) {{ return !!LOCKS[path] && !unlocked[path]; }}
 const scrim = document.getElementById("pinScrim"), pinIn = document.getElementById("pinIn"),
       pinMsg = document.getElementById("pinMsg"), cellsEl = document.querySelector(".cells"),
       cellEls = [...document.querySelectorAll(".cell")];
@@ -1305,10 +1324,10 @@ async function trySubmit() {{
   if (pinBusy || pinIn.value.length !== 4 || !pinFor) return;
   pinBusy = true; pinMsg.textContent = "Checking\u2026";
   let ok = false;
-  try {{ ok = await UNLOCKERS[LOCKS[pinFor].unlock](pinIn.value); }}
+  try {{ ok = await UNLOCKERS[LOCKS[pinFor].unlock](pinIn.value, pinFor); }}
   catch (err) {{ pinMsg.textContent = "Could not reach the server. Try again."; pinBusy = false; return; }}
   pinBusy = false;
-  if (ok) {{ pinMsg.textContent = "Opening\u2026"; return; }}
+  if (ok) {{ pinMsg.textContent = scrim.hidden ? "" : "Opening\u2026"; return; }}
   pinMsg.textContent = "Not that one.";
   cellsEl.classList.remove("bad"); void cellsEl.offsetWidth; cellsEl.classList.add("bad");
   pinIn.value = ""; paintCells();
@@ -1445,7 +1464,7 @@ function showFolder(path, animate) {{
 function apply(raw, animate) {{
   let path = resolvePath(raw);
   /* A pasted link to a locked node shows the folder it sits in and asks for the PIN. */
-  if (path && LOCKS[path]) {{
+  if (path && isLocked(path)) {{
     const lockPath = path;
     path = PARENTS[path] || "";
     try {{ history.replaceState(null, "", path ? "#" + path : location.pathname); }} catch (e) {{}}
@@ -1483,7 +1502,7 @@ function setUrl(slug) {{
 }}
 
 function go(slug) {{
-  if (slug && LOCKS[slug]) {{ openLock(slug); return; }}
+  if (slug && isLocked(slug)) {{ openLock(slug); return; }}
   const run = function () {{ setUrl(slug); apply(slug, true); }};
   if (document.startViewTransition &&
       !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {{
