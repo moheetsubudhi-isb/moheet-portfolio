@@ -1040,6 +1040,34 @@ counts. That is the pattern worth stealing, and the one that gets signed off.</p
                      "Mission Shakti groups to verify them in person.</p>",
                      "In two months, 14,500 records cleaned and 5,027 addresses verified, with "
                      "digital bookings projected to rise 12&ndash;15%.")),
+            dict(slug="osda", label="OSDA", icon="govt",
+                 title="OSDA, Government of Odisha",
+                 lede="A \u20b960-lakh digital transformation, built for 12,000+ users.",
+                 body=project(
+                     "OSDA, part of the Government of Odisha, needed its digital platform rebuilt "
+                     "for the 12,000+ people who use it: more transparent, and within government "
+                     "compliance rules.",
+                     "<p>At Bizarc Ventures I directed the &#8377;60-lakh project, keeping product "
+                     "decisions in line with the government's compliance goals. We launched "
+                     "process automation features: a modular CMS, push notifications and "
+                     "analytics dashboards.</p>",
+                     "More transparency for 12,000+ users, on a platform built within the "
+                     "government's compliance rules.")),
+            dict(slug="neoteric", label="Neoteric", icon="megaphone",
+                 title="Neoteric",
+                 lede="From an idea to a working consultancy, and a 2,50,000-impression campaign.",
+                 body=project(
+                     "Neoteric was a new consultancy with good ideas and little else: no aligned "
+                     "team, no way of running day to day, no brand, and a government PR campaign "
+                     "to deliver.",
+                     "<p>At Bizarc Ventures we built the business around the idea. We helped hire "
+                     "and align the team, wrote the standard operating procedures, and automated "
+                     "the routine work so they could focus on clients. We wrote the brand story and "
+                     "designed the identity: logo, colours and imagery.</p>\n"
+                     "<p>I designed and ran the government PR campaign with a 45-member team, "
+                     "standard SOPs and compliance checks on every outreach step.</p>",
+                     "A consultancy with a team, a way of working and a brand of its own, and a "
+                     "campaign that reached 2,50,000+ impressions.")),
             dict(slug="iwd-app", label="IWD Secretary App", icon="app",
                  title="IWD Secretary App",
                  lede="Taking 2,400+ women changemakers from paper to an app.",
@@ -1117,6 +1145,8 @@ work, and they are all things you control.</p>
         "mahabeer": "mahabeer inventory warehouse stock e-way bill app rental steel bizarc",
         "royal-living-tangi": "royal living tangi lpg gas hpcl database data cleaning pmuy ivrs gsm bizarc",
         "iwd-app": "iwd inner wheel secretary app ngo club reports women bizarc",
+        "osda": "osda odisha government digital transformation cms dashboards compliance bizarc",
+        "neoteric": "neoteric consultancy pr campaign government branding brand identity sop bizarc",
         "build": "session talk presentation how to build with ai giveaway pack take home "
                  "seven parts model harness loop mcp skills context memory plain text tonight",
     }
