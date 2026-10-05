@@ -584,6 +584,24 @@ html.anim #hub.scatter .obj{animation-name:settle}
   transform:rotate(-2deg);transform-origin:left bottom}
 .sign .k{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;
   color:var(--faint)}
+/* ---------- project diagrams ---------- */
+.arch{display:grid;gap:8px}
+.arch-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:8px}
+.node{border:1px solid var(--line-2);border-radius:var(--r);padding:11px 13px;background:var(--paper)}
+.node b{display:block;font-family:var(--display);font-weight:600;font-size:15px;color:var(--ink);
+  letter-spacing:-.01em}
+.node span{display:block;margin-top:3px;font-size:13.5px;line-height:1.45;color:var(--muted)}
+.node.strong{border-color:var(--accent);background:var(--accent-soft)}
+.node.guard{border-style:dashed}
+.arch .down{text-align:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--faint)}
+.steps{list-style:none;counter-reset:step;margin-top:16px}
+.steps li{counter-increment:step;position:relative;padding:8px 0 8px 36px;color:var(--muted);
+  font-size:clamp(15px,3.6vw,16.5px);line-height:var(--rule)}
+.steps li::before{content:counter(step);position:absolute;left:0;top:10px;width:24px;height:24px;
+  border-radius:999px;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);
+  font-size:12px;line-height:22px;text-align:center}
+
 /* ---------- phones ----------
    Below 16px, iOS Safari zooms the whole page when an input takes focus. */
 @media (max-width:719px), (pointer:coarse){
@@ -962,8 +980,8 @@ counts. That is the pattern worth stealing, and the one that gets signed off.</p
 
     # Every project page has the same four parts, so they read as a set. A part with
     # nothing true to say is left out rather than filled.
-    def project(problem, did, result, tools="", links=""):
-        out = f"<h3>The problem</h3>\n<p>{problem}</p>\n<h3>What I did</h3>\n{did}\n"
+    def project(problem, did, result, tools="", links="", extra=""):
+        out = f"<h3>The problem</h3>\n<p>{problem}</p>\n<h3>What I did</h3>\n{did}\n{extra}"
         out += f"<h3>What came of it</h3>\n<p>{result}</p>\n"
         if tools:
             out += f"<h3>Tools</h3>\n<p>{tools}</p>\n"
@@ -974,6 +992,58 @@ counts. That is the pattern worth stealing, and the one that gets signed off.</p
         title="Things I have built",
         lede="Mine, and for clients.",
         children=[
+            dict(slug="ishaan", label="Ishaan", icon="robot",
+                 title="Ishaan, an ops agent",
+                 lede="An always-on teammate in Slack that runs customer success ops at Mailmodo, and checks its own work.",
+                 body=project(
+                     "Customer success work at Mailmodo spans many systems: account health, "
+                     "billing, the product knowledge base, Slack. Much of it is routine and daily, "
+                     "and it has to be right every time, because some of it reaches customers.",
+                     "<p>I built Ishaan: two agents sharing one brain. Claude Code is the one I "
+                     "work with directly. Hermes runs always on as Ishaan in Slack, where the team "
+                     "asks it questions and where it posts its scheduled work.</p>",
+                     "19 scheduled jobs run without anyone at a keyboard: a morning health check, "
+                     "the daily customer success digest, a pending-invoice summary, a twice-daily "
+                     "brain refresh, a weekly knowledge-base refresh, and the checks that watch "
+                     "all of them. The daily digest went from 3,487 words to about 195. Tool "
+                     "connection errors went from 18.9 an hour to zero. Ishaan has run since July "
+                     "2026 and proposes its own new checks every Monday.",
+                     "Hermes Agent, Claude Code, MCP, Python, Slack Block Kit, Supabase vector "
+                     "search, Composio, SQLite, launchd, git",
+                     extra="""
+<h3>How it is built</h3>
+<div class="fig"><div class="arch">
+<div class="arch-row"><div class="node"><b>The team</b><span>asks Ishaan in Slack</span></div><div class="node"><b>Me</b><span>works in Claude Code</span></div></div>
+<div class="down">&darr;</div>
+<div class="arch-row"><div class="node strong"><b>Ishaan</b><span>Hermes, always on. 19 scheduled jobs, 13 plugins.</span></div><div class="node strong"><b>Claude Code</b><span>Interactive, for the work I do by hand.</span></div></div>
+<div class="down">&darr; both read and write &darr;</div>
+<div class="arch-row"><div class="node"><b>One brain</b><span>Customer and product pages, a knowledge graph, and a vector knowledge base of the help centre.</span></div><div class="node"><b>Shared memory</b><span>Decisions and context that carry across sessions and machines, through Ownr.</span></div><div class="node"><b>Tools over MCP</b><span>Customer success, billing, CRM, analytics, Slack and email.</span></div></div>
+<div class="down">&darr; watched by &darr;</div>
+<div class="arch-row"><div class="node guard"><b>The guard</b><span>A watchdog restarts it within 5 seconds. Self-heal re-tests every tool every 30 minutes. Invariant checks run each morning. Every real tool call is recorded, and a drift detector flags when the system doc stops matching the machine.</span></div></div>
+</div><div class="cap">Two agents, one brain, and a guard that watches both</div></div>
+
+<h3>The loop that keeps it honest</h3>
+<p>Restarting what breaks is self-healing. Learning what to watch is the harder part. Every
+Monday Ishaan reviews its own week and asks one question: what happened that none of the
+existing checks would have caught?</p>
+<ol class="steps">
+<li>A script gathers the evidence with no AI at all: tool-call outcomes, job status, new error types, what changed in git. The cost is fixed however bad the week was.</li>
+<li>The model reads it and proposes at most three new checks.</li>
+<li>I approve or reject each one. Nothing applies itself.</li>
+<li>An approved check goes in with a git snapshot, a syntax check and a full run of the guard, and is reverted automatically if anything breaks.</li>
+</ol>
+<p>Its first run caught a bug in its own proposals: all three described a time window but
+checked the whole log, so they would have stayed red forever. They were rejected, and that
+rule is now enforced at the moment a check is proposed.</p>
+
+<h3>What it taught me</h3>
+<ul>
+<li><strong>A check that passes is not a check that works.</strong> Every incident had a check that ran green while watching the wrong layer: a server that connected while every tool call on it failed, a restart that quietly did nothing in 1,900+ runs. Now the outcome of every real call is recorded, and idle never counts as healthy.</li>
+<li><strong>Write decisions down where the next reader looks.</strong> A cost decision lived in one agent&rsquo;s memory only, so the next session re-derived it and called it a bug. Decisions now go into the shared memory and the system doc.</li>
+<li><strong>Your own instructions are untrusted input.</strong> The agent&rsquo;s safety scanner blocked its own rulebook twice: once for a warning that quoted the command it warned against, once for a rule that read like hiding something. Rules now say what to do, not what to hide, and are scanned when they are edited.</li>
+<li><strong>Measure before you optimise.</strong> A token-saving proxy made Ishaan about four times more expensive per conversation, because it broke prompt caching for that kind of traffic. It stays off, on purpose.</li>
+</ul>
+""")),
             dict(slug="ownr", label="Ownr", icon="memory",
                  title="Ownr",
                  lede="One memory. Every AI. Yours.",
@@ -1145,6 +1215,7 @@ work, and they are all things you control.</p>
         "mahabeer": "mahabeer inventory warehouse stock e-way bill app rental steel bizarc",
         "royal-living-tangi": "royal living tangi lpg gas hpcl database data cleaning pmuy ivrs gsm bizarc",
         "iwd-app": "iwd inner wheel secretary app ngo club reports women bizarc",
+        "ishaan": "ishaan hermes agent ai agent mailmodo slack automation ops customer success self-healing self-review claude code mcp",
         "osda": "osda odisha government digital transformation cms dashboards compliance bizarc",
         "neoteric": "neoteric consultancy pr campaign government branding brand identity sop bizarc",
         "build": "session talk presentation how to build with ai giveaway pack take home "
