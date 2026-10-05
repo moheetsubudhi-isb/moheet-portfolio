@@ -287,11 +287,13 @@ body.open #view{display:block}
 #view{padding-top:0}
 .view-body p,.view-body li,.notes li{line-height:var(--rule)}
 .view-body p{font-size:clamp(15px,3.6vw,16.5px)}
-.view-head{padding:calc(var(--rule) * 2) 0 0}
+.view-head{padding-top:calc(var(--rule) * 2)}
 .view-head .n{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent)}
 .view-head h2{margin-top:12px}
 .view-head .lead{margin-top:16px}
-.view-body{padding:var(--rule) 0 clamp(50px,11vw,86px)}
+/* Top and bottom only: these share an element with .wrap, whose side padding
+   keeps text off the screen edge on a phone. */
+.view-body{padding-top:var(--rule);padding-bottom:clamp(50px,11vw,86px)}
 .view-body > * + *{margin-top:var(--rule)}
 
 /* ---------- shared blocks ---------- */
@@ -525,6 +527,51 @@ html.anim #hub.scatter .obj{animation-name:settle}
   transform:rotate(-2deg);transform-origin:left bottom}
 .sign .k{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;
   color:var(--faint)}
+/* ---------- phones ----------
+   Below 16px, iOS Safari zooms the whole page when an input takes focus. */
+@media (max-width:719px), (pointer:coarse){
+  .search input,.topbar .search input{font-size:16px}
+}
+/* Fingers, not cursors: every control gets at least a 40px target. The swatches
+   keep their size and grow an invisible hit area instead. */
+@media (pointer:coarse){
+  .back,.copy,.tab,.reset{min-height:40px}
+  /* The taller back pill must not make the bar taller, or a full folder scrolls. */
+  .topbar .inner{padding-top:7px;padding-bottom:7px}
+  #chrome .swatches{gap:12px}
+  .sw{position:relative}
+  .sw::after{content:"";position:absolute;inset:-12px -6px}
+}
+/* The page is laid out under the notch and home bar (viewport-fit=cover), so keep
+   the edges and the contact row clear of them. */
+body{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+#chrome{padding-bottom:calc(clamp(14px,2.4vh,26px) + env(safe-area-inset-bottom,0px))}
+/* A phone with its browser bars showing is short. Tighten the poster so a full
+   folder and the contact row still fit one screen: the same rules at every level,
+   just less air. */
+@media (max-width:719px){
+  .contact a{padding:8px 11px;gap:6px}
+  #chrome{padding-top:10px}
+  #chrome .row{gap:8px}
+}
+@media (max-width:719px) and (max-height:760px){
+  .obj .n{display:none}
+  .poster-title .sub{margin-top:6px}
+  .search{margin-top:10px}
+  .search .count{margin-top:4px;min-height:0}
+  .objects,.objects.many{margin-top:8px}
+  #hub{padding-top:8px;padding-bottom:6px}
+}
+@media (max-width:719px) and (max-height:680px){
+  .objects.many .obj .thumb{max-height:52px}
+}
+/* Below the scatter width the tiles are a grid and cannot be dragged, so the reset
+   and the drag hint have nothing to act on, and the corner would sit on the swatches. */
+@media(max-width:849px){.corner{display:none}}
+@media(max-width:559px){
+  .f .k,.photo .k,.sign .k{font-size:10px}
+  .form-head{font-size:10.5px}
+}
 </style>
 </head><body>
 
