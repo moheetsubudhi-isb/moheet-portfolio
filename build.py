@@ -629,7 +629,7 @@ body{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inse
   #chrome{padding-top:10px}
   #chrome .row{gap:8px}
 }
-@media (max-width:719px) and (max-height:760px){
+@media (max-width:719px) and (max-height:900px){
   .obj .n{display:none}
   .poster-title .sub{margin-top:6px}
   .search{margin-top:10px}
@@ -637,8 +637,12 @@ body{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inse
   .objects,.objects.many{margin-top:8px}
   #hub{padding-top:8px;padding-bottom:6px}
 }
+@media (max-width:719px) and (max-height:900px){
+  .objects.many .obj .thumb{max-height:44px}
+}
 @media (max-width:719px) and (max-height:680px){
-  .objects.many .obj .thumb{max-height:52px}
+  .objects.many .obj .thumb{max-height:38px}
+  .objects.many{gap:4px}
 }
 /* Below the scatter width the tiles are a grid and cannot be dragged, so the reset
    and the drag hint have nothing to act on, and the corner would sit on the swatches. */
@@ -1044,6 +1048,110 @@ rule is now enforced at the moment a check is proposed.</p>
 <li><strong>Measure before you optimise.</strong> A token-saving proxy made Ishaan about four times more expensive per conversation, because it broke prompt caching for that kind of traffic. It stays off, on purpose.</li>
 </ul>
 """)),
+            dict(slug="outreach", label="Outreach Console", icon="send",
+                 title="Outreach Console",
+                 lede="Cold outbound for Mailmodo, from strategy to reply, with the expensive mistakes made impossible.",
+                 body=project(
+                     "Cold email is easy to start and easy to wreck. One careless run can burn a "
+                     "sending domain, mail someone twice, mail someone who opted out, or send "
+                     "made-up details about a prospect. And cold contacts must never leak into "
+                     "Mailmodo itself, which is opt-in only.",
+                     "<p>I built an internal web app at Mailmodo where one person runs a whole "
+                     "campaign: who to target, a verified list from Apollo or a CSV, the copy, a "
+                     "personal opener for each lead, a paced multi-touch sequence, reply triage, "
+                     "and handing anyone who opts in over to Mailmodo nurture. AI drafts the "
+                     "strategy, the copy and the openers. The rules decide what is sent.</p>\n"
+                     "<p>The same motion also runs from the terminal as an SDR agent on Hermes and "
+                     "Claude Code, following 27 playbooks across 8 stages.</p>",
+                     "An internal MVP, handed over to the tech team for hosting. 478 tests pass on "
+                     "file storage and 472 on Postgres, with the live-send path tested against a "
+                     "fake mail server. It moved from JSON files to Postgres in September 2026. "
+                     "The first live send waits on a properly warmed mailbox, by design.",
+                     "Node 22 with four dependencies, Postgres, SMTP and IMAP, Apollo, Claude, "
+                     "OpenAI or OpenRouter (pluggable), Docker, Hermes, Claude Code",
+                     extra="""
+<h3>How it is built</h3>
+<div class="fig"><div class="arch">
+<div class="arch-row"><div class="node"><b>The console</b><span>One operator, one screen, the whole campaign.</span></div><div class="node"><b>The SDR agent</b><span>The same motion from the terminal, on Hermes and Claude Code.</span></div></div>
+<div class="down">&darr; same rules &darr;</div>
+<div class="arch-row"><div class="node strong"><b>Strategy &rarr; list &rarr; copy</b><span>Who to target, verified contacts, AI-drafted copy and openers.</span></div><div class="node strong"><b>Pre-flight &rarr; send</b><span>Every email checked, then sent 2 to 8 minutes apart, inside the recipient&rsquo;s working hours.</span></div><div class="node strong"><b>Replies &rarr; nurture</b><span>Each mailbox read over IMAP, every reply routed, opt-ins handed to Mailmodo.</span></div></div>
+<div class="down">&darr; stored in &darr;</div>
+<div class="arch-row"><div class="node"><b>Postgres, 20 tables</b><span>A send ledger, an atomic daily cap and a run lock, so two runs can never overlap.</span></div><div class="node guard"><b>Autopilot</b><span>Sends follow-ups on their day once armed. Change the copy, the list or the mailbox and it switches itself off.</span></div></div>
+</div><div class="cap">Two ways in, one set of rules</div></div>
+
+<h3>Rules written into the code</h3>
+<p>Not guidelines. Each one is enforced in code, and a change that weakens one is treated as
+a bug.</p>
+<ul>
+<li><strong>No invented contact data.</strong> A field that cannot be verified stays blank.</li>
+<li><strong>Cold and opt-in never mix.</strong> Only someone who replied positively reaches Mailmodo.</li>
+<li><strong>A mailbox warms for 14 days</strong> before it sends anything cold.</li>
+<li><strong>At most 100 emails per mailbox per day</strong>, claimed before every send, across all campaigns.</li>
+<li><strong>Dry run by default.</strong> Live sending needs the words <code>CONFIRM SEND</code>, typed.</li>
+<li><strong>Nobody gets the same step twice</strong>, even after a crash, and nobody who replied gets a follow-up.</li>
+</ul>
+
+<h3>What it taught me</h3>
+<ul>
+<li><strong>Make the expensive mistakes impossible, not discouraged.</strong> A warning gets clicked past. A rule in code does not.</li>
+<li><strong>Test the crash, not just the happy path.</strong> The worst bug found was a crash after every first email that would have mailed people again on restart. A ledger written right after each send now closes it.</li>
+<li><strong>Agents arrive with no context, so the repo has to explain itself.</strong> Every kind of file has one home, every folder has a README, and the rules live in one document that binds people and agents alike.</li>
+</ul>
+""")),
+            dict(slug="leaderboard", label="AI model leaderboard", icon="ranking",
+                 title="BestHunt AI model leaderboard",
+                 lede="Every AI model, ranked by what it costs to do real work.",
+                 body=project(
+                     "AI model leaderboards are written for developers: dollars per million tokens, "
+                     "context windows, quantization. besthunt.ai serves marketing, sales and ops "
+                     "teams, who want to know which model does their job well for the least "
+                     "money, and its promise is no pay-to-rank.",
+                     "<p>I built the leaderboard at Mailmodo for besthunt.ai: a data pipeline and a "
+                     "static site. The pipeline pulls every model&rsquo;s price, hosts and benchmark "
+                     "scores from one public source, works out which models are the best value at "
+                     "their quality, and turns token maths into jobs a team recognises.</p>",
+                     "Live, and refreshed every Monday through the gate. It tracks 400+ priced "
+                     "models, ranks about 150 on quality, prices six everyday workloads for each, "
+                     "and publishes a changelog with RSS and the full dataset as CSV and JSON. The "
+                     "headline finding: 150 of 157 models cost more than an equally capable "
+                     "option.",
+                     "Python, Next.js (static export), the OpenRouter API, launchd, Vercel, GitHub",
+                     '<a class="btn primary" href="https://besthunt-leaderboard.vercel.app" '
+                     'target="_blank" rel="noopener">See it live</a>',
+                     extra="""
+<h3>How it is built</h3>
+<div class="fig"><div class="arch">
+<div class="arch-row"><div class="node"><b>One public source</b><span>OpenRouter: every model&rsquo;s catalogue entry, per-host prices and uptime, and two benchmark families. No API keys.</span></div></div>
+<div class="down">&darr; every Monday &darr;</div>
+<div class="arch-row"><div class="node strong"><b>Build</b><span>Pull, enrich per host, and find the best-value models at each quality level.</span></div><div class="node strong"><b>Gate</b><span>Twelve checks against the live data. A failure restores yesterday&rsquo;s files.</span></div><div class="node strong"><b>Publish</b><span>Snapshot, changelog, RSS, and CSV and JSON downloads.</span></div></div>
+<div class="down">&darr; becomes &darr;</div>
+<div class="arch-row"><div class="node"><b>A static site</b><span>The ranking, a page per model, the best model for each use case, findings, a changelog, the dataset and an embed.</span></div></div>
+</div><div class="cap">One source in, one checked dataset out</div></div>
+
+<h3>The translation layer</h3>
+<p>The data is the same as any developer leaderboard. The product is what it says to
+someone who does not think in tokens.</p>
+<ul>
+<li><code>$0.15 / 1M input tokens</code> becomes <strong>$0.23 to write 1,000 marketing emails</strong>.</li>
+<li><code>context 1,048,576 tokens</code> becomes <strong>reads about 1,500 pages at once</strong>.</li>
+<li><code>on_frontier</code> becomes <strong>best value at this quality</strong>.</li>
+<li><code>overpay 117&times;</code> becomes <strong>you are paying 117&times; more than you need to</strong>.</li>
+<li><code>tools: true</code> becomes <strong>can connect to your CRM and other tools</strong>.</li>
+</ul>
+
+<h3>Nothing goes live unchecked</h3>
+<p>New data is compared against what is live before anything is archived. It never drops
+below 150 models, never has a duplicate, never has an unpriced row, cannot shrink by more than
+a quarter, and the median price cannot jump more than five times. Any failure stops the run
+and puts the previous files back. Twelve tests prove each check rejects what it claims to.</p>
+
+<h3>What it taught me</h3>
+<ul>
+<li><strong>Never let an optional field decide who is in.</strong> The ranking once required a quality score. When benchmark coverage in the feed fell from 153 models to 56 in two days, the changelog announced 102 withdrawals, and 101 of them were still on sale. Now price alone decides, a missing score shows as a dash, and a change is reported only when the field exists on both dates.</li>
+<li><strong>One source beats three.</strong> Matching the same model named three different ways is the most expensive part of a build like this. One source that already carries prices, hosts and benchmarks under one id removes it.</li>
+<li><strong>A laptop can keep a schedule.</strong> Not with cron, which skips a job the machine slept through, but with launchd, which runs it the moment the lid opens.</li>
+</ul>
+""")),
             dict(slug="ownr", label="Ownr", icon="memory",
                  title="Ownr",
                  lede="One memory. Every AI. Yours.",
@@ -1216,6 +1324,8 @@ work, and they are all things you control.</p>
         "royal-living-tangi": "royal living tangi lpg gas hpcl database data cleaning pmuy ivrs gsm bizarc",
         "iwd-app": "iwd inner wheel secretary app ngo club reports women bizarc",
         "ishaan": "ishaan hermes agent ai agent mailmodo slack automation ops customer success self-healing self-review claude code mcp",
+        "outreach": "outreach console cold email outbound sdr sales prospecting apollo sequence campaign mailmodo deliverability",
+        "leaderboard": "benchmark benchmarking leaderboard ai models pricing besthunt openrouter llm compare cost ranking",
         "osda": "osda odisha government digital transformation cms dashboards compliance bizarc",
         "neoteric": "neoteric consultancy pr campaign government branding brand identity sop bizarc",
         "build": "session talk presentation how to build with ai giveaway pack take home "
