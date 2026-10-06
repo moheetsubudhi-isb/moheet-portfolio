@@ -1152,6 +1152,76 @@ and puts the previous files back. Twelve tests prove each check rejects what it 
 <li><strong>A laptop can keep a schedule.</strong> Not with cron, which skips a job the machine slept through, but with launchd, which runs it the moment the lid opens.</li>
 </ul>
 """)),
+            dict(slug="lpg-guru", label="LPG Guru", icon="gas",
+                 title="LPG Guru",
+                 lede="One platform to run an LPG gas agency, with an AI assistant on top.",
+                 body=project(
+                     "An HPCL distributor runs a regulated, high-volume business on tools that do "
+                     "not talk to each other. Booking data sits in HPCL&rsquo;s portals; cash, stock, "
+                     "credit and staff sit in registers, Excel, Tally and WhatsApp. Reconciliation "
+                     "is done by hand every day, compliance is chased from lists, calls outside "
+                     "counter hours go unlogged, and answers live with the owner. The owner ends "
+                     "up being the integration layer.",
+                     "<p>At Solarc Ventures we built LPG Guru, a vertical SaaS ERP made only for "
+                     "HPCL LPG distributors. Twelve modules run the agency from one record of its "
+                     "HPCL data: CRM, IVRS, tickets, daily operations, inventory, credit "
+                     "management, accounts, HRMS and payroll, and compliance and licences.</p>\n"
+                     "<p>On top sits LPG Guru AI, a chat portal that brings HPCL&rsquo;s scattered "
+                     "platforms, circulars and scheme rules into one place, so staff ask a question "
+                     "in plain language instead of hunting across portals.</p>\n"
+                     "<p>LPG Guru is independent technology built for distributors. It is not an "
+                     "HPCL product and carries no HPCL endorsement.</p>",
+                     "Live at lpgguru.in, with LPG Guru AI at chat.lpgguru.in. One login, one "
+                     "support line and one bill replace paper registers, Excel trackers, a "
+                     "separate accounting package, an IVR vendor, a bulk messaging tool and staff "
+                     "registers.",
+                     links='<a class="btn primary" href="https://lpgguru.in" target="_blank" '
+                           'rel="noopener">See it live</a>\n<a class="btn" href="https://chat.lpgguru.in" '
+                           'target="_blank" rel="noopener">LPG Guru AI</a>',
+                     extra="""
+<h3>How it is built</h3>
+<div class="fig"><div class="arch">
+<div class="arch-row"><div class="node"><b>The agency&rsquo;s HPCL data</b><span>Consumers and bookings from HPCL and CDCMS. Entered once, reused everywhere.</span></div></div>
+<div class="down">&darr; one record &darr;</div>
+<div class="arch-row"><div class="node strong"><b>Front office</b><span>CRM, IVRS, tickets and consumer campaigns.</span></div><div class="node strong"><b>Operations</b><span>Daily operations, inventory and credit management.</span></div><div class="node strong"><b>Back office</b><span>Accounts, HRMS and payroll, compliance and licences.</span></div><div class="node strong"><b>Knowledge</b><span>LPG Guru AI for HPCL processes, schemes and circulars.</span></div></div>
+<div class="down">&darr; one login &darr;</div>
+<div class="arch-row"><div class="node"><b>The owner and the staff</b><span>Counter, godown, deliveries and the books, all in the same place.</span></div></div>
+</div><div class="cap">Twelve modules, one record of the agency</div></div>
+
+<h3>Problem by problem</h3>
+<ul>
+<li><strong>Fragmented systems.</strong> One consumer, stock and cash record, shared across the agency.</li>
+<li><strong>Manual reconciliation.</strong> Daily entries, accounts and inventory are linked, so the numbers tie out without matching by hand.</li>
+<li><strong>Compliance without tracking.</strong> Dashboards show who is pending for eKYC and inspection, and which licences are due.</li>
+<li><strong>Missed consumer calls.</strong> Every call is answered and logged, and each complaint becomes a ticket tracked to closure.</li>
+<li><strong>Invisible revenue.</strong> Lapsed and due consumers are listed, then reached by WhatsApp, SMS and voice campaigns.</li>
+<li><strong>Scattered knowledge.</strong> One chat answers HPCL process and policy questions.</li>
+</ul>
+
+<h3>Three design choices</h3>
+<ol class="steps">
+<li><strong>HPCL data first.</strong> Built around the data the distributor already has, so adoption does not start with retyping.</li>
+<li><strong>Assisted onboarding.</strong> The team sets the agency up with the distributor instead of leaving it to self-serve.</li>
+<li><strong>Built for the counter.</strong> Screens and terms match what agency staff already use, which keeps training short.</li>
+</ol>
+
+<h3>Why now</h3>
+<p>25,616 PSU LPG distributors serve about 33 crore active domestic customers, and most still
+run the agency itself on paper and generic tools. Compliance went digital before the agency
+did, and oil company portals capture what must be reported upward, not the distributor&rsquo;s
+cash, people or profit. With a fixed commission per cylinder, profit comes from less leakage,
+fewer penalties and faster reconciliation. Packed domestic LPG sales fell 14.1% from April to
+July 2026, so keeping consumers and cutting cost matter more than before.</p>
+<p>The trade-off is deliberate: depth in one oil company&rsquo;s workflows first, at the cost of
+a smaller starting market.</p>
+
+<h3>The test we hold it to</h3>
+<p class="rule">One-stop only counts if the old tool goes.</p>
+<p>If an agency still keeps Tally or a register alongside, LPG Guru is one more system, not the
+only one. Every extra module in use makes the others more accurate, because they all read the
+same data.</p>
+"""
+                 )),
             dict(slug="ownr", label="Ownr", icon="memory",
                  title="Ownr",
                  lede="One memory. Every AI. Yours.",
@@ -1326,6 +1396,7 @@ work, and they are all things you control.</p>
         "ishaan": "ishaan hermes agent ai agent mailmodo slack automation ops customer success self-healing self-review claude code mcp",
         "outreach": "outreach console cold email outbound sdr sales prospecting apollo sequence campaign mailmodo deliverability",
         "leaderboard": "benchmark benchmarking leaderboard ai models pricing besthunt openrouter llm compare cost ranking",
+        "lpg-guru": "lpg guru lpgguru gas agency distributor hpcl erp saas crm ivrs compliance solarc ai chat",
         "osda": "osda odisha government digital transformation cms dashboards compliance bizarc",
         "neoteric": "neoteric consultancy pr campaign government branding brand identity sop bizarc",
         "build": "session talk presentation how to build with ai giveaway pack take home "
