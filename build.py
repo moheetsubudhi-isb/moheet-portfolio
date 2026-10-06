@@ -1224,25 +1224,70 @@ same data.</p>
                  )),
             dict(slug="ownr", label="Ownr", icon="memory",
                  title="Ownr",
-                 lede="One memory. Every AI. Yours.",
+                 lede="A private memory and persona you own, that any AI can plug into.",
                  body=project(
-                     "Every AI keeps its own memory. Tell ChatGPT something on your phone and "
-                     "Claude on your laptop has never heard it, so you end up as the messenger "
-                     "between them.",
-                     "<p>I am building one memory that you own. ChatGPT, Claude, Cursor, Claude "
-                     "Code, Codex and your own agents all read it and write to it, so something "
-                     "said once holds everywhere.</p>\n"
-                     "<p>You never maintain it. It fills itself from what you already do: the "
-                     "decisions you make, the work you finish, the people you deal with. Only "
-                     "derived, domain-level or hashed data leaves your device; raw URLs, page "
-                     "titles, keystrokes and content never do. Each app sees only what you allow, "
-                     "every call is logged, and a revoked app is refused on its next call.</p>",
-                     "It already runs my own work across Claude, Codex and an agent on a server. "
-                     "Early access is open.",
-                     "MCP, Python, Docker, Airflow",
+                     "Every AI keeps its own memory, locked to itself. Tell ChatGPT something on "
+                     "your phone and Claude on your laptop has never heard it, so you repeat "
+                     "yourself and end up as the messenger between your own tools. And the "
+                     "context that would help most, how you actually work, is something no one "
+                     "writes down.",
+                     "<p>I am building ownr: one capture pipeline that produces two things.</p>\n"
+                     "<ul>\n"
+                     "<li><strong>A readable memory.</strong> Projects, decisions, rules and notes, "
+                     "versioned and editable, that any AI agent reads and writes over MCP. "
+                     "ChatGPT, Claude, Cursor, Claude Code, Codex and your own agents all share "
+                     "it, so something said once holds everywhere.</li>\n"
+                     "<li><strong>A behavioural twin.</strong> A persona that quietly learns how "
+                     "you work and what you are likely to do next, inferred from your own device "
+                     "activity rather than typed in.</li>\n"
+                     "</ul>\n"
+                     "<p>Either one alone is a commodity. Both together, local-first, owned by "
+                     "you and portable between models, is the bet. The goal is good context with "
+                     "no curation: the memory fills itself from what you already do.</p>",
+                     "It runs on its own server and carries my own work across Claude, Codex and "
+                     "an always-on agent every day. By mid-September 2026 it held over half a "
+                     "million derived events, 1,699 memories across 45 projects, served 31 MCP "
+                     "tools, and passed 1,796 tests, with 64 of 80 build chunks done. Early "
+                     "access is open.",
+                     "Python, MCP with OAuth 2.1, Postgres with pgvector and row-level security, "
+                     "SQLite, Airflow, Zitadel, Caddy, Cloudflare Tunnel, Docker, Uptime Kuma",
                      '<a class="btn primary" href="https://ownr.digital/#waitlist" target="_blank" '
                      'rel="noopener">Join the waitlist</a>\n<a class="btn" href="https://ownr.digital" '
-                     'target="_blank" rel="noopener">ownr.digital</a>')),
+                     'target="_blank" rel="noopener">ownr.digital</a>',
+                     extra="""
+<h3>How it is built</h3>
+<div class="fig"><div class="arch">
+<div class="arch-row"><div class="node strong"><b>Your machine</b><span>A daemon with seven collectors derives everything on the device into a local store. The persona engine runs here too, so it works fully offline.</span></div></div>
+<div class="down">&darr; only derived data crosses &darr;</div>
+<div class="arch-row"><div class="node guard"><b>The line</b><span>Domains, hashes and derived attributes. Never passwords, full URLs, keystrokes, screenshots or file contents.</span></div></div>
+<div class="down">&darr;</div>
+<div class="arch-row"><div class="node"><b>The server</b><span>Postgres where every person&rsquo;s data is walled off by the database itself. The same persona engine runs per person every 15 minutes, plus a nightly sweep and backups.</span></div></div>
+<div class="down">&darr; reached through &darr;</div>
+<div class="arch-row"><div class="node strong"><b>MCP endpoint</b><span>31 tools for any AI, each app scoped to what you allowed.</span></div><div class="node strong"><b>CLI</b><span>Your persona and memory from the terminal.</span></div><div class="node strong"><b>Dashboard</b><span>Connected apps, the access log, memory, persona and devices.</span></div></div>
+</div><div class="cap">Derive on the device, share only what was derived</div></div>
+
+<h3>Privacy is the product, not a setting</h3>
+<p>Reduction happens where the data is born. The code that turns a browser visit into an event
+has no field a raw URL or page title could even sit in. Banking, mail, health and government
+sites are kept to the domain only. Each app sees only what you allowed, every call is logged,
+and a revoked app is refused on its next call. Using it locally is free; the paid tier is the
+hosted, always-on, cross-device version of the same core.</p>
+
+<h3>Principles, each with a scar</h3>
+<ul>
+<li><strong>Fail closed.</strong> The database decides whose data a query can see. If that context is ever missing, the query returns nothing, never everything.</li>
+<li><strong>Evidence is never destroyed.</strong> History is append-only. A belief the engine stops holding fades to zero instead of being deleted, because decay can be undone and deletion cannot.</li>
+<li><strong>&ldquo;Looks connected&rdquo; proves nothing.</strong> Six times something appeared healthy and delivered nothing, from a browser extension to a tool that reported success while storing nothing. The only proof is a round trip that reads the data back.</li>
+<li><strong>Docs are checked against the running system, or deleted.</strong> One sweep found the reference doc stating nine false things. Every number now comes with the command that re-checks it.</li>
+<li><strong>Rules first, AI at the edges.</strong> Classification is deterministic. A model may suggest where something belongs; a person approves it before it becomes a rule.</li>
+</ul>
+
+<h3>Honest about the bet</h3>
+<p>The memory is shipped and in daily use. The behavioural predictor is the long bet, not a
+shipped edge yet: its top guess has been right 8% to 54% of the time, against a frequency
+baseline of 2% to 26%. It beats the baseline. It is not yet a moat.</p>
+"""
+                 )),
             dict(slug="vdo-hosting", label="VDO Hosting", icon="video",
                  title="VDO Hosting",
                  lede="Virtual events for the people the lockdown left behind.",
