@@ -165,15 +165,9 @@ body.open #poster{display:none}
 .objects{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;
   max-width:980px;margin:clamp(14px,2.4vh,30px) auto 0;padding:0 14px}
 @media(min-width:720px){.objects{grid-template-columns:repeat(4,1fr);gap:10px}}
-/* A full folder on a phone goes three across rather than two, so it still fits
-   one screen instead of asking for a scroll to see the last row. */
-@media(max-width:719px){
-  .objects.many{grid-template-columns:repeat(3,1fr);gap:6px;
-    margin-top:clamp(10px,1.6vh,20px)}
-  .objects.many .obj{padding:5px 4px 7px}
-  .objects.many .obj .thumb{max-height:62px;padding:4px}
-  .objects.many .obj .label{font-size:12.5px}
-}
+/* On a phone every folder is the same two-column grid with the same tile, however
+   many it holds, and a full folder scrolls. Squeezing eight or eleven tiles onto one
+   screen shrank the thumbs until the icons spilled out of them (Moheet, 6 Oct 2026). */
 /* Two or three objects are a row in the middle, not a stripe across the page. */
 /* auto side margins on a column flex item shrink it to its content, so the width
    has to be stated or the row collapses */
@@ -208,7 +202,8 @@ body.open #poster{display:none}
   border-radius:8px;background:var(--paper-2);padding:6px;
   border:1px solid rgba(23,21,15,.07);max-height:clamp(52px,8.6vh,104px)}
 .obj .thumb svg{width:100%;height:auto;max-height:100%}
-.obj .thumb .ico{width:clamp(30px,38%,52px);height:auto;color:var(--accent)}
+.obj .thumb .ico{width:clamp(30px,38%,52px);height:auto;max-height:72%;aspect-ratio:1/1;
+  color:var(--accent)}
 .obj .thumb .ico svg{width:100%;height:100%}
 .obj .thumb .glyph{font-family:var(--display);font-weight:800;
   font-size:clamp(26px,6vw,40px);color:var(--accent);letter-spacing:-.03em}
@@ -653,19 +648,11 @@ body{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inse
   .objects,.objects.many{margin-top:8px}
   #hub{padding-top:8px;padding-bottom:6px}
 }
-@media (max-width:719px) and (max-height:900px){
-  .objects.many .obj .thumb{--th:44px}
-}
-@media (max-width:719px) and (max-height:680px){
-  .objects.many .obj .thumb{--th:38px}
-  .objects.many{gap:4px}
-}
 /* Below the scatter width the tiles are a grid, and each thumb fills its column:
    sized by aspect ratio and a max-height it came out half the column wide, so the
-   label ran past it. Height comes from --th, which the short-screen rules lower. */
+   label ran past it. */
 @media(max-width:849px){
   .obj .thumb{aspect-ratio:auto;width:100%;height:var(--th,clamp(76px,15vh,132px));max-height:none}
-  .objects.many .obj .thumb{height:var(--th,clamp(40px,8vh,62px));max-height:none}
 }
 /* Below the scatter width the tiles are a grid and cannot be dragged, so the reset
    and the drag hint have nothing to act on, and the corner would sit on the swatches. */
