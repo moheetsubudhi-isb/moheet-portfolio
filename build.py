@@ -1302,7 +1302,7 @@ beats the baseline. It is not yet a moat.</p>
                      "ran the event, so the host never had to learn a setting: planning it with "
                      "them, choosing the right platform, hosting it live, streaming it, and handing "
                      "back the recording.</p>",
-                     "500+ events and 60,000+ participants, for clients across India, run by a team "
+                     "700+ events and 2,50,000+ participants, for clients across India, run by a team "
                      "of 10. What began as a couple of meetings a week became several a day.",
                      "Video conferencing and live-streaming platforms, 3D event hosting, graphic "
                      "design, video composition and editing",
