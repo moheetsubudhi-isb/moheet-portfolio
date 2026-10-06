@@ -654,11 +654,18 @@ body{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inse
   #hub{padding-top:8px;padding-bottom:6px}
 }
 @media (max-width:719px) and (max-height:900px){
-  .objects.many .obj .thumb{max-height:44px}
+  .objects.many .obj .thumb{--th:44px}
 }
 @media (max-width:719px) and (max-height:680px){
-  .objects.many .obj .thumb{max-height:38px}
+  .objects.many .obj .thumb{--th:38px}
   .objects.many{gap:4px}
+}
+/* Below the scatter width the tiles are a grid, and each thumb fills its column:
+   sized by aspect ratio and a max-height it came out half the column wide, so the
+   label ran past it. Height comes from --th, which the short-screen rules lower. */
+@media(max-width:849px){
+  .obj .thumb{aspect-ratio:auto;width:100%;height:var(--th,clamp(76px,15vh,132px));max-height:none}
+  .objects.many .obj .thumb{height:var(--th,clamp(40px,8vh,62px));max-height:none}
 }
 /* Below the scatter width the tiles are a grid and cannot be dragged, so the reset
    and the drag hint have nothing to act on, and the corner would sit on the swatches. */
