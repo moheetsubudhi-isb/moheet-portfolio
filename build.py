@@ -1224,84 +1224,109 @@ same data.</p>
                  )),
             dict(slug="ownr", label="Ownr", icon="memory",
                  title="Ownr",
-                 lede="A private memory and persona you own, that any AI can plug into.",
+                 lede="Your memory, not the model’s. One private memory and persona that every AI you use plugs into.",
                  body=project(
-                     "Every AI keeps its own memory, locked to itself. Tell ChatGPT something on "
-                     "your phone and Claude on your laptop has never heard it, so you repeat "
-                     "yourself and end up as the messenger between your own tools. And the "
-                     "context that would help most, how you actually work, is something no one "
-                     "writes down.",
-                     "<p>I am building ownr: one capture pipeline that produces two things.</p>\n"
-                     "<ul>\n"
-                     "<li><strong>A readable memory.</strong> Projects, decisions, rules and notes, "
-                     "versioned and editable, that any AI agent reads and writes over MCP. "
-                     "ChatGPT, Claude, Cursor, Claude Code, Codex and your own agents all share "
-                     "it, so something said once holds everywhere.</li>\n"
-                     "<li><strong>A behavioural twin.</strong> A persona that quietly learns how "
-                     "you work and what you are likely to do next, inferred from your own device "
-                     "activity rather than typed in.</li>\n"
-                     "</ul>\n"
-                     "<p>Either one alone is a commodity. Both together, local-first, owned by "
-                     "you and portable between models, is the bet. The goal is good context with "
-                     "no curation: the memory fills itself from what you already do.</p>",
-                     "It runs on its own server and carries my own work across Claude, Codex and "
-                     "an always-on agent every day. By mid-September 2026 it held over half a "
-                     "million derived events, 1,699 memories across 45 projects, served 31 MCP "
-                     "tools, and passed 1,796 tests, with 64 of 80 build chunks done. Early "
-                     "access is open.",
-                     "Python, MCP with OAuth 2.1, Postgres with pgvector and row-level security, "
-                     "SQLite, Airflow, Zitadel, Caddy, Cloudflare Tunnel, Docker, Uptime Kuma",
-                     '<a class="btn primary" href="https://ownr.digital/#waitlist" target="_blank" '
-                     'rel="noopener">Join the waitlist</a>\n<a class="btn" href="https://ownr.digital" '
-                     'target="_blank" rel="noopener">ownr.digital</a>',
+                     "Every AI keeps its own memory, locked inside itself. Tell ChatGPT something on "
+                     "your phone and Claude on your laptop has never heard it. Switch tools and you "
+                     "start again. You end up repeating yourself and carrying context between your "
+                     "own assistants. And the context that would help most, how you actually work, "
+                     "is something nobody writes down. Every memory tool today makes you curate it "
+                     "by hand.",
+                     "<p>We are building ownr: a portable &ldquo;agent self&rdquo; that you own. It "
+                     "holds who you are, what you know and how you work, and carries it to every AI "
+                     "you use over MCP: ChatGPT, Claude, Cursor, Claude Code, Codex and the agents "
+                     "you run. Tell one AI something and every other one already knows it.</p>",
+                     "It is the shared memory behind my own work every day, across Claude, Codex, "
+                     "ChatGPT and always-on agents, including Ishaan. It serves 31 tools to any "
+                     "connected AI, holds 1,699 memories across 45 projects, and passes 1,796 "
+                     "tests. Early access is open by invitation.",
+                     links='<a class="btn primary" href="https://ownr.digital/#waitlist" target="_blank" '
+                           'rel="noopener">Join the waitlist</a>\n<a class="btn" href="https://ownr.digital" '
+                           'target="_blank" rel="noopener">ownr.digital</a>',
                      extra="""
-<h3>How it is built</h3>
+<h3>What it holds</h3>
 <div class="fig"><div class="arch">
-<div class="arch-row"><div class="node strong"><b>Your machine</b><span>A daemon with seven collectors derives everything on the device into a local store. The persona engine runs here too, so it works fully offline.</span></div></div>
-<div class="down">&darr; only derived data crosses &darr;</div>
-<div class="arch-row"><div class="node guard"><b>The line</b><span>Domains, hashes and derived attributes. Never passwords, full URLs, keystrokes, screenshots or file contents.</span></div></div>
-<div class="down">&darr;</div>
-<div class="arch-row"><div class="node"><b>The server</b><span>Postgres where every person&rsquo;s data is walled off by the database itself. The same persona engine runs per person every 15 minutes, plus a nightly sweep and backups.</span></div></div>
-<div class="down">&darr; reached through &darr;</div>
-<div class="arch-row"><div class="node strong"><b>MCP endpoint</b><span>31 tools for any AI, each app scoped to what you allowed.</span></div><div class="node strong"><b>CLI</b><span>Your persona and memory from the terminal.</span></div><div class="node strong"><b>Dashboard</b><span>Connected apps, the access log, memory, persona and devices.</span></div></div>
-</div><div class="cap">Derive on the device, share only what was derived</div></div>
+<div class="arch-row"><div class="node strong"><b>Persona</b><span>Your role, tone and preferences, learned from your own activity rather than typed into a settings page.</span></div><div class="node strong"><b>Memory</b><span>Projects, decisions with their reasons, standing rules and notes. Versioned, editable, and nothing silently deleted.</span></div></div>
+<div class="arch-row"><div class="node strong"><b>Skills</b><span>Your skill files from Claude Code, Codex, Cursor and Antigravity in one versioned registry, plus new skills drawn from the rules and decisions you keep repeating.</span></div><div class="node"><b>Handoffs</b><span>Leave a task in one tool, pick it up in another where you stopped. The next layer we are building.</span></div></div>
+</div><div class="cap">One self, carried to every AI</div></div>
 
-<h3>Privacy is the product, not a setting</h3>
-<p>Reduction happens where the data is born. The code that turns a browser visit into an event
-has no field a raw URL or page title could even sit in. Banking, mail, health and government
-sites are kept to the domain only. Each app sees only what you allowed, every call is logged,
-and a revoked app is refused on its next call. Using it locally is free; the paid tier is the
-hosted, always-on, cross-device version of the same core.</p>
-
-<h3>Principles, each with a scar</h3>
+<h3>It fills itself</h3>
+<p>The point is good context with no curation. ownr learns from what you already do:</p>
 <ul>
-<li><strong>Fail closed.</strong> The database decides whose data a query can see. If that context is ever missing, the query returns nothing, never everything.</li>
-<li><strong>Evidence is never destroyed.</strong> History is append-only. A belief the engine stops holding fades to zero instead of being deleted, because decay can be undone and deletion cannot.</li>
-<li><strong>&ldquo;Looks connected&rdquo; proves nothing.</strong> Six times something appeared healthy and delivered nothing, from a browser extension to a tool that reported success while storing nothing. The only proof is a round trip that reads the data back.</li>
-<li><strong>Docs are checked against the running system, or deleted.</strong> One sweep found the reference doc stating nine false things. Every number now comes with the command that re-checks it.</li>
-<li><strong>Rules first, AI at the edges.</strong> Classification is deterministic. A model may suggest where something belongs; a person approves it before it becomes a rule.</li>
+<li><strong>Your own activity.</strong> What you work on, when and where, reduced to derived signals on your device before anything leaves it.</li>
+<li><strong>Your AI conversations.</strong> Sessions from the AI tools on your machine, with secrets scrubbed on the device, become facts and decisions.</li>
+<li><strong>What you already have.</strong> Import the memory you have built up in other tools on day one.</li>
+<li><strong>What you tell any AI.</strong> Say &ldquo;remember this&rdquo; to any connected tool and it is saved once, for all of them.</li>
+</ul>
+<p>From that it builds a personal map of your things, so &ldquo;my bank&rdquo; or &ldquo;the
+Nexa deal&rdquo; resolves to <em>yours</em>, with the evidence shown, or it asks you.</p>
+
+<h3>What a day looks like</h3>
+<ol class="steps">
+<li>On your phone you tell ChatGPT: &ldquo;Priya at Nexa wants the invoice split in two. Say yes.&rdquo;</li>
+<li>On your laptop, Claude drafts the reply to Priya. Two invoices, as agreed.</li>
+<li>Cursor fixes the export bug three customers reported, and your inbox agent drafts the three &ldquo;it&rsquo;s fixed&rdquo; emails for you to send.</li>
+<li>Next morning, any of them opens with: Priya is sorted, the fix is out, and Thursday&rsquo;s brief is ready.</li>
+</ol>
+<p class="rule">You said it once. They all kept it.</p>
+
+<h3>How it is different</h3>
+<ul>
+<li><strong>Not one model&rsquo;s memory.</strong> Built-in AI memory stays with that AI. ownr moves with you to every model, and switching tools costs nothing.</li>
+<li><strong>Not a notebook you maintain.</strong> Other context tools make you curate, map by map. ownr fills itself from behaviour you already have.</li>
+<li><strong>Not a cloud that holds you.</strong> Only derived, domain-level or hashed data leaves your device: never raw URLs, page titles, keystrokes or content. Running it locally is free.</li>
+<li><strong>Memory and a twin, together.</strong> A record of what you decided, and a persona of how you work, from the same source. Either alone is a commodity.</li>
 </ul>
 
+<h3>You stay in control</h3>
+<p>Every app you connect gets read only, or read and write, and nothing more. Your persona is a
+separate permission that is never implied. Every call is logged, and a revoked app is refused
+on its next call. A wrong fact is corrected in place, and history is kept rather than erased.</p>
+
 <h3>Honest about the bet</h3>
-<p>The memory is shipped and in daily use. The behavioural predictor is the long bet, not a
-shipped edge yet: its top guess has been right 8% to 54% of the time, against a frequency
-baseline of 2% to 26%. It beats the baseline. It is not yet a moat.</p>
+<p>The memory is shipped and used daily. Predicting what you will do next is the long bet: its
+top guess has been right 8% to 54% of the time, against a frequency baseline of 2% to 26%. It
+beats the baseline. It is not yet a moat.</p>
 """
                  )),
             dict(slug="vdo-hosting", label="VDO Hosting", icon="video",
                  title="VDO Hosting",
-                 lede="Virtual events for the people the lockdown left behind.",
+                 lede="When India locked down, we put its gatherings online, for the people the internet had left behind.",
                  body=project(
-                     "When India locked down in 2020, meetings, ceremonies and AGMs had to move "
-                     "online overnight. Many of the people running them, most over 30, had never "
-                     "hosted anything online.",
-                     "<p>I founded VDO Hosting in May 2020 and ran it until February 2021 with a "
-                     "team of 10. We ran the whole event for the client: virtual events, talk "
-                     "shows, award ceremonies, corporate meetings, bank AGMs, live streams and "
-                     "online exams, with the design, editing and broadcast work around them.</p>",
-                     "500+ events and 60,000+ participants, for clients across India.",
-                     "Video conferencing and live-streaming platforms, video editing, graphic "
-                     "design")),
+                     "In March 2020 every meeting, ceremony, class and celebration in India had to "
+                     "move online, overnight. The tools existed. The people running these events, "
+                     "most of them over 30, had never used them. A bank still had to hold its AGM, "
+                     "a coach still had to run an exam, a family still wanted the birthday. The "
+                     "lockdown had opened a digital divide right in the middle of everyday life.",
+                     "<p>I founded VDO Hosting in May 2020 to close it. We did not sell software. We "
+                     "ran the event, so the host never had to learn a setting: planning it with "
+                     "them, choosing the right platform, hosting it live, streaming it, and handing "
+                     "back the recording.</p>",
+                     "500+ events and 60,000+ participants, for clients across India, run by a team "
+                     "of 10. What began as a couple of meetings a week became several a day.",
+                     "Video conferencing and live-streaming platforms, 3D event hosting, graphic "
+                     "design, video composition and editing",
+                     '<a class="btn primary" href="https://vdohosting.in" target="_blank" '
+                     'rel="noopener">vdohosting.in</a>',
+                     extra="""
+<h3>Everything, held online</h3>
+<p>If people gathered for it, we hosted it: events, talk shows, keynotes, award ceremonies,
+corporate meetings, annual general meetings for banks, celebrity and YouTube events, religious
+gatherings, social gatherings, birthday parties, Zumba classes, coaching and exams.</p>
+
+<h3>The whole event, end to end</h3>
+<div class="fig"><div class="arch">
+<div class="arch-row"><div class="node strong"><b>Before</b><span>Personal planning with the host, the right platform for the format, and the graphics.</span></div><div class="node strong"><b>During</b><span>Live hosting, interactive formats, streaming to social media, broadcasting, and immersive 3D hosting.</span></div><div class="node strong"><b>After</b><span>Video composition and editing, the recording, and analytics.</span></div></div>
+</div><div class="cap">The host shows up. We run everything else.</div></div>
+
+<h3>Why it worked</h3>
+<ul>
+<li><strong>Speed over polish.</strong> It started within weeks of the lockdown, while the need was brand new.</li>
+<li><strong>Sell the outcome, not the tool.</strong> Nobody wanted to learn video software. They wanted their event to happen. So we made sure it did.</li>
+<li><strong>Say yes to every format.</strong> A Zumba class and a bank AGM need different things, but the same playbook: plan it with the host, run it, hand it back.</li>
+</ul>
+"""
+                 )),
             dict(slug="mahabeer", label="Mahabeer Inventory", icon="warehouse",
                  title="Mahabeer Inventory",
                  lede="An inventory app that tripled a rental business\u2019s orders.",
@@ -1434,7 +1459,7 @@ work, and they are all things you control.</p>
         "slides": "slides deck presentation pin code locked session talk powerpoint",
         "projects": "projects ownr portfolio work building side product repo client case study "
                     "things i have built side project",
-        "vdo-hosting": "vdo hosting video virtual events webinar zoom lockdown covid founder startup",
+        "vdo-hosting": "vdo hosting video virtual events webinar zoom lockdown covid founder startup agm live streaming 3d hosting digital divide",
         "mahabeer": "mahabeer inventory warehouse stock e-way bill app rental steel bizarc",
         "royal-living-tangi": "royal living tangi lpg gas hpcl database data cleaning pmuy ivrs gsm bizarc",
         "iwd-app": "iwd inner wheel secretary app ngo club reports women bizarc",
