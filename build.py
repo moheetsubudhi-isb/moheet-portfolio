@@ -509,7 +509,7 @@ html.anim #hub.scatter .obj{animation-name:settle}
    take the accent, so the picker recolours it like every other icon. */
 /* Pinned to the thumb's box: the thumb's height comes from max-height, which a
    percentage height inside it cannot see. */
-.stamp-wrap{position:absolute;inset:5px;display:flex;justify-content:center;
+.stamp-wrap{position:absolute;inset:clamp(2px,5%,5px);display:flex;justify-content:center;
   filter:drop-shadow(0 1px 1.5px rgba(23,21,15,.22))}
 .stamp{--p:2.6px;height:100%;aspect-ratio:4/5;flex:none;background:#FFFDF7;
   padding:calc(var(--p)*2.2);display:grid;grid-template-rows:1fr auto;gap:2px;
@@ -521,6 +521,22 @@ html.anim #hub.scatter .obj{animation-name:settle}
     linear-gradient(#000 0 0) no-repeat 50%/calc(100% - var(--p)*3) calc(100% - var(--p)*3)}
 .stamp img{display:block;width:100%;height:100%;min-height:0;object-fit:cover;
   object-position:50% 18%;outline:1px solid var(--accent);outline-offset:1px}
+/* The stamp keeps its 4:5 shape whatever its label says: a long name is clipped,
+   never allowed to widen the stamp. Below about 56px tall the label is unreadable,
+   so it gives its room to the face instead. */
+.stamp-wrap{container-type:size}
+.stamp{min-width:0;grid-template-columns:minmax(0,1fr);overflow:hidden}
+.stamp .st{min-width:0;overflow:hidden}
+@container (max-height:56px){
+  .stamp{--p:1.7px;aspect-ratio:1/1;grid-template-rows:1fr;padding:calc(var(--p)*2)}
+  .stamp .st{display:none}
+  .stamp img.logo{padding:4%}
+}
+/* A logo sits whole on white; an icon takes the accent, like every other icon. */
+.stamp img.logo{object-fit:contain;object-position:50% 50%;background:#fff;padding:12%}
+.stamp .face.icon{display:grid;place-items:center;min-height:0;background:#fff;color:var(--accent);
+  outline:1px solid var(--accent);outline-offset:1px}
+.stamp .face.icon svg{width:58%;height:auto}
 .stamp .st{font-family:var(--mono);font-weight:500;font-size:7px;line-height:1;
   letter-spacing:.14em;color:var(--accent);text-align:center;white-space:nowrap}
 
@@ -997,6 +1013,7 @@ counts. That is the pattern worth stealing, and the one that gets signed off.</p
         lede="Mine, and for clients.",
         children=[
             dict(slug="ishaan", label="Ishaan", icon="robot",
+                 stamp=dict(icon="robot", text="MAILMODO"),
                  title="Ishaan, an ops agent",
                  lede="An always-on teammate in Slack that runs customer success ops at Mailmodo, and checks its own work.",
                  body=project(
@@ -1049,6 +1066,7 @@ rule is now enforced at the moment a check is proposed.</p>
 </ul>
 """)),
             dict(slug="outreach", label="Outreach Console", icon="send",
+                 stamp=dict(img="logos/mailmodo.png", logo=True, text="MAILMODO"),
                  title="Outreach Console",
                  lede="Cold outbound for Mailmodo, from strategy to reply, with the expensive mistakes made impossible.",
                  body=project(
@@ -1099,6 +1117,7 @@ a bug.</p>
 </ul>
 """)),
             dict(slug="leaderboard", label="AI model leaderboard", icon="ranking",
+                 stamp=dict(img="logos/besthunt.svg", logo=True, text="BESTHUNT"),
                  title="BestHunt AI model leaderboard",
                  lede="Every AI model, ranked by what it costs to do real work.",
                  body=project(
@@ -1153,6 +1172,7 @@ and puts the previous files back. Twelve tests prove each check rejects what it 
 </ul>
 """)),
             dict(slug="lpg-guru", label="LPG Guru", icon="gas",
+                 stamp=dict(img="logos/lpgguru.png", logo=True, text="LPG GURU"),
                  title="LPG Guru",
                  lede="One platform to run an LPG gas agency, with an AI assistant on top.",
                  body=project(
@@ -1223,6 +1243,7 @@ same data.</p>
 """
                  )),
             dict(slug="ownr", label="Ownr", icon="memory",
+                 stamp=dict(img="logos/ownr.svg", logo=True, text="OWNR"),
                  title="Ownr",
                  lede="Your memory, not the model’s. One private memory and persona that every AI you use plugs into.",
                  body=project(
@@ -1290,6 +1311,7 @@ beats the baseline. It is not yet a moat.</p>
 """
                  )),
             dict(slug="vdo-hosting", label="VDO Hosting", icon="video",
+                 stamp=dict(img="logos/vdo-hosting.svg", logo=True, text="VDO HOSTING"),
                  title="VDO Hosting",
                  lede="When India locked down, we put its gatherings online, for the people the internet had left behind.",
                  body=project(
@@ -1328,6 +1350,7 @@ gatherings, social gatherings, birthday parties, Zumba classes, coaching and exa
 """
                  )),
             dict(slug="mahabeer", label="Mahabeer Inventory", icon="warehouse",
+                 stamp=dict(icon="warehouse", text="MAHABEER"),
                  title="Mahabeer Inventory",
                  lede="An inventory app that tripled a rental business\u2019s orders.",
                  body=project(
@@ -1343,6 +1366,7 @@ gatherings, social gatherings, birthday parties, Zumba classes, coaching and exa
                      "from 82% to 97%, billing compliance risk fell by 90%, and missing rods "
                      "now show up instead of going unaccounted for.")),
             dict(slug="royal-living-tangi", label="Royal Living Tangi", icon="phone",
+                 stamp=dict(icon="phone", text="ROYAL LIVING"),
                  title="Royal Living Tangi",
                  lede="Cleaning a 34,000-customer gas agency database, by phone and on foot.",
                  body=project(
@@ -1359,6 +1383,7 @@ gatherings, social gatherings, birthday parties, Zumba classes, coaching and exa
                      "In two months, 14,500 records cleaned and 5,027 addresses verified, with "
                      "digital bookings projected to rise 12&ndash;15%.")),
             dict(slug="osda", label="OSDA", icon="govt",
+                 stamp=dict(img="logos/osda.jpg", logo=True, text="OSDA"),
                  title="OSDA, Government of Odisha",
                  lede="A \u20b960-lakh digital transformation, built for 12,000+ users.",
                  body=project(
@@ -1372,6 +1397,7 @@ gatherings, social gatherings, birthday parties, Zumba classes, coaching and exa
                      "More transparency for 12,000+ users, on a platform built within the "
                      "government's compliance rules.")),
             dict(slug="neoteric", label="Neoteric", icon="megaphone",
+                 stamp=dict(icon="megaphone", text="NEOTERIC"),
                  title="Neoteric",
                  lede="From an idea to a working consultancy, and a 2,50,000-impression campaign.",
                  body=project(
@@ -1387,6 +1413,7 @@ gatherings, social gatherings, birthday parties, Zumba classes, coaching and exa
                      "A consultancy with a team, a way of working and a brand of its own, and a "
                      "campaign that reached 2,50,000+ impressions.")),
             dict(slug="iwd-app", label="IWD Secretary App", icon="app",
+                 stamp=dict(img="logos/innerwheel.jpg", logo=True, text="INNER WHEEL"),
                  title="IWD Secretary App",
                  lede="Taking 2,400+ women changemakers from paper to an app.",
                  body=project(
@@ -1531,8 +1558,14 @@ def build():
         """An icon, or for a node that names a stamp, a postage stamp with a photo."""
         st = node.get("stamp")
         if st:
-            return (f'<span class="stamp-wrap"><span class="stamp"><img src="{st["img"]}" alt="" draggable="false" '
-                    f'width="350" height="350"><span class="st">{H.escape(st["text"])}</span></span></span>')
+            if st.get("icon"):
+                inner = f'<span class="face icon">{I[st["icon"]]}</span>'
+            else:
+                fit = " logo" if st.get("logo") else ""
+                inner = (f'<img class="face{fit}" src="{st["img"]}" alt="" draggable="false" '
+                         f'width="350" height="350">')
+            return (f'<span class="stamp-wrap"><span class="stamp">{inner}'
+                    f'<span class="st">{H.escape(st["text"])}</span></span></span>')
         return f'<span class="ico">{icon_for(node)}</span>'
 
     def tile(path, node, i, parent):
