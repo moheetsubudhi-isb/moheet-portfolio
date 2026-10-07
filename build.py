@@ -36,6 +36,8 @@ def content():
     loop = read("03-loop-checklist.md")
     c["loopChat"] = between(loop, "===== COPY FROM HERE =====", "===== COPY TO HERE =====")
     c["loopFile"] = re.search(r"Then the block:\n+```\n(.*?)\n```", loop, re.S).group(1).strip()
+    kit = re.findall(r"===== COPY FROM HERE =====\n```\n(.*?)\n```\n.*?===== COPY TO HERE", read("05-skills-kit.md"), re.S)
+    c["finder"], c["doctor"] = (b.strip() for b in kit[:2])
     reg = re.findall(r"```\n(.*?)\n```", read("04-tool-registry.md"), re.S)
     c["regTemplate"], c["regExample"], c["regChat"] = (b.strip() for b in reg[:3])
     c["installClaude"] = ("/plugin marketplace add moheetsubudhi-isb/business-analytics-skills\n"
@@ -1455,6 +1457,27 @@ work, and they are all things you control.</p>
 <p>The order matters. Each one is only worth adding once the one before it holds.</p>"""))
 
     v.append(dict(
+        slug="kit", label="The skills kit", art=None, icon="kit",
+        title="Find it. Write it. Fix it.",
+        lede="Three prompts for skills.",
+        body=f"""
+<p>A skill is one task written down once. Everyone says to write them. Nobody says which ones,
+or whether the ones you downloaded are any good.</p>
+<p>The first prompt finds what you keep redoing. The second is
+<a href="#build/generator">the Setup Interview</a>, which writes the skill from how you do it.
+The third checks any skill and fixes it.</p>
+{panel("finder", "1 \u00b7 The Repeat Finder", "chat or terminal")}
+<p>It counts, it does not guess. Every suggestion says how many times and where, and if nothing
+repeats enough it says so and stops. A terminal agent reads your saved history. A chat usually
+cannot, so it asks you five short questions instead and says that is what it used. It never
+prints a secret, and it asks before it reads anything.</p>
+{panel("doctor", "3 \u00b7 The Skill Doctor", "paste a skill under it")}
+<p>Paste any skill: yours, a colleague's, one from GitHub. It checks it, lists every risky line,
+and rewrites it so it improves each time you correct it. It only sees what you paste, so for a
+whole folder use a terminal agent. <strong>Read the flagged lines yourself before you install
+anything.</strong></p>"""))
+
+    v.append(dict(
         slug="slides", label="The slides", art=None, icon="slides",
         title="The slides",
         lede="From the session. Four digits.",
@@ -1478,6 +1501,8 @@ work, and they are all things you control.</p>
         "local": "ollama offline privacy compliance laptop cpu ram gpu open source weights licence llama qwen gemma mistral phi deepseek gpt-oss hugging face lm studio jan",
         "parts": "model harness loop mcp skills context memory overview recap formula summary",
         "slides": "slides deck presentation pin code locked session talk powerpoint",
+        "kit": "skills skill doctor repeat finder find recurring repeat automate history review audit "
+               "safe risky rewrite SKILL.md prompt agent chat",
         "projects": "projects ownr portfolio work building side product repo client case study "
                     "things i have built side project",
         "vdo-hosting": "vdo hosting video virtual events webinar zoom lockdown covid founder startup agm live streaming 3d hosting digital divide",
@@ -1511,7 +1536,7 @@ work, and they are all things you control.</p>
     # The root is a portfolio. One folder holds everything from the session, in the
     # order it is taught; the other holds the work. Both grow by adding a child.
     by = {n["slug"]: n for n in v}
-    ORDER = ["parts", "generator", "soul", "loop", "tools", "memory", "local", "slides"]
+    ORDER = ["parts", "generator", "soul", "loop", "tools", "kit", "memory", "local", "slides"]
     root = [
         dict(slug="build", label="How to Build with AI", art=None, icon="loop",
              title="How to Build with AI",
