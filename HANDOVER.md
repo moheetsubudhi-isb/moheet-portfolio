@@ -216,7 +216,7 @@ Resize the preview to 375x812 and run it again.
 | `build.py` | The generator: CSS, the tree (`views()`), the page template and all the JS. |
 | `art-light.json` | Diagrams recoloured for paper, accents as `var(--accent)`. Output of an earlier step; treat as a source file. |
 | `icons.json` | 22+ Phosphor duotone icons, inlined at build time. |
-| `giveaways/01`-`04` | The only markdown `build.py` reads. Every copyable block on the page comes from here. |
+| `giveaways/01`-`05` | The only markdown `build.py` reads. Every copyable block on the page comes from here. |
 | `art.json`, `extract-art.js` | Provenance of the diagrams. `extract-art.js` reads a deck that is not in this repo, so it cannot run here. |
 | `index.html` | Generated. Never edit by hand. |
 | `README.md` | Rebuild steps and the rules, shorter than this. |

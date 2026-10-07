@@ -27,7 +27,7 @@ or the repo falls behind. It did once.
 
 | Input | What it supplies |
 |---|---|
-| `giveaways/01`–`04` | Every copyable block. `content()` extracts them between `===== COPY FROM HERE =====` markers or by fenced block, so the page and the files cannot drift. |
+| `giveaways/01`–`05` | Every copyable block. `content()` extracts them between `===== COPY FROM HERE =====` markers or by fenced block, so the page and the files cannot drift. |
 | `art-light.json` | The deck's diagrams, recoloured for paper, accents as `var(--accent)` and `var(--accent-2)`. Produced by `extract-art.js` from the deck. |
 | `icons.json` | 22 Phosphor duotone icons, inlined, so the page needs no icon CDN. |
 
