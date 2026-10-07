@@ -263,19 +263,3 @@ A skill is a folder of text, so any tool that reads folders can use one. A few p
 
 Most public skills were written for someone else's process. Install five, keep one, and run the
 Doctor on the one you keep.
-
----
-
-## What's been tested, honestly
-
-Both prompts were run against Claude over four rounds, and rewritten three times after real
-problems turned up. The Finder ran against a made-up history with a planted secret and a planted
-email, and printed neither. The Doctor ran against a good skill, a thin one and a deliberately
-dangerous one. The last version, written in the same shape as the generator, passed every check
-once one of the checks was corrected for being too narrow.
-
-What the early runs caught: the Doctor invented trigger phrases, added a confirmation step the
-skill never had, and stripped a name that was the owner's own; and the Finder read a secret
-before it had scanned for one. All fixed. **Each prompt has been run once per case, so treat
-this as reviewed, not proven.** It has not been run in ChatGPT, Gemini or Copilot. If it
-misbehaves in yours, that is a bug in the file; tell me.
