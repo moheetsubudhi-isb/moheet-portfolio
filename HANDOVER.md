@@ -12,7 +12,7 @@ contact bar (LinkedIn, email, WhatsApp, accent colours) along the bottom. Clicki
 either a folder (the same poster again, retitled) or a page.
 
 Repo: https://github.com/moheetsubudhi-isb/moheet-portfolio. It holds `build.py`, `art-light.json`,
-`icons.json`, `giveaways/01`-`04` and the generated `index.html`. A clean clone rebuilds the page
+`icons.json`, `giveaways/01`-`05` and the generated `index.html`. A clean clone rebuilds the page
 byte for byte.
 
 ## Your job
@@ -55,7 +55,7 @@ Confirm it landed before saying so, for example:
 A node with children renders as its own poster. A path is the slugs joined, like
 `projects/ownr`. Tiles, routes, breadcrumbs and search all come from that one list.
 
-Root today: **How to Build with AI** (a folder of eight things) · **Business Analytics Skills**
+Root today: **How to Build with AI** (a folder of nine things, including the skills kit) · **Business Analytics Skills**
 (one page) · **My projects** (folder). The root list is near the bottom of `views()`:
 
 ```python

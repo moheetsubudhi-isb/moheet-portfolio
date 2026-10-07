@@ -415,6 +415,9 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.62;color:var(--ink);
 .lockmark svg{width:100%;height:100%}
 .thumb{position:relative}
 
+/* a line of small print: what was and was not tested */
+.fine{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint)}
+
 .split{display:grid;gap:16px;margin-top:24px}
 @media(min-width:760px){.split{grid-template-columns:1fr 1fr}.split .panel{margin-top:0}}
 
@@ -1475,7 +1478,9 @@ prints a secret, and it asks before it reads anything.</p>
 <p>Paste any skill: yours, a colleague's, one from GitHub. It checks it, lists every risky line,
 and rewrites it so it improves each time you correct it. It only sees what you paste, so for a
 whole folder use a terminal agent. <strong>Read the flagged lines yourself before you install
-anything.</strong></p>"""))
+anything.</strong></p>
+<p class="fine">Tested on Claude, against made-up history. Not yet in every tool. If it
+misbehaves in yours, tell me.</p>"""))
 
     v.append(dict(
         slug="slides", label="The slides", art=None, icon="slides",

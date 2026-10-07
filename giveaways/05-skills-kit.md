@@ -51,11 +51,15 @@ Then go to STEP 3. Say clearly that your evidence is what I told you, not what y
 
 STEP 2 — Read it safely, only after I say yes.
   - Read locally. Send nothing anywhere.
+  - FIRST, before you open any message text, scan every source for secrets with a broad
+    pattern: sk-, key, token, secret, password, bearer, AKIA, ghp_, BEGIN, and any run of 24
+    or more letters and digits. Do not open a source that matches. Name it, count it, and
+    leave it out of everything below. Tell me you did this.
   - Count with commands (grep, sort, uniq -c, wc). Do not estimate by eye. Show me each
     command you ran.
   - Report patterns and counts. Do not quote my messages, and never print a password, key,
-    token, email address, customer name or the contents of a file. If you meet a secret, say
-    "found a secret in <where>" and stop reading that source.
+    token, email address, customer name or the contents of a file. Hide email addresses and
+    names in anything you show me.
   - Look back 30 days unless I say otherwise.
   - Look for four kinds of repeat:
       a. the same kind of request, three or more times
@@ -136,11 +140,16 @@ say "I could not see <name>" and do not assume it is safe.
 
 Give a verdict in one line: SAFE TO TRY, READ THE FLAGGED LINES FIRST, or DO NOT INSTALL.
 
-THEN REWRITE IT, keeping my intent and my wording where it is good, in this shape:
+If it already passes all four checks, say "No rewrite needed", list only the small changes
+you would make, and stop.
+
+Otherwise REWRITE IT, keeping my intent and my wording where it is good, in this shape:
 
 ---
 name: <short, hyphenated>
-description: <when to use it and when not to, in the words I would actually type>
+description: <when to use it and when not to, using the words in the original. If the
+  original gives no trigger words, write (check this) and ask me what I would type. Do not
+  make up example phrases.>
 ---
 ## Get the context that changes the answer
 What you need to know before starting. Ask me. Do not assume.
@@ -157,9 +166,16 @@ the conversation ends unless I save it. If the same correction arrives twice, sa
 treat it as a missing line in this file.
 
 Rules for the rewrite:
-  - Do not invent steps, numbers, thresholds or tools. Where the original is silent, write
-    (check this).
-  - Remove anything that only makes sense for its author's own setup, and list what you removed.
+  - Do not add steps, traps, checks or questions that are not in the original, and do not
+    invent numbers, thresholds, tools or example phrases. Where the original is silent, write
+    (check this). If you think something is missing, list it AFTER the skill under
+    "Suggested additions" and leave it out of the skill.
+  - The one exception is a DO NOT INSTALL verdict. Then remove or neutralise each dangerous
+    line, and list every change you made and why.
+  - Keep names, paths and accounts as written. List any that look specific to the author's
+    own setup under "Check these fit you", so I can change them.
+  - Put any question for me AFTER the skill, never inside it. The skill itself must be
+    something I can save as it stands.
   - Keep only name and description in the header, so it works in any tool.
 
 Show the whole rewritten skill as one block, from its first line, so I can paste it back.
@@ -193,3 +209,18 @@ A skill is a folder of text, so any tool that reads folders can use one. A few p
 
 Most public skills were written for someone else's process. Install five, keep one, and run the
 Doctor on the one you keep.
+
+---
+
+## What's been tested, honestly
+
+Both prompts were run against Claude, three times each, and rewritten twice after the first
+two runs found real problems. The Finder ran against a made-up history with a planted secret
+and a planted email, and printed neither. The Doctor ran against a good skill, a thin one and a
+deliberately dangerous one.
+
+What the early runs caught: the Doctor invented trigger phrases, added a confirmation step the
+skill never had, and stripped a name that was the owner's own; and the Finder read a secret
+before it had scanned for one. All fixed. **Each prompt has been run once per case, so treat
+this as reviewed, not proven.** It has not been run in ChatGPT, Gemini or Copilot. If it
+misbehaves in yours, that is a bug in the file; tell me.

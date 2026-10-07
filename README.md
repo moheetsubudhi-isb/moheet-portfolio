@@ -20,7 +20,7 @@ GitHub Pages publishes about a minute after the push. Python 3 only, no packages
 `build.py` looks for `giveaways/` beside itself and, failing that, one folder up, so the
 same file runs from the repo or from the original working folder (`site/` with `giveaways/`
 next to it). If you edit in the working folder, copy `build.py`, `art-light.json`,
-`icons.json`, `README.md`, the generated `index.html` and `giveaways/01`–`04` into the repo,
+`icons.json`, `README.md`, the generated `index.html` and `giveaways/01`–`05` into the repo,
 or the repo falls behind. It did once.
 
 ## What goes in
@@ -46,7 +46,7 @@ To add a project: one `dict(...)` in the `children` list of `projects`. The tile
 route, search entry and breadcrumb follow. Pick an `icon` that exists in `icons.json`.
 
 Current root: **How to Build with AI** (seven parts, Setup Interview, soul files, loop
-checklist, tool registry, Second Brain, run it on your laptop) · **Business Analytics
+checklist, tool registry, the skills kit, Second Brain, run it on your laptop) · **Business Analytics
 Skills** (one leaf) · **My projects** (Ownr) · **Moheet CV** (one leaf, a stamp tile).
 
 The CV lives in `CV` in `build.py`, written with `cv_rec()` and `cv_field()`. Edit the
