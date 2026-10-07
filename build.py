@@ -36,8 +36,10 @@ def content():
     loop = read("03-loop-checklist.md")
     c["loopChat"] = between(loop, "===== COPY FROM HERE =====", "===== COPY TO HERE =====")
     c["loopFile"] = re.search(r"Then the block:\n+```\n(.*?)\n```", loop, re.S).group(1).strip()
-    kit = re.findall(r"===== COPY FROM HERE =====\n```\n(.*?)\n```\n.*?===== COPY TO HERE", read("05-skills-kit.md"), re.S)
-    c["finder"], c["doctor"] = (b.strip() for b in kit[:2])
+    # Two prompts in one file. Each has code fences inside it, so take everything between the
+    # markers and drop the fences, the way the generator is read above.
+    kit = re.findall(r"===== COPY FROM HERE =====(.*?)===== COPY TO HERE =====", read("05-skills-kit.md"), re.S)
+    c["finder"], c["doctor"] = (re.sub(r"\n{3,}", "\n\n", x.replace("```", "")).strip() for x in kit[:2])
     reg = re.findall(r"```\n(.*?)\n```", read("04-tool-registry.md"), re.S)
     c["regTemplate"], c["regExample"], c["regChat"] = (b.strip() for b in reg[:3])
     c["installClaude"] = ("/plugin marketplace add moheetsubudhi-isb/business-analytics-skills\n"
@@ -414,9 +416,6 @@ pre{font-family:var(--mono);font-size:12.5px;line-height:1.62;color:var(--ink);
 .lockmark{position:absolute;right:7px;bottom:7px;width:17px;height:17px;color:var(--faint)}
 .lockmark svg{width:100%;height:100%}
 .thumb{position:relative}
-
-/* a line of small print: what was and was not tested */
-.fine{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint)}
 
 .split{display:grid;gap:16px;margin-top:24px}
 @media(min-width:760px){.split{grid-template-columns:1fr 1fr}.split .panel{margin-top:0}}
@@ -1478,9 +1477,7 @@ prints a secret, and it asks before it reads anything.</p>
 <p>Paste any skill: yours, a colleague's, one from GitHub. It checks it, lists every risky line,
 and rewrites it so it improves each time you correct it. It only sees what you paste, so for a
 whole folder use a terminal agent. <strong>Read the flagged lines yourself before you install
-anything.</strong></p>
-<p class="fine">Tested on Claude, against made-up history. Not yet in every tool. If it
-misbehaves in yours, tell me.</p>"""))
+anything.</strong></p>"""))
 
     v.append(dict(
         slug="slides", label="The slides", art=None, icon="slides",

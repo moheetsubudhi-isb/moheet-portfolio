@@ -29,62 +29,97 @@ instead and says plainly that the evidence is what you told it.
 ===== COPY FROM HERE =====
 ```
 
-Find the things I keep doing by hand, and tell me which are worth turning into skills.
+I want you to find the things I keep doing by hand, then tell me which are worth turning into
+skills. A skill is one task written down once, so you stop improvising it. Write no skill until
+I have picked one.
 
-A skill is one task written down once, so you stop improvising it. I want this found from
-evidence, not guessed.
+**How to run this**
 
-STEP 1 — What can you actually see?
-Tell me in two lines which of these you can reach. Ask me before you read any of them.
-  - your saved history with me: past sessions, memory, past chats you can search
-  - the files in this folder
-  - shell history, if you can run commands
-If you can reach none of them, say so, and go to STEP 1B. Do not pretend.
+**Start by telling me what you can see, in one line, and ask me to correct you.** Do not ask
+me what access you have: you know that better than I do. Say whichever is true:
+- "I can read your saved history and files on this machine."
+- "I can see your memory or past chats in this tool."
+- "I can only see what you tell me in this chat."
 
-STEP 1B — If you cannot see any history, ask me these, ONE AT A TIME. Wait for each answer.
-  1. What did you redo last week that you would hand to a colleague if you could?
-  2. What did you ask me for three or more times this month, worded a little differently?
-  3. What did you correct me on twice? ("No, not like that" is the signal.)
-  4. Which steps do you do in the same order every time?
-  5. What do you copy from the last version of something before you start?
-Then go to STEP 3. Say clearly that your evidence is what I told you, not what you saw.
+**If you can see history, ask me once whether you may read it.** Name the sources in that one
+question and let me answer yes, no, or which. Open nothing until I say yes. If I say no, or you
+can see nothing, run the interview below, and say plainly that your evidence is only what I
+told you.
 
-STEP 2 — Read it safely, only after I say yes.
-  - Read locally. Send nothing anywhere.
-  - FIRST, before you open any message text, scan every source for secrets with a broad
-    pattern: sk-, key, token, secret, password, bearer, AKIA, ghp_, BEGIN, and any run of 24
-    or more letters and digits. Do not open a source that matches. Name it, count it, and
-    leave it out of everything below. Tell me you did this.
-  - Count with commands (grep, sort, uniq -c, wc). Do not estimate by eye. Show me each
-    command you ran.
-  - Report patterns and counts. Do not quote my messages, and never print a password, key,
-    token, email address, customer name or the contents of a file. Hide email addresses and
-    names in anything you show me.
-  - Look back 30 days unless I say otherwise.
-  - Look for four kinds of repeat:
-      a. the same kind of request, three or more times
-      b. the same steps in the same order
-      c. the same correction from me, twice or more. This is the strongest signal: it is a
-         missing line in a skill.
-      d. the same files or tools used together
+**Reading it, once I say yes**
+- Read locally. Send nothing anywhere.
+- **Before you open any message text, scan every source for secrets:** sk-, key, token, secret,
+  password, bearer, AKIA, ghp_, BEGIN, and any run of 24 or more letters and digits. Do not open
+  a source that matches. Name it, count it, and leave it out. Tell me you did this.
+- Count with commands (grep, sort, uniq -c, wc). Do not estimate by eye. Show me each command.
+- Report patterns and counts only: no quotes, no email addresses, no names, no file contents.
+- Look back 30 days unless I say otherwise.
+- Look for four kinds of repeat:
+    a. the same kind of request, three or more times
+    b. the same steps in the same order
+    c. the same correction from me, twice or more. This is the strongest signal: it is a
+       missing line in a skill.
+    d. the same files or tools used together
 
-STEP 3 — Suggest at most three skills. For each one:
-  name     — short and hyphenated
-  seen     — how many times, over what period, and where. Or "from what you told me".
-  trigger  — the words I would use when I want it
-  worth    — one line: time saved, or mistakes avoided
-  stable   — yes or no: is it done the same way each time? If no, say it is not ready.
-  gaps     — what you could not see and would need to ask me
-Rank by how often it happens, times how stable it is.
-If nothing appears three or more times, say "nothing repeats enough yet" and stop. An honest
-empty answer is a good answer.
+**The interview, when you cannot see any history**
 
-STEP 4 — Ask which one I want first. Then ask how I do it, step by step, and write it down as:
-name, when to use it, what to ask me first, the steps, what good looks like, what to avoid,
-and "if I correct you twice on this, add the rule here".
-Mark anything I did not tell you with (check this). Do not invent steps.
+Ask **one question at a time** and wait. Never send a list: I will answer the easiest one and
+ignore the rest. **Five questions, and five is the limit.** If I say "skip" or "I don't know",
+move on and say what you assumed.
 
-Do not save anything to disk, even if you can. Show me the skill as one block.
+1. What did you redo last week that you would hand to a colleague if you could?
+2. What did you ask me for three or more times this month, worded a little differently?
+3. What did you correct me on twice? ("No, not like that" is the signal.)
+4. Which steps do you do in the same order every time?
+5. What do you copy from the last version of something before you start?
+
+If I get impatient and tell you to just suggest something: use what I have told you, mark every
+assumption, and still finish with the one thing for tonight.
+
+**Then suggest at most three skills**, about 60 words each:
+
+```
+name     — short and hyphenated
+seen     — how many times, over what period, and where. Or "from what you told me".
+trigger  — the words I would use when I want it
+worth    — one line: time saved, or mistakes avoided
+stable   — yes or no: is it done the same way each time? If no, say it is not ready.
+gaps     — what you could not see and would need to ask me
+```
+
+Rank by how often it happens, times how stable it is. **If nothing appears three or more
+times, say "nothing repeats enough yet" and stop.** An honest empty answer is a good answer.
+
+**Then ask which one I want first, and write it.** Ask me, one at a time: how I do it now, in
+order, including the fiddly parts; then what keeps going wrong and what a right one looks like.
+Write it as one block:
+
+```
+name    — short, hyphenated
+when    — the situations where I'd reach for this
+ask     — what you need to know first
+steps   — from my answer, in my order
+good    — how I know it's right
+avoid   — what I keep having to fix
+```
+
+**`steps` must come from what I told you.** Do not invent a tidier process. Mark gaps with
+`(check this)`. Last line, matching how I will use it:
+- Terminal agent — *"If I correct you twice on the same thing while using this skill, add the
+  rule to this file before you finish."*
+- Chat window — *"If I correct you while using this, show me the whole block again with the fix
+  in it, from its first line, so I can paste it back."*
+
+**Do not save anything to disk, even if you can.** Paste the block and tell me where it goes:
+- Terminal agent: for Claude Code, `.claude/skills/<name>/SKILL.md`, and it **needs frontmatter
+  or it will not load** (`---`, `name:`, `description:`, `---`). For any other agent, a heading
+  in `AGENTS.md`, or its own skills folder if it has one.
+- ChatGPT, Gemini, Claude.ai, Copilot: paste it at the top of a chat when I need it, or put it in
+  a Project, a Gem or custom instructions.
+- On a phone: keep it in one note and paste it.
+
+**Then give me one thing to do tonight. Never skip this, however rushed we were.** Name a
+specific real task I could run the skill on in the next ten minutes, in my words.
 
 ```
 ===== COPY TO HERE =====
@@ -122,34 +157,42 @@ with use.
 ===== COPY FROM HERE =====
 ```
 
-Check the skill I paste below the line that says SKILL, then fix it.
-If I give you a folder or a path instead, read every file in it, scripts included, and check
-those too.
+I want you to check a skill I will paste, tell me whether it is safe and any good, then fix
+it. Check first. Write the fix last.
 
-FIRST, CHECK IT. Answer each of these, and quote the line you are judging:
+**How to run this**
+
+**If I have not pasted a skill yet, ask for it once** and wait. If I give you a folder or a path
+instead, read every file in it, scripts included.
+
+**Tell me what you can see, in one line, and ask me to correct you.** Do not ask me what access
+you have: you know that better than I do. Say "I can see the files in this folder" or "I can
+only see what you paste here". It matters, because a skill can call scripts, and you can only
+judge what you can see.
+
+**Step 1 — Check it.** Answer each, and quote the line you are judging:
   1. Does it say what a good result looks like? Quote it, or say "no definition of good".
   2. Does it say what to avoid? Quote it, or say "no traps listed".
   3. Does it ask me anything when the answer would change the work? Quote it, or say "never asks".
   4. Does it say what to do when I correct it? Quote it, or say "no rule for corrections".
 
-THEN THE RISK SCAN. List every line that deletes or overwrites something, pushes, posts,
-emails, installs, downloads, reaches the network, or tells you to run a command. Say "none
-seen" if there are none.
-You can only see what I pasted. If the skill mentions a script or a file you were not given,
-say "I could not see <name>" and do not assume it is safe.
+**Step 2 — The risk scan.** List every line that deletes or overwrites something, pushes, posts,
+emails, installs, downloads, reaches the network, or tells you to run a command. Say "none seen"
+if there are none. If the skill mentions a script or a file you were not given, say "I could not
+see <name>", and do not assume it is safe.
 
-Give a verdict in one line: SAFE TO TRY, READ THE FLAGGED LINES FIRST, or DO NOT INSTALL.
+Give a verdict in one line: **SAFE TO TRY**, **READ THE FLAGGED LINES FIRST**, or **DO NOT
+INSTALL**.
 
-If it already passes all four checks, say "No rewrite needed", list only the small changes
-you would make, and stop.
+**Step 3 — Fix it.** If it already passes all four checks, say "No rewrite needed", list only
+the small changes you would make, and stop. Otherwise rewrite it, keeping my intent and my
+wording where it is good, in this shape:
 
-Otherwise REWRITE IT, keeping my intent and my wording where it is good, in this shape:
-
+```
 ---
-name: <short, hyphenated>
-description: <when to use it and when not to, using the words in the original. If the
-  original gives no trigger words, write (check this) and ask me what I would type. Do not
-  make up example phrases.>
+name: short-and-hyphenated
+description: when to use it and when not to, using the words in the original. If the original
+  gives no trigger words, write (check this). Do not make up example phrases.
 ---
 ## Get the context that changes the answer
 What you need to know before starting. Ask me. Do not assume.
@@ -164,21 +207,32 @@ A correction is a change to the method, not just to this answer. Name what it ch
 back as one rule in my words. Offer the line for keeping, and say plainly that it is lost when
 the conversation ends unless I save it. If the same correction arrives twice, say so, and
 treat it as a missing line in this file.
+```
 
 Rules for the rewrite:
-  - Do not add steps, traps, checks or questions that are not in the original, and do not
-    invent numbers, thresholds, tools or example phrases. Where the original is silent, write
-    (check this). If you think something is missing, list it AFTER the skill under
-    "Suggested additions" and leave it out of the skill.
-  - The one exception is a DO NOT INSTALL verdict. Then remove or neutralise each dangerous
-    line, and list every change you made and why.
-  - Keep names, paths and accounts as written. List any that look specific to the author's
-    own setup under "Check these fit you", so I can change them.
-  - Put any question for me AFTER the skill, never inside it. The skill itself must be
-    something I can save as it stands.
-  - Keep only name and description in the header, so it works in any tool.
+- **Do not add steps, traps, checks or questions that are not in the original**, and do not
+  invent numbers, thresholds, tools or example phrases. Where the original is silent, write
+  `(check this)`. If you think something is missing, list it AFTER the skill under "Suggested
+  additions" and leave it out of the skill.
+- The one exception is a DO NOT INSTALL verdict. Then remove or neutralise each dangerous line,
+  and list every change you made and why.
+- **Keep names, paths and accounts as written.** List any that look specific to the author's own
+  setup under "Check these fit you", so I can change them.
+- Put any question for me AFTER the skill, never inside it. The skill itself must be something
+  I can save as it stands.
+- Keep only `name` and `description` in the header, so it works in any tool.
 
-Show the whole rewritten skill as one block, from its first line, so I can paste it back.
+**Do not save anything to disk, even if you can.** Show the whole rewritten skill as one block,
+from its first line, so I can paste it back, and tell me where it goes:
+- Terminal agent: for Claude Code, `.claude/skills/<name>/SKILL.md`; it **needs the `---` header
+  or it will not load**. For any other agent, a heading in `AGENTS.md`, or its own skills folder
+  if it has one.
+- ChatGPT, Gemini, Claude.ai, Copilot: paste it at the top of a chat when I need it, or put it in
+  a Project, a Gem or custom instructions.
+- On a phone: keep it in one note and paste it.
+
+**Then give me one thing to do tonight. Never skip this.** Name a specific real task I could run
+the fixed skill on in the next ten minutes, taken from the skill's own "when".
 
 SKILL
 (paste it here)
@@ -214,10 +268,11 @@ Doctor on the one you keep.
 
 ## What's been tested, honestly
 
-Both prompts were run against Claude, three times each, and rewritten twice after the first
-two runs found real problems. The Finder ran against a made-up history with a planted secret
-and a planted email, and printed neither. The Doctor ran against a good skill, a thin one and a
-deliberately dangerous one.
+Both prompts were run against Claude over four rounds, and rewritten three times after real
+problems turned up. The Finder ran against a made-up history with a planted secret and a planted
+email, and printed neither. The Doctor ran against a good skill, a thin one and a deliberately
+dangerous one. The last version, written in the same shape as the generator, passed every check
+once one of the checks was corrected for being too narrow.
 
 What the early runs caught: the Doctor invented trigger phrases, added a confirmation step the
 skill never had, and stripped a name that was the owner's own; and the Finder read a secret
