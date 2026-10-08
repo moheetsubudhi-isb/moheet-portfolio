@@ -1000,7 +1000,9 @@ counts. That is the pattern worth stealing, and the one that gets signed off.</p
     # nothing true to say is left out rather than filled.
     def project(problem, did, result, tools="", links="", extra=""):
         out = f"<h3>The problem</h3>\n<p>{problem}</p>\n<h3>What I did</h3>\n{did}\n{extra}"
-        out += f"<h3>What came of it</h3>\n<p>{result}</p>\n"
+        if result is not None:
+            body = result if result.lstrip().startswith("<") else f"<p>{result}</p>"
+            out += f"<h3>What came of it</h3>\n{body}\n"
         if tools:
             out += f"<h3>Tools</h3>\n<p>{tools}</p>\n"
         return out + (f"<p>{links}</p>" if links else "")
@@ -1021,12 +1023,14 @@ counts. That is the pattern worth stealing, and the one that gets signed off.</p
                      "<p>I built Ishaan: two agents sharing one brain. Claude Code is the one I "
                      "work with directly. Hermes runs always on as Ishaan in Slack, where the team "
                      "asks it questions and where it posts its scheduled work.</p>",
-                     "19 scheduled jobs run without anyone at a keyboard: a morning health check, "
-                     "the daily customer success digest, a pending-invoice summary, a twice-daily "
-                     "brain refresh, a weekly knowledge-base refresh, and the checks that watch "
-                     "all of them. The daily digest went from 3,487 words to about 195. Tool "
-                     "connection errors went from 18.9 an hour to zero. Ishaan has run since July "
-                     "2026 and proposes its own new checks every Monday.",
+                     """<p><strong>Routine customer-success work now runs on its own, and the system repairs itself when something breaks.</strong></p>
+<ul>
+<li><strong>19 jobs run on a schedule</strong> with nobody at a keyboard: a morning health check, a daily summary of the customer inbox, a daily summary of unpaid invoices, a twice-daily refresh of what the team knows about each customer, and a weekly refresh of product knowledge.</li>
+<li><strong>The team asks Ishaan in Slack</strong> and gets answers drawn from that same customer and product knowledge.</li>
+<li><strong>The daily digest went from 3,487 words to about 195</strong>, so it can be read at a glance.</li>
+<li><strong>Breakages are caught and fixed.</strong> A watchdog restarts it within seconds, and every 30 minutes each tool connection is tested again. Tool connection errors fell from 18.9 an hour to zero.</li>
+<li><strong>It keeps improving.</strong> It has run since July 2026, and every Monday it reviews its own week and proposes new checks for me to approve.</li>
+</ul>""",
                      "Hermes Agent, Claude Code, MCP, Python, Slack Block Kit, Supabase vector "
                      "search, Composio, SQLite, launchd, git",
                      extra="""
@@ -1066,82 +1070,90 @@ rule is now enforced at the moment a check is proposed.</p>
             dict(slug="self-serve", label="Self-serve strategy", icon="analytics",
                  stamp=dict(img="logos/mailmodo.png", logo=True, text="MAILMODO"),
                  title="Self-serve strategy",
-                 lede="Sorting a growing self-serve base by what customers actually do, and giving each group its own playbook.",
+                 lede="Mailmodo has a lot of small customers who run on their own. I worked out which ones to help, and how.",
                  body=project(
-                     "Mailmodo&rsquo;s self-serve bucket kept growing, and the way we sorted it was not "
-                     "helping. The old groups described our decisions, not the customer&rsquo;s "
-                     "behaviour: <em>we decided they don&rsquo;t need help</em>, <em>the customer "
-                     "opted to be self-serve</em>, <em>no communication established</em>, <em>they "
-                     "ghosted us</em>. Nothing in them said who was about to churn or who was ready "
-                     "to grow, so the playbooks did not work and churn in this group rose.",
-                     "<p>I redesigned how self-serve customers are sorted and handled. The aim was "
-                     "four things: a clear category from behaviour and usage, a playbook for each "
-                     "category, more adoption and revenue, and less of the team&rsquo;s time spent "
-                     "on accounts that did not need it.</p>\n"
-                     "<p>Success is read on two levels. <strong>Leading:</strong> product usage "
-                     "trends, health score, and contact made with customers who had gone quiet. "
-                     "<strong>Lagging:</strong> logo churn.</p>",
-                     "A rules-based system of four segments with explicit entry and exit rules, a "
-                     "playbook for each, and a daily data feed that keeps accounts in the right "
-                     "segment without anyone sorting them by hand. Its first read of the Auto Pilot "
-                     "group already points at a clear upside: 88 customers, 41% of them sending bulk "
-                     "email only, and the ones who add automation open and click far more. It is "
-                     "running now, and the churn effect is still being measured.",
-                     "Vitally, Amplitude, Chargebee, HubSpot, Google Sheets and Apps Script",
+                     "Mailmodo is email software: businesses use it to send emails to their own "
+                     "customers. Most of Mailmodo&rsquo;s customers are small and use it without "
+                     "anyone from our team looking after them. That is called <strong>self-serve</strong>. "
+                     "A support team cannot talk to everyone, so it has to choose who to spend time on.</p>\n<p>"
+                     "We were choosing badly. The groups we used described what <em>we</em> had "
+                     "decided, not what the customer was doing: &ldquo;we decided they don&rsquo;t need "
+                     "help&rdquo;, &ldquo;they chose to be self-serve&rdquo;, &ldquo;they ghosted "
+                     "us&rdquo;. Nothing in them told us who was about to leave and who was ready to "
+                     "spend more, so the same message went to everyone, it worked for no one, and more "
+                     "customers were leaving.",
+                     "<p>I redesigned it. Every self-serve customer is now placed in one of four groups "
+                     "by how they actually use the product, and each group has its own plan: what to "
+                     "do, how often, and who does it. Placement is automatic, from usage data that "
+                     "refreshes every day, so nobody sorts customers by hand.</p>\n"
+                     "<p>The goal was simple: keep more of these customers, help the ones who can "
+                     "grow, and stop spending the team&rsquo;s time on accounts that don&rsquo;t need it.</p>",
+                     None,
+                     "Vitally (customer data), Amplitude (usage data), Chargebee (billing), HubSpot, "
+                     "Google Sheets and Apps Script",
                      extra="""
-<h3>How it is built</h3>
-<div class="fig"><div class="arch">
-<div class="arch-row"><div class="node"><b>Usage events</b><span>Daily from Amplitude: emails sent by bulk, trigger and journey, open and click rates, bounces, credits used, journeys running.</span></div><div class="node"><b>Account data</b><span>From Vitally: invoices due, onboarding stage, CSM, handover and churn dates.</span></div></div>
-<div class="down">&darr; rules, not judgement &darr;</div>
-<div class="arch-row"><div class="node strong"><b>Four segments</b><span>Auto Pilot, Non-Auto Pilot, No Growth Opportunity, Dormant.</span></div><div class="node strong"><b>Movement rules</b><span>Exact conditions to move between segments, each flagged for automatic or manual action.</span></div></div>
-<div class="down">&darr; each segment gets &darr;</div>
-<div class="arch-row"><div class="node"><b>Its own playbook</b><span>What to do, how often, and who does it.</span></div><div class="node guard"><b>Review</b><span>Every three months, plus automatic re-sorting when the data moves.</span></div></div>
-</div><div class="cap">Behaviour in, a segment out, and a playbook for it</div></div>
+<h3>Two email terms, in plain words</h3>
+<ul>
+<li><strong>Bulk email.</strong> One message sent to a whole list at once, like a newsletter or a sale announcement.</li>
+<li><strong>Automatic email.</strong> Emails that go out by themselves when something happens, like a welcome message after someone signs up, or a reminder after an abandoned basket. Mailmodo calls these journeys and trigger campaigns.</li>
+</ul>
+<p>Almost everything in the strategy comes back to one question: does this customer only blast
+emails by hand, or have they set up emails that work for them?</p>
 
-<h3>The four segments</h3>
+<h3>The four groups</h3>
 <div class="fig"><div class="arch">
-<div class="arch-row"><div class="node strong"><b>Auto Pilot</b><span>Know the tool, send campaigns that perform, and contact support or their CSM only when something breaks. Focus: retention.</span></div><div class="node"><b>Non-Auto Pilot</b><span>Use it now and then, need a nudge and help with use cases, and prefer their CSM to support. Focus: expansion and adoption.</span></div></div>
-<div class="arch-row"><div class="node"><b>No Growth Opportunity</b><span>Joined for one job, which is done. Low bandwidth, little interest in more features. Focus: passive engagement.</span></div><div class="node guard"><b>Dormant</b><span>Nothing sent for 30 days or more, but autopay keeps the revenue coming. Focus: win back with a use case.</span></div></div>
+<div class="arch-row"><div class="node strong"><b>Auto Pilot</b><span>Already good at it. Sends steadily, gets good results, and asks for help only when something breaks. <em>Light-touch care: regular check-ins and product updates.</em></span></div><div class="node"><b>Needs a nudge</b><span>Uses it, but results are weak or patchy. Wants ideas and a little help. <em>We coach them toward Auto Pilot.</em></span></div></div>
+<div class="arch-row"><div class="node"><b>Stable, not growing</b><span>Joined for one job, and it is done. Little time and no appetite for more. <em>Light, automatic contact, and make sure payment is on autopay.</em></span></div><div class="node guard"><b>Gone quiet</b><span>Nothing sent for 30 days or more, though they still pay. <em>We find a use that makes the product stick.</em></span></div></div>
 </div><div class="cap">Four groups, sorted by behaviour</div></div>
+<p>The group names are Mailmodo&rsquo;s own: Auto Pilot, Non-Auto Pilot, No Growth Opportunity and
+Dormant.</p>
 
-<h3>What counts as Auto Pilot</h3>
-<p>The first definition read one month&rsquo;s numbers, and accounts flipped in and out. The revised
-one asks for the same behaviour three months running, and an account that misses any one month
-drops out:</p>
+<h3>How we decide who is on Auto Pilot</h3>
+<p>Auto Pilot is the group everything else is measured against, so the test has to be strict and
+steady. My first version looked at one month, and customers kept flipping in and out. The
+version that works asks for <strong>three months in a row</strong>. Each month the customer must have:</p>
 <ul>
-<li>Open rate of 10% or more, in each of the last three active months.</li>
-<li>Click rate of 2% or more, in each of the last three months.</li>
-<li>At least 5 bulk emails in each of those months.</li>
-<li>A journey in use each month, or a trigger campaign enrolled at some point in the three months.</li>
-<li>100 or more email credits used each month.</li>
+<li>had at least 1 in 10 emails opened, and 2 in 100 clicked;</li>
+<li>sent at least 5 bulk emails;</li>
+<li>used automatic emails, in a journey that month or a trigger campaign at some point in the three;</li>
+<li>used at least 100 email credits (the unit of sending in their plan).</li>
 </ul>
-<p>Non-Auto Pilot is everyone who uses it but does not pass that bar: credits used on at least one
-day each month, open rate under 11% or clicks under 2%, and only a thin spread of campaigns.
-They must also not already be in Auto Pilot.</p>
+<p>Miss any one month and the customer drops out. Customers who use it but do not pass go to the
+&ldquo;needs a nudge&rdquo; group, and every group has a written rule for moving in and out, marked
+automatic or needs a person.</p>
 
-<h3>How it is run</h3>
+<h3>How it runs day to day</h3>
+<ol class="steps">
+<li>Usage data arrives every day: emails sent, opens, clicks, credits used, automatic emails running.</li>
+<li>It is combined with account data: who the customer is, their invoices, their onboarding stage and who looks after them.</li>
+<li>The rules place each customer in a group and move them when their behaviour changes.</li>
+<li>The group sets the plan. For example, an Auto Pilot customer gets a check-in every three months. A support message from them is marked high priority. A customer whose results slip gets a goal, a playbook, and a return to Auto Pilot once they reach it.</li>
+</ol>
+
+<h3>What came of it</h3>
+<p><strong>Mailmodo&rsquo;s small customers now get the help that suits them, and the team&rsquo;s time goes where it counts.</strong></p>
 <ul>
-<li><strong>Auto Pilot.</strong> A check-in task every three months. A support ticket or a message to their CSM is flagged as high priority. Under three months in, a personal note each month; after that, product updates and campaign ideas. Quiet accounts get two contacts a week in the first month, two a month in the second, then one a month with a personal touch.</li>
-<li><strong>Leaving Auto Pilot.</strong> If the last 30 days of performance or credit use fall below a quarter of the last 90, the account moves to Non-Auto Pilot. A performance playbook starts with a specific goal, and once the goal is met the account goes back with an explanation.</li>
-<li><strong>Non-Auto Pilot.</strong> Targeted by what is wrong: a low open rate gets a playbook, a low click rate gets personalised help, bounces and spam complaints get a standard fix. Where nobody is building campaigns, a conversation is opened for the CSM, with industry ideas. Seven days before renewal, the account is re-checked against the Auto Pilot rules.</li>
-<li><strong>No Growth Opportunity.</strong> Updates and reminders that need no CSM, a personal contact every three months, and automatic payment set up. Cold-email users sit here by a manual override with a stated reason.</li>
-<li><strong>Dormant.</strong> A check-in every three months, and a use case or automation to make the product stick.</li>
+<li><strong>The team knows who to call and why.</strong> Time goes to customers who are slipping or ready to grow, and the steady ones get light, automatic care.</li>
+<li><strong>Churn gets an early warning.</strong> If a customer&rsquo;s last 30 days make up less than a quarter of their last 90 days of activity, they have gone quiet, and they move to a group that gets help before they leave.</li>
+<li><strong>A clear way to grow revenue.</strong> The data showed that customers who use automatic emails get far better results and use much more of the product. So the plan is to move the others across.</li>
+<li><strong>Every customer gets a message that fits</strong>, instead of the same one as everybody else.</li>
 </ul>
+<p>It is live and running. How much it has reduced the number of customers leaving is still being measured, and I will add the figure here.</p>
 
 <h3>What the data showed</h3>
-<p>The first read of the Auto Pilot group, 88 customers:</p>
+<p>The first look at 88 customers on Auto Pilot found the biggest opportunity in the whole group:</p>
 <ul>
-<li><strong>Bulk dominates, automation lags.</strong> 36 customers (41%) send bulk only. 13% never set up a journey, 66% never enrolled anyone in a trigger campaign, and 57% ran no journey in the last 30 days.</li>
-<li><strong>Automation lifts engagement, even at small volume.</strong> Journey users average about 35% opens and 10% clicks. Five trigger-only accounts reached 46% opens and 27% clicks.</li>
-<li><strong>Credits show where growth is.</strong> Customers using bulk, trigger and journey together burn 17.6k credits in 30 days, about 75% more than bulk-only. Moving single-feature users to automation is the upside.</li>
+<li><strong>Most only send by hand.</strong> 36 of the 88 (41%) send bulk email and nothing else, and 57% had no automatic emails running in the past month.</li>
+<li><strong>Automatic emails work better.</strong> Customers using them average about 35% opened and 10% clicked. Five who used only trigger emails reached 46% opened and 27% clicked.</li>
+<li><strong>They also use the product more.</strong> Customers using bulk, trigger and journey emails together used about 75% more of their sending allowance (17.6k credits in 30 days) than bulk-only customers. That is where growth in revenue comes from.</li>
 </ul>
 
-<h3>What it taught me</h3>
+<h3>What I learned</h3>
 <ul>
-<li><strong>Sort by behaviour, not by our decision.</strong> &ldquo;We decided they don&rsquo;t need help&rdquo; tells you nothing about the customer.</li>
-<li><strong>One month lies.</strong> A rule on a single month&rsquo;s numbers moves accounts around for no reason. Three months running holds.</li>
-<li><strong>Write the exit as carefully as the entry.</strong> Every segment has a rule for leaving, and says whether the system or a person applies it.</li>
-<li><strong>The data feed is half the job.</strong> The segments only work once the right events arrive daily and the CS data sits next to them.</li>
+<li><strong>Group people by what they do, not by what you decided.</strong> &ldquo;We decided they don&rsquo;t need help&rdquo; says nothing about the customer.</li>
+<li><strong>One month misleads.</strong> A rule on a single month moves customers around for no reason. Three in a row holds.</li>
+<li><strong>Write the way out as carefully as the way in.</strong> Every group says how a customer leaves it and whether a system or a person makes the call.</li>
+<li><strong>The data pipe is half the job.</strong> The groups only work when the right numbers arrive every day, next to the customer details.</li>
 </ul>
 """
                  )),
@@ -1161,10 +1173,14 @@ They must also not already be in Auto Pilot.</p>
                      "strategy, the copy and the openers. The rules decide what is sent.</p>\n"
                      "<p>The same motion also runs from the terminal as an SDR agent on Hermes and "
                      "Claude Code, following 27 playbooks across 8 stages.</p>",
-                     "An internal MVP, handed over to the tech team for hosting. 478 tests pass on "
-                     "file storage and 472 on Postgres, with the live-send path tested against a "
-                     "fake mail server. It moved from JSON files to Postgres in September 2026. "
-                     "The first live send waits on a properly warmed mailbox, by design.",
+                     """<p><strong>One person can run a whole cold-email campaign from a single screen, and the mistakes that cost the most cannot happen.</strong></p>
+<ul>
+<li><strong>The costly mistakes are blocked in code:</strong> nobody is emailed twice, nobody who opted out or replied is chased, no mailbox sends before it has warmed up for 14 days, no more than 100 a day per mailbox, and nothing goes live until the exact words CONFIRM SEND are typed.</li>
+<li><strong>Follow-ups go out on the right day by themselves</strong>, once the operator switches that on.</li>
+<li><strong>Only people who say yes reach Mailmodo.</strong> Cold contacts never do.</li>
+<li><strong>Tested hard:</strong> 478 tests pass on file storage and 472 on Postgres, with the live-send path tested against a fake mail server. It has been handed to the tech team for hosting.</li>
+<li><strong>Not used for a live send yet.</strong> That waits on a mailbox that has finished its 14-day warm-up.</li>
+</ul>""",
                      "Node 22 with four dependencies, Postgres, SMTP and IMAP, Apollo, Claude, "
                      "OpenAI or OpenRouter (pluggable), Docker, Hermes, Claude Code",
                      extra="""
@@ -1209,11 +1225,12 @@ a bug.</p>
                      "static site. The pipeline pulls every model&rsquo;s price, hosts and benchmark "
                      "scores from one public source, works out which models are the best value at "
                      "their quality, and turns token maths into jobs a team recognises.</p>",
-                     "Live, and refreshed every Monday through the gate. It tracks 400+ priced "
-                     "models, ranks about 150 on quality, prices six everyday workloads for each, "
-                     "and publishes a changelog with RSS and the full dataset as CSV and JSON. The "
-                     "headline finding: 150 of 157 models cost more than an equally capable "
-                     "option.",
+                     """<p><strong>Someone choosing an AI model for marketing or operations can see which one is the best value for their job, in plain money terms.</strong></p>
+<ul>
+<li><strong>It tracks 400+ priced models</strong> and ranks about 150 on quality, with a price worked out for six everyday jobs, like writing 1,000 marketing emails.</li>
+<li><strong>The headline finding:</strong> 150 of 157 models cost more than an equally capable alternative. Most people are paying more than they need to.</li>
+<li><strong>It can be trusted.</strong> It refreshes every Monday and checks its own data first, so a bad update cannot go live. Every change is published in a changelog with an RSS feed, and the whole dataset is a free download.</li>
+</ul>""",
                      "Python, Next.js (static export), the OpenRouter API, launchd, Vercel, GitHub",
                      '<a class="btn primary" href="https://besthunt-leaderboard.vercel.app" '
                      'target="_blank" rel="noopener">See it live</a>',
@@ -1271,10 +1288,15 @@ and puts the previous files back. Twelve tests prove each check rejects what it 
                      "in plain language instead of hunting across portals.</p>\n"
                      "<p>LPG Guru is independent technology built for distributors. It is not an "
                      "HPCL product and carries no HPCL endorsement.</p>",
-                     "Live at lpgguru.in, with LPG Guru AI at chat.lpgguru.in. One login, one "
-                     "support line and one bill replace paper registers, Excel trackers, a "
-                     "separate accounting package, an IVR vendor, a bulk messaging tool and staff "
-                     "registers.",
+                     """<p><strong>A gas agency runs on one system instead of paper registers, spreadsheets and a separate tool for everything.</strong></p>
+<ul>
+<li><strong>The numbers tie out by themselves.</strong> Daily entries, accounts and stock are linked, so nobody matches them by hand at the end of the day.</li>
+<li><strong>No complaint is lost.</strong> Every consumer call is answered and logged, and each complaint becomes a ticket tracked until it is closed.</li>
+<li><strong>Deadlines are visible.</strong> Dashboards show who still owes eKYC or an inspection, and which licences are coming up for renewal.</li>
+<li><strong>Hidden revenue is found.</strong> Lapsed and due customers are listed and reached by WhatsApp, SMS or a call.</li>
+<li><strong>Staff stop asking the owner.</strong> LPG Guru AI answers questions about HPCL processes and schemes.</li>
+<li><strong>It replaces</strong> paper registers, Excel trackers, a separate accounting package, an IVR vendor and a bulk-messaging tool, with one login, one support line and one bill. It is live at lpgguru.in.</li>
+</ul>""",
                      links='<a class="btn primary" href="https://lpgguru.in" target="_blank" '
                            'rel="noopener">See it live</a>\n<a class="btn" href="https://chat.lpgguru.in" '
                            'target="_blank" rel="noopener">LPG Guru AI</a>',
@@ -1337,10 +1359,13 @@ same data.</p>
                      "holds who you are, what you know and how you work, and carries it to every AI "
                      "you use over MCP: ChatGPT, Claude, Cursor, Claude Code, Codex and the agents "
                      "you run. Tell one AI something and every other one already knows it.</p>",
-                     "It is the shared memory behind my own work every day, across Claude, Codex, "
-                     "ChatGPT and always-on agents, including Ishaan. It serves 31 tools to any "
-                     "connected AI, holds 1,699 memories across 45 projects, and passes 1,796 "
-                     "tests. Early access is open by invitation.",
+                     """<p><strong>I never repeat myself to an AI. What I tell one of them, all of them know.</strong></p>
+<ul>
+<li><strong>It is the shared memory behind my daily work</strong> across Claude, Codex, ChatGPT and always-on agents, including Ishaan.</li>
+<li><strong>It holds 1,699 memories across 45 projects</strong>, and 31 tools let any connected AI read and write them.</li>
+<li><strong>Corrections stick.</strong> Fix a fact once and every tool sees the fix.</li>
+<li><strong>Early access is open</strong> by invitation.</li>
+</ul>""",
                      links='<a class="btn primary" href="https://ownr.digital/#waitlist" target="_blank" '
                            'rel="noopener">Join the waitlist</a>\n<a class="btn" href="https://ownr.digital" '
                            'target="_blank" rel="noopener">ownr.digital</a>',
@@ -1404,8 +1429,12 @@ beats the baseline. It is not yet a moat.</p>
                      "ran the event, so the host never had to learn a setting: planning it with "
                      "them, choosing the right platform, hosting it live, streaming it, and handing "
                      "back the recording.</p>",
-                     "700+ events and 2,50,000+ participants, for clients across India, run by a team "
-                     "of 10. What began as a couple of meetings a week became several a day.",
+                     """<p><strong>People who had never used online tools could still hold their meetings, and a small team grew into a business.</strong></p>
+<ul>
+<li><strong>700+ events with 2,50,000+ participants</strong>, for clients across India.</li>
+<li><strong>From a couple of meetings a week to several a day</strong>, run by a team of 10.</li>
+<li><strong>Real gatherings, held online</strong> when meeting in person was not possible: banks held their AGMs, coaches ran exams, and families held birthdays and religious gatherings.</li>
+</ul>""",
                      "Video conferencing and live-streaming platforms, 3D event hosting, graphic "
                      "design, video composition and editing",
                      '<a class="btn primary" href="https://vdohosting.in" target="_blank" '
@@ -1442,9 +1471,13 @@ gatherings, social gatherings, birthday parties, Zumba classes, coaching and exa
                      "we built a custom app around what they actually do: live stock across all "
                      "three warehouses, orders allocated from one stock table, order history and "
                      "tracking, and E-way bills generated for interstate moves.</p>",
-                     "Orders went from 30 to 90 a month within four months. Order accuracy rose "
-                     "from 82% to 97%, billing compliance risk fell by 90%, and missing rods "
-                     "now show up instead of going unaccounted for.")),
+                     """<p><strong>A rental business tripled its monthly orders and stopped losing track of its steel.</strong></p>
+<ul>
+<li><strong>Orders went from 30 to 90 a month</strong> within four months of using the app.</li>
+<li><strong>Order accuracy rose from 82% to 97%</strong>, and the risk of billing mistakes fell by 90%.</li>
+<li><strong>Stock in all three warehouses is visible live</strong>, so a missing rod shows up instead of going unnoticed.</li>
+<li><strong>The Excel sheets are gone</strong>, and the interstate bills are produced inside the app.</li>
+</ul>""")),
             dict(slug="royal-living-tangi", label="Royal Living Tangi", icon="phone",
                  stamp=dict(icon="phone", text="ROYAL LIVING"),
                  title="Royal Living Tangi",
@@ -1460,8 +1493,13 @@ gatherings, social gatherings, birthday parties, Zumba classes, coaching and exa
                      "calling replaced the old IVRS line.</p>\n"
                      "<p>For customers a call could not reach, we worked with self-help groups and "
                      "Mission Shakti groups to verify them in person.</p>",
-                     "In two months, 14,500 records cleaned and 5,027 addresses verified, with "
-                     "digital bookings projected to rise 12&ndash;15%.")),
+                     """<p><strong>A gas agency now has a clean customer database, and a team that keeps it clean.</strong></p>
+<ul>
+<li><strong>14,500 records cleaned and 5,027 addresses verified in two months</strong>, out of 34,000 customers.</li>
+<li><strong>Customers who used to phone the delivery staff directly are being brought back</strong> into the proper booking process, with online booking explained on every call.</li>
+<li><strong>Calls now run on GSM-based outbound calling</strong> in place of the old IVRS line.</li>
+<li><strong>Digital bookings are projected to rise 12&ndash;15%.</strong></li>
+</ul>""")),
             dict(slug="osda", label="OSDA", icon="govt",
                  stamp=dict(img="logos/osda.jpg", logo=True, text="OSDA"),
                  title="OSDA, Government of Odisha",
@@ -1474,8 +1512,11 @@ gatherings, social gatherings, birthday parties, Zumba classes, coaching and exa
                      "decisions in line with the government's compliance goals. We launched "
                      "process automation features: a modular CMS, push notifications and "
                      "analytics dashboards.</p>",
-                     "More transparency for 12,000+ users, on a platform built within the "
-                     "government's compliance rules.")),
+                     """<p><strong>A government platform that is easier to see into, for the 12,000+ people who use it.</strong></p>
+<ul>
+<li><strong>A &#8377;60-lakh digital transformation</strong>, delivered inside the government&rsquo;s compliance rules.</li>
+<li><strong>A modular CMS, push notifications and analytics dashboards</strong>, so the people using the platform can see what is happening on it.</li>
+</ul>""")),
             dict(slug="neoteric", label="Neoteric", icon="megaphone",
                  stamp=dict(icon="megaphone", text="NEOTERIC"),
                  title="Neoteric",
@@ -1490,8 +1531,11 @@ gatherings, social gatherings, birthday parties, Zumba classes, coaching and exa
                      "designed the identity: logo, colours and imagery.</p>\n"
                      "<p>I designed and ran the government PR campaign with a 45-member team, "
                      "standard SOPs and compliance checks on every outreach step.</p>",
-                     "A consultancy with a team, a way of working and a brand of its own, and a "
-                     "campaign that reached 2,50,000+ impressions.")),
+                     """<p><strong>A new consultancy went from an idea to a working business, and ran a government campaign that generated 2,50,000+ impressions.</strong></p>
+<ul>
+<li><strong>A team, written ways of working and a brand of its own:</strong> logo, colours, imagery and story.</li>
+<li><strong>A government PR campaign run by 45 people</strong> with standard steps and compliance checks on every outreach step, generating 2,50,000+ impressions.</li>
+</ul>""")),
             dict(slug="iwd-app", label="IWD Secretary App", icon="app",
                  stamp=dict(img="logos/innerwheel.jpg", logo=True, text="INNER WHEEL"),
                  title="IWD Secretary App",
@@ -1504,9 +1548,13 @@ gatherings, social gatherings, birthday parties, Zumba classes, coaching and exa
                      "projects sit in one place, each tracking beneficiaries, members' hours and "
                      "spend. The monthly and yearly reports for the international body are "
                      "generated automatically, and finance reports export as PDF.</p>",
-                     "Every club onboarded. Reporting that was manual is now automatic and "
-                     "audit-ready, and anyone outside the club can see the work the district "
-                     "does.")),
+                     """<p><strong>2,400+ volunteers across 60+ clubs now report their work in one app, instead of by hand.</strong></p>
+<ul>
+<li><strong>Every club onboarded.</strong></li>
+<li><strong>Reports write themselves.</strong> The monthly and yearly reports for the international body are produced automatically and are ready for audit.</li>
+<li><strong>Every project is tracked:</strong> beneficiaries, hours given and money spent, with finance reports exported as PDF.</li>
+<li><strong>The work is visible.</strong> Anyone outside the club can see what the district does.</li>
+</ul>""")),
         ]))
 
     v.append(dict(
