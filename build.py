@@ -1063,6 +1063,88 @@ rule is now enforced at the moment a check is proposed.</p>
 <li><strong>Measure before you optimise.</strong> A token-saving proxy made Ishaan about four times more expensive per conversation, because it broke prompt caching for that kind of traffic. It stays off, on purpose.</li>
 </ul>
 """)),
+            dict(slug="self-serve", label="Self-serve strategy", icon="analytics",
+                 stamp=dict(img="logos/mailmodo.png", logo=True, text="MAILMODO"),
+                 title="Self-serve strategy",
+                 lede="Sorting a growing self-serve base by what customers actually do, and giving each group its own playbook.",
+                 body=project(
+                     "Mailmodo&rsquo;s self-serve bucket kept growing, and the way we sorted it was not "
+                     "helping. The old groups described our decisions, not the customer&rsquo;s "
+                     "behaviour: <em>we decided they don&rsquo;t need help</em>, <em>the customer "
+                     "opted to be self-serve</em>, <em>no communication established</em>, <em>they "
+                     "ghosted us</em>. Nothing in them said who was about to churn or who was ready "
+                     "to grow, so the playbooks did not work and churn in this group rose.",
+                     "<p>I redesigned how self-serve customers are sorted and handled. The aim was "
+                     "four things: a clear category from behaviour and usage, a playbook for each "
+                     "category, more adoption and revenue, and less of the team&rsquo;s time spent "
+                     "on accounts that did not need it.</p>\n"
+                     "<p>Success is read on two levels. <strong>Leading:</strong> product usage "
+                     "trends, health score, and contact made with customers who had gone quiet. "
+                     "<strong>Lagging:</strong> logo churn.</p>",
+                     "A rules-based system of four segments with explicit entry and exit rules, a "
+                     "playbook for each, and a daily data feed that keeps accounts in the right "
+                     "segment without anyone sorting them by hand. Its first read of the Auto Pilot "
+                     "group already points at a clear upside: 88 customers, 41% of them sending bulk "
+                     "email only, and the ones who add automation open and click far more. It is "
+                     "running now, and the churn effect is still being measured.",
+                     "Vitally, Amplitude, Chargebee, HubSpot, Google Sheets and Apps Script",
+                     extra="""
+<h3>How it is built</h3>
+<div class="fig"><div class="arch">
+<div class="arch-row"><div class="node"><b>Usage events</b><span>Daily from Amplitude: emails sent by bulk, trigger and journey, open and click rates, bounces, credits used, journeys running.</span></div><div class="node"><b>Account data</b><span>From Vitally: invoices due, onboarding stage, CSM, handover and churn dates.</span></div></div>
+<div class="down">&darr; rules, not judgement &darr;</div>
+<div class="arch-row"><div class="node strong"><b>Four segments</b><span>Auto Pilot, Non-Auto Pilot, No Growth Opportunity, Dormant.</span></div><div class="node strong"><b>Movement rules</b><span>Exact conditions to move between segments, each flagged for automatic or manual action.</span></div></div>
+<div class="down">&darr; each segment gets &darr;</div>
+<div class="arch-row"><div class="node"><b>Its own playbook</b><span>What to do, how often, and who does it.</span></div><div class="node guard"><b>Review</b><span>Every three months, plus automatic re-sorting when the data moves.</span></div></div>
+</div><div class="cap">Behaviour in, a segment out, and a playbook for it</div></div>
+
+<h3>The four segments</h3>
+<div class="fig"><div class="arch">
+<div class="arch-row"><div class="node strong"><b>Auto Pilot</b><span>Know the tool, send campaigns that perform, and contact support or their CSM only when something breaks. Focus: retention.</span></div><div class="node"><b>Non-Auto Pilot</b><span>Use it now and then, need a nudge and help with use cases, and prefer their CSM to support. Focus: expansion and adoption.</span></div></div>
+<div class="arch-row"><div class="node"><b>No Growth Opportunity</b><span>Joined for one job, which is done. Low bandwidth, little interest in more features. Focus: passive engagement.</span></div><div class="node guard"><b>Dormant</b><span>Nothing sent for 30 days or more, but autopay keeps the revenue coming. Focus: win back with a use case.</span></div></div>
+</div><div class="cap">Four groups, sorted by behaviour</div></div>
+
+<h3>What counts as Auto Pilot</h3>
+<p>The first definition read one month&rsquo;s numbers, and accounts flipped in and out. The revised
+one asks for the same behaviour three months running, and an account that misses any one month
+drops out:</p>
+<ul>
+<li>Open rate of 10% or more, in each of the last three active months.</li>
+<li>Click rate of 2% or more, in each of the last three months.</li>
+<li>At least 5 bulk emails in each of those months.</li>
+<li>A journey in use each month, or a trigger campaign enrolled at some point in the three months.</li>
+<li>100 or more email credits used each month.</li>
+</ul>
+<p>Non-Auto Pilot is everyone who uses it but does not pass that bar: credits used on at least one
+day each month, open rate under 11% or clicks under 2%, and only a thin spread of campaigns.
+They must also not already be in Auto Pilot.</p>
+
+<h3>How it is run</h3>
+<ul>
+<li><strong>Auto Pilot.</strong> A check-in task every three months. A support ticket or a message to their CSM is flagged as high priority. Under three months in, a personal note each month; after that, product updates and campaign ideas. Quiet accounts get two contacts a week in the first month, two a month in the second, then one a month with a personal touch.</li>
+<li><strong>Leaving Auto Pilot.</strong> If the last 30 days of performance or credit use fall below a quarter of the last 90, the account moves to Non-Auto Pilot. A performance playbook starts with a specific goal, and once the goal is met the account goes back with an explanation.</li>
+<li><strong>Non-Auto Pilot.</strong> Targeted by what is wrong: a low open rate gets a playbook, a low click rate gets personalised help, bounces and spam complaints get a standard fix. Where nobody is building campaigns, a conversation is opened for the CSM, with industry ideas. Seven days before renewal, the account is re-checked against the Auto Pilot rules.</li>
+<li><strong>No Growth Opportunity.</strong> Updates and reminders that need no CSM, a personal contact every three months, and automatic payment set up. Cold-email users sit here by a manual override with a stated reason.</li>
+<li><strong>Dormant.</strong> A check-in every three months, and a use case or automation to make the product stick.</li>
+</ul>
+
+<h3>What the data showed</h3>
+<p>The first read of the Auto Pilot group, 88 customers:</p>
+<ul>
+<li><strong>Bulk dominates, automation lags.</strong> 36 customers (41%) send bulk only. 13% never set up a journey, 66% never enrolled anyone in a trigger campaign, and 57% ran no journey in the last 30 days.</li>
+<li><strong>Automation lifts engagement, even at small volume.</strong> Journey users average about 35% opens and 10% clicks. Five trigger-only accounts reached 46% opens and 27% clicks.</li>
+<li><strong>Credits show where growth is.</strong> Customers using bulk, trigger and journey together burn 17.6k credits in 30 days, about 75% more than bulk-only. Moving single-feature users to automation is the upside.</li>
+</ul>
+
+<h3>What it taught me</h3>
+<ul>
+<li><strong>Sort by behaviour, not by our decision.</strong> &ldquo;We decided they don&rsquo;t need help&rdquo; tells you nothing about the customer.</li>
+<li><strong>One month lies.</strong> A rule on a single month&rsquo;s numbers moves accounts around for no reason. Three months running holds.</li>
+<li><strong>Write the exit as carefully as the entry.</strong> Every segment has a rule for leaving, and says whether the system or a person applies it.</li>
+<li><strong>The data feed is half the job.</strong> The segments only work once the right events arrive daily and the CS data sits next to them.</li>
+</ul>
+"""
+                 )),
             dict(slug="outreach", label="Outreach Console", icon="send",
                  stamp=dict(img="logos/mailmodo.png", logo=True, text="MAILMODO"),
                  title="Outreach Console",
@@ -1512,6 +1594,7 @@ anything.</strong></p>"""))
         "royal-living-tangi": "royal living tangi lpg gas hpcl database data cleaning pmuy ivrs gsm bizarc",
         "iwd-app": "iwd inner wheel secretary app ngo club reports women bizarc",
         "ishaan": "ishaan hermes agent ai agent mailmodo slack automation ops customer success self-healing self-review claude code mcp",
+        "self-serve": "self serve strategy segmentation churn customer success auto pilot dormant playbook vitally amplitude health score mailmodo cohort retention adoption",
         "outreach": "outreach console cold email outbound sdr sales prospecting apollo sequence campaign mailmodo deliverability",
         "leaderboard": "benchmark benchmarking leaderboard ai models pricing besthunt openrouter llm compare cost ranking",
         "lpg-guru": "lpg guru lpgguru gas agency distributor hpcl erp saas crm ivrs compliance solarc ai chat",
