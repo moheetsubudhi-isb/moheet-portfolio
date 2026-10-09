@@ -857,17 +857,25 @@ it. With one, it comes back after two.</p>"""))
 
     v.append(dict(
         slug="tools", label="The tool registry", art="mcp", glyph=None,
-        title="Stop it reaching for the wrong thing",
-        lede="Which tool answers which kind of question, and which ones to ignore.",
+        title="Stop it guessing and overstepping",
+        lede="Which tool for which question, and what it may do without asking you.",
         body=f"""
 <p>Once an agent has more than about three tools, it starts guessing. It searches the web for
 something sitting in your own files, or proposes a plan built on access it does not have.</p>
 <p>Pasted into a plain chat with no tools at all, this tells the model what access <em>you</em>
 have, so it stops suggesting things you cannot do and starts asking for what it needs.</p>
+<p><strong>The second half is the limits.</strong> A connector runs as you, so it can send, edit
+and delete. Write down what it may only read, what it must bring to you first (that is
+<em>human in the loop</em>), and what it must never touch. A written rule guides it; for risky
+actions, also set the tool itself to ask before it acts. It drafts, you press send.</p>
 {disclosure("regChat", "If you have no tools connected", "start here")}
 {disclosure("regTemplate", "The blank template")}
 {disclosure("regExample", "A filled example, someone in data")}
 {fig(A, "mcp", "One standard, so each tool needs no integration of its own")}
+<p><strong>Where the tools come from:</strong> the connector list built into Claude and ChatGPT
+first, then the app maker's own, <a href="https://composio.dev" target="_blank" rel="noopener">Composio</a> for many apps behind
+one login, <a href="https://mcp.so" target="_blank" rel="noopener">mcp.so</a> for everything else, or ask your agent to build one
+around your own system.</p>
 <p><strong>Before you connect anything:</strong> who wrote it, what access is it asking for, when
 was it last updated, and would you be fine if it could see everything you point it at.</p>"""))
 
@@ -1623,7 +1631,7 @@ anything.</strong></p>"""))
         "generator": "prompt interview setup start here chatgpt claude gemini copilot custom instructions",
         "soul": "persona role tone voice style system prompt consultant data ops product marketing harness",
         "loop": "agent wander stuck retry goal check stop limit finish done",
-        "tools": "mcp connector server integration access permissions registry composio",
+        "tools": "mcp connector server integration access permissions registry composio human in the loop approval limits mcp.so",
         "memory": "remember forget context corrections agents.md claude.md learning "
                   "second brain secondary ownr shared memory",
         "skills": "business analytics skills bas repo github machine learning statistics "

@@ -13,6 +13,13 @@ It does two jobs, which is why it's worth writing even if you've connected nothi
 - **In a plain chat with no tools at all** — it tells the model what access *you* have, so it
   stops suggesting things you can't do and starts asking you for what it needs.
 
+**The second half is the limits.** A connector runs as you: it usually gets whatever your login
+gets, so it can send, edit and delete. Write down what it may only read, what it must bring back
+to you before it acts — that's **human in the loop** — and what it must never touch.
+
+A written rule guides it; it doesn't lock anything. For the risky actions, also set the tool
+itself to ask before it acts. It drafts, you press send.
+
 ---
 
 ## The template
@@ -36,6 +43,12 @@ Only go to [other source] when [condition].
 # Things you cannot reach
 
 [what you don't have access to] — ask me and I'll paste it.
+
+# What it may do
+
+Read only: [sources it may read but never change]
+Human in the loop: [actions it drafts and I approve first — sending, editing]
+Never: [what it must not touch at all]
 
 # Keep this current
 
@@ -82,6 +95,13 @@ Searching the web for our own figures. It isn't there and you'll find
 The CRM, and anything with customer names in it. If you need it, say what you
 need and I'll paste a redacted extract.
 
+# What it may do
+
+Read only: the warehouse, /reports, /raw.
+Human in the loop: anything that sends, publishes or overwrites. Draft it,
+  show me, wait for my yes.
+Never: delete files, or write to the warehouse.
+
 # Keep this current
 
 If I tell you twice to use a different source than the one you picked, add
@@ -121,14 +141,16 @@ I'll fetch it."
 MCP is the standard that lets one agent talk to many tools without a custom integration each
 time. A **server** is one tool's side of that: Gmail, GitHub, Postgres, Notion, your own API.
 
-**Four places worth your time:**
+**Where to look, in this order:**
 
 | Where | What it is |
 |---|---|
+| **Built in** | The connector list inside Claude and ChatGPT. Click to connect. Start here. |
 | **The vendor's own** | First-party servers from the companies themselves — GitHub, Notion, Stripe, Supabase. Always check here first. |
 | [Composio](https://composio.dev) | One connection, hundreds of apps, and it handles the OAuth for you. The shortcut if you don't want to manage auth. |
 | [mcp.so](https://mcp.so) | The big browsable public directory. Everything's there, which is also the problem. |
 | [best-of-mcp-servers](https://github.com/tolkonepiu/best-of-mcp-servers) | 400+ servers *ranked*, updated weekly. Use this when you don't know what you're looking for. |
+| **Your own** | Ask your agent to build one around your own system. |
 
 Also maintained: [abordage/awesome-mcp](https://github.com/abordage/awesome-mcp) — servers,
 clients and frameworks, updated daily.
