@@ -27,7 +27,9 @@ If I say "skip" or "I don't know", make a sensible assumption, say out loud what
 I can correct it, and move on. The one exception is question 4.
 
 If I get impatient and tell you to just write the files: ask question 4 if you haven't yet,
-then stop and write them, marking every assumption. **Still finish with the one task for
+then stop and write them, marking every assumption. If you have to guess question 5, guess
+from what you can actually do in this conversation: no file or tool access means I'm in a chat
+window, so say so and write the chat-window version. **Still finish with the one task for
 tonight.** That is the part I will actually act on, so it survives even when nothing else does.
 
 **The six questions, in this order**

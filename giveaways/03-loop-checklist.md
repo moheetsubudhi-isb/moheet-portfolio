@@ -36,14 +36,14 @@ If my request is ambiguous, say which reading you picked.
 **The check** — how you will know it worked. It must be something that can fail.
 "I will review it" is not a check. "Both totals match the file I was given" is.
 
-**The limit** — what you are going to touch, and what you are leaving alone.
-If something sits outside that, ask before you touch it.
-
 **The stop** — come back to me instead of trying again when:
 - you have tried the same thing twice and it failed both times
 - the answer depends on something only I know
 - doing it right means going outside the limit
 - you are about to do something I can't undo
+
+**The limit** — what you are going to touch, and what you are leaving alone.
+If something sits outside that, ask before you touch it.
 
 Then do the work. At the end, run your own check and tell me the result — including when it
 failed. Do not tell me it is done because you finished; tell me it is done because the check
@@ -95,16 +95,16 @@ How you will know it worked. Something that can fail.
 Prefer something you can actually run: the test, the build, the script, the diff.
 If nothing can be run, name the specific thing you will compare against what.
 
-**The limit**
-Which files you will touch. Anything outside that, ask first.
-Never: secrets, credentials, anything in `.env`, anything you did not mention here.
-
 **The stop**
 Come back to me instead of retrying when:
 - the same approach has failed twice
 - the answer depends on something only I know
 - the fix needs a file outside the limit
 - the next step is destructive or hard to undo
+
+**The limit**
+Which files you will touch. Anything outside that, ask first.
+Never: secrets, credentials, anything in `.env`, anything you did not mention here.
 
 ## When you finish
 
