@@ -868,6 +868,10 @@ have, so it stops suggesting things you cannot do and starts asking for what it 
 and delete. Write down what it may only read, what it must bring to you first (that is
 <em>human in the loop</em>), and what it must never touch. A written rule guides it; for risky
 actions, also set the tool itself to ask before it acts. It drafts, you press send.</p>
+<p><strong>It keeps itself current.</strong> The template's last section has the agent update the
+file after every task that used a tool: new tools get a line, wrong picks get fixed, broken ones
+get parked with a date. It may never change its own limits unless you tell it to. In a chat
+window it cannot save files, so it shows you the lines to change.</p>
 {disclosure("regChat", "If you have no tools connected", "start here")}
 {disclosure("regTemplate", "The blank template")}
 {disclosure("regExample", "A filled example, someone in data")}
