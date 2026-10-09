@@ -1829,11 +1829,28 @@ def build():
   }}
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Moheet Subudhi</title>
-<meta name="description" content="Things I am building, and the whole How to Build with AI pack: a prompt that writes your own setup, five ready-made ones, and 36 analytics skills.">
+<title>Moheet Subudhi · Product Manager, Business Automation</title>
+<meta name="description" content="Moheet Subudhi builds business automation and AI agents at Mailmodo. See his projects and his CV, and take a free pack on how to build with AI.">
+<link rel="canonical" href="https://moheetsubudhi.com/">
 <meta name="theme-color" content="#F2EEE3">
-<meta property="og:title" content="Moheet Subudhi">
-<meta property="og:description" content="Everything I am building, and everything I would hand over. Plain text, nothing to install, and it works on your phone.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Moheet Subudhi">
+<meta property="og:url" content="https://moheetsubudhi.com/">
+<meta property="og:title" content="Moheet Subudhi · Product Manager, Business Automation">
+<meta property="og:description" content="Business automation, AI agents and the projects behind them, plus a free pack on how to build with AI.">
+<meta property="og:image" content="https://moheetsubudhi.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Moheet Subudhi">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Moheet Subudhi · Product Manager, Business Automation">
+<meta name="twitter:description" content="Business automation, AI agents and the projects behind them, plus a free pack on how to build with AI.">
+<meta name="twitter:image" content="https://moheetsubudhi.com/og.png">
+<script type="application/ld+json">{{"@context":"https://schema.org","@type":"Person","name":"Moheet Subudhi","url":"https://moheetsubudhi.com/","jobTitle":"Product Manager, Business Automation","worksFor":{{"@type":"Organization","name":"Mailmodo","url":"https://www.mailmodo.com/"}},"sameAs":["https://www.linkedin.com/in/moheetsubudhi/"]}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Hanken+Grotesk:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -2075,6 +2092,7 @@ const hubUp = document.getElementById("hubUp");
 const hubBar = document.getElementById("hubBar");
 const hubWhere = document.getElementById("hubWhere");
 const SITE = "Moheet Subudhi";
+const ROOT_TITLE = "Moheet Subudhi \u00b7 Product Manager, Business Automation";   /* the home screen's tab title, same as the page's own <title> */
 
 /* An old link, or one written before the tree grew a level, still resolves: an
    unknown hash falls back to the one node whose own slug matches it. */
@@ -2134,7 +2152,7 @@ function showFolder(path, animate) {{
     hubUp.textContent = "\u2190 " + (PARENTS[path] ? TITLES[PARENTS[path]] : SITE);
     hubWhere.textContent = TITLES[path];
   }}
-  document.title = path ? TITLES[path] + " \u2014 " + SITE : SITE;
+  document.title = path ? TITLES[path] + " \u2014 " + SITE : ROOT_TITLE;
   if (q.value.trim()) {{ q.value = ""; }}
   runSearch();
   maybeHint();
@@ -2167,11 +2185,12 @@ function apply(raw, animate) {{
   }}
   window.scrollTo(0, 0);
   if (leaf) reveal(document.querySelector('[data-pane="' + path + '"]'));
-  /* Tell Google which screen this is: the folder or project, by its title and its #path. */
+  /* Tell Google which screen this is. GA4 ignores everything after a #, so the screen is
+     reported as a virtual path (/projects/ishaan) with its title. */
   if (location.hostname === "moheetsubudhi.com") {{
     gtag("event", "page_view", {{
       page_title: document.title,
-      page_location: location.origin + "/" + (path ? "#" + path : "")
+      page_location: location.origin + "/" + path
     }});
   }}
 }}
@@ -2455,6 +2474,12 @@ const mail = document.getElementById("mail");
 mail.href = "mailto:" + "moheetsubudhi" + "@" + "gmail.com";
 document.querySelectorAll(".js-mail").forEach(function (a) {{
   a.href = mail.href; a.textContent = mail.href.slice(7);
+}});
+/* Opening a mail app leaves the page, so Google cannot see it. Report it ourselves. */
+[mail].concat([...document.querySelectorAll(".js-mail")]).forEach(function (a) {{
+  a.addEventListener("click", function () {{
+    if (location.hostname === "moheetsubudhi.com") gtag("event", "contact_click", {{ method: "email" }});
+  }});
 }});
 
 /* ---------- accent ----------

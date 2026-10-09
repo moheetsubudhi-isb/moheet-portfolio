@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+# The CV PDF is a download, not a page to list in search results.
+Disallow: /cv/moheet-subudhi-cv.pdf
+
+Sitemap: https://moheetsubudhi.com/sitemap.xml
