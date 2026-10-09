@@ -1814,6 +1814,20 @@ def build():
     page = f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EZKQBDEGY9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  /* The tag loads everywhere but reports only from the real site, so staging, previews
+     and localhost never count as visits. Page views are sent by the page itself
+     (see apply), because this is one page that swaps its content: Google would
+     otherwise see the home page and nothing else. */
+  if (location.hostname === "moheetsubudhi.com") {{
+    gtag('config', 'G-EZKQBDEGY9', {{ send_page_view: false }});
+  }}
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Moheet Subudhi</title>
 <meta name="description" content="Things I am building, and the whole How to Build with AI pack: a prompt that writes your own setup, five ready-made ones, and 36 analytics skills.">
@@ -2153,6 +2167,13 @@ function apply(raw, animate) {{
   }}
   window.scrollTo(0, 0);
   if (leaf) reveal(document.querySelector('[data-pane="' + path + '"]'));
+  /* Tell Google which screen this is: the folder or project, by its title and its #path. */
+  if (location.hostname === "moheetsubudhi.com") {{
+    gtag("event", "page_view", {{
+      page_title: document.title,
+      page_location: location.origin + "/" + (path ? "#" + path : "")
+    }});
+  }}
 }}
 
 /* history.pushState throws on file:// and inside some sandboxed previews, which
