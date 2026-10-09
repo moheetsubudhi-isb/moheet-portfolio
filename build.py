@@ -1626,8 +1626,8 @@ anything.</strong></p>"""))
     v.append(dict(
         slug="sheet", label="The build sheet", art=None, icon="build",
         title="From idea to working thing",
-        lede="The order to use everything here in. Two routes: an agent that works for you, "
-             "or a tool people use.",
+        lede="The order to use everything here in, and a prompt that builds your idea with you, "
+             "part by part.",
         body=f"""
 <h3>Build an agent, in seven steps</h3>
 <ol class="steps">
@@ -1649,10 +1649,21 @@ anything.</strong></p>"""))
 <li><strong>Test it on real data,</strong> with a check that can fail.</li>
 <li><strong>Ship it somewhere real</strong> (GitHub Pages, Vercel), then improve it from use, not from guesses.</li>
 </ol>
-<h3>Not sure which route?</h3>
-<p>Five questions about your idea, then a one-page plan: which parts it needs, where to build it,
-its limits, the build order, and what to skip for now.</p>
-{panel("planner", "The Build Planner", "any chat or agent")}"""))
+<h3>The Build Partner</h3>
+<p>Have an idea and want it built? Paste this into any chat or terminal agent. It asks three
+questions, then goes part by part in the order above: it suggests the harness, the loop, the
+tools and their limits, the skills and the memory, and you confirm or correct each one.</p>
+<p>Then it sets it up, but only after you say yes. In a terminal agent (Claude Code, Codex,
+Cursor) it writes the files into your folder, builds the first version, and offers to publish
+it; if GitHub Pages or Vercel isn't set up yet, it walks you through it one step at a time. You do
+any sign-up and login yourself; it never asks for a password. In a chat it can't write or
+publish, so it hands you every file to paste and says where each goes.</p>
+<p>When one of the other prompts here would help, it fetches it from this site and tells you
+which link it took it from, instead of writing its own version from memory.</p>
+<p><strong>Not the same as <a href="#build/generator" data-jump="build/generator">the Setup
+Interview</a>.</strong> The Setup Interview sets AI up for the work you already do. The Build
+Partner builds something new.</p>
+{panel("planner", "The Build Partner", "any chat or terminal agent")}"""))
 
     v.append(dict(
         slug="slides", label="The slides", art=None, icon="slides",
@@ -1678,7 +1689,7 @@ its limits, the build order, and what to skip for now.</p>
         "local": "ollama offline privacy compliance laptop cpu ram gpu open source weights licence llama qwen gemma mistral phi deepseek gpt-oss hugging face lm studio jan",
         "parts": "model harness loop mcp skills context memory overview recap formula summary",
         "slides": "slides deck presentation pin code locked session talk powerpoint",
-        "sheet": "build sheet planner framework plan idea agent tool app product capstone steps route brief ship",
+        "sheet": "build sheet build partner planner deploy publish github pages vercel framework plan idea agent tool app product capstone steps route brief ship",
         "kit": "skills skill doctor repeat finder find recurring repeat automate history review audit "
                "safe risky rewrite SKILL.md prompt agent chat",
         "projects": "projects ownr portfolio work building side product repo client case study "
