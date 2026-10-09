@@ -47,6 +47,8 @@ def content():
     c["installCodex"] = "codex plugin marketplace add moheetsubudhi-isb/business-analytics-skills"
     c["installCli"] = "npx skills add moheetsubudhi-isb/business-analytics-skills --list"
     c["ollama"] = "ollama run qwen3.5:2b"
+    c["planner"] = between(read("09-build-sheet.md"),
+                           "===== COPY FROM HERE =====", "===== COPY TO HERE =====")
     return c
 
 
@@ -1622,6 +1624,37 @@ whole folder use a terminal agent. <strong>Read the flagged lines yourself befor
 anything.</strong></p>"""))
 
     v.append(dict(
+        slug="sheet", label="The build sheet", art=None, icon="build",
+        title="From idea to working thing",
+        lede="The order to use everything here in. Two routes: an agent that works for you, "
+             "or a tool people use.",
+        body=f"""
+<h3>Build an agent, in seven steps</h3>
+<ol class="steps">
+<li><strong>Pick the job.</strong> One task you repeat. Not &ldquo;an assistant&rdquo;: one task. <a href="#build/kit" data-jump="build/kit">The Repeat Finder</a></li>
+<li><strong>Say who it is.</strong> Its role, its standards, what it never does. <a href="#build/generator" data-jump="build/generator">The Setup Interview</a> or <a href="#build/soul" data-jump="build/soul">a soul file</a></li>
+<li><strong>Pick the harness.</strong> A chat, a terminal agent, or a model on your own laptop if the data can&rsquo;t leave. <a href="#build/local" data-jump="build/local">Run it on your laptop</a></li>
+<li><strong>Define done.</strong> The goal, the check, the stop, the limit. <a href="#build/loop" data-jump="build/loop">The loop checklist</a></li>
+<li><strong>Connect only what it needs,</strong> with a human in the loop on anything risky. <a href="#build/tools" data-jump="build/tools">The tool registry</a></li>
+<li><strong>Do it once badly, then write the skill.</strong> Your corrections are the skill. <a href="#build/kit" data-jump="build/kit">The Skill Doctor</a></li>
+<li><strong>Give it memory,</strong> so tomorrow starts where today stopped. <a href="#build/memory" data-jump="build/memory">Second Brain</a></li>
+</ol>
+<p>Each step is only worth adding once the one before it holds.</p>
+<h3>Build a tool with AI, in five steps</h3>
+<p>How the session deck and this site were built.</p>
+<ol class="steps">
+<li><strong>Write a one-page brief first.</strong> Who uses it, what goes in, what comes out, and how you&rsquo;ll know it works.</li>
+<li><strong>Ask for a plan before any code.</strong> Correct the plan, not the code. It is ten times cheaper.</li>
+<li><strong>Build the smallest version that works end to end.</strong> One input, one output, nothing else.</li>
+<li><strong>Test it on real data,</strong> with a check that can fail.</li>
+<li><strong>Ship it somewhere real</strong> (GitHub Pages, Vercel), then improve it from use, not from guesses.</li>
+</ol>
+<h3>Not sure which route?</h3>
+<p>Five questions about your idea, then a one-page plan: which parts it needs, where to build it,
+its limits, the build order, and what to skip for now.</p>
+{panel("planner", "The Build Planner", "any chat or agent")}"""))
+
+    v.append(dict(
         slug="slides", label="The slides", art=None, icon="slides",
         title="The slides",
         lede="From the session. Four digits.",
@@ -1645,6 +1678,7 @@ anything.</strong></p>"""))
         "local": "ollama offline privacy compliance laptop cpu ram gpu open source weights licence llama qwen gemma mistral phi deepseek gpt-oss hugging face lm studio jan",
         "parts": "model harness loop mcp skills context memory overview recap formula summary",
         "slides": "slides deck presentation pin code locked session talk powerpoint",
+        "sheet": "build sheet planner framework plan idea agent tool app product capstone steps route brief ship",
         "kit": "skills skill doctor repeat finder find recurring repeat automate history review audit "
                "safe risky rewrite SKILL.md prompt agent chat",
         "projects": "projects ownr portfolio work building side product repo client case study "
@@ -1681,7 +1715,7 @@ anything.</strong></p>"""))
     # The root is a portfolio. One folder holds everything from the session, in the
     # order it is taught; the other holds the work. Both grow by adding a child.
     by = {n["slug"]: n for n in v}
-    ORDER = ["parts", "generator", "soul", "loop", "tools", "kit", "memory", "local", "slides"]
+    ORDER = ["parts", "sheet", "generator", "soul", "loop", "tools", "kit", "memory", "local", "slides"]
     root = [
         dict(slug="build", label="How to Build with AI", art=None, icon="loop",
              title="How to Build with AI",
