@@ -12,7 +12,7 @@ a working thing. Two routes: an agent that does work for you, or a tool that peo
 4. **Define done.** The goal, the check, the stop, the limit. → The loop checklist
 5. **Connect only what it needs,** with a human in the loop on anything risky. → The tool registry
 6. **Do it once badly, then write the skill.** Your corrections are the skill. → The Skill Doctor
-7. **Give it memory,** so tomorrow starts where today stopped. → Second Brain
+7. **Give it memory,** so tomorrow starts where today stopped. → Memory
 
 Each step is only worth adding once the one before it holds.
 

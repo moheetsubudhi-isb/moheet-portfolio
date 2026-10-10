@@ -886,8 +886,8 @@ around your own system.</p>
 was it last updated, and would you be fine if it could see everything you point it at.</p>"""))
 
     v.append(dict(
-        slug="memory", label="Second Brain", art="memory", glyph=None,
-        title="Second Brain",
+        slug="memory", label="Memory", art="memory", glyph=None,
+        title="Memory",
         lede="A memory that outlives the conversation, so you stop re-explaining yourself "
              "every Monday.",
         body=f"""
@@ -1663,7 +1663,7 @@ anything.</strong></p>"""))
 <li><strong>Define done.</strong> The goal, the check, the stop, the limit. <a href="#build/loop" data-jump="build/loop">The loop checklist</a></li>
 <li><strong>Connect only what it needs,</strong> with a human in the loop on anything risky. <a href="#build/tools" data-jump="build/tools">The tool registry</a></li>
 <li><strong>Do it once badly, then write the skill.</strong> Your corrections are the skill. <a href="#build/kit" data-jump="build/kit">The Skill Doctor</a></li>
-<li><strong>Give it memory,</strong> so tomorrow starts where today stopped. <a href="#build/memory" data-jump="build/memory">Second Brain</a></li>
+<li><strong>Give it memory,</strong> so tomorrow starts where today stopped. <a href="#build/memory" data-jump="build/memory">Memory</a></li>
 </ol>
 <p>Each step is only worth adding once the one before it holds.</p>
 <h3>Build a tool with AI, in five steps</h3>
