@@ -225,7 +225,7 @@ can't name.
 [Soul file](02-soul-files.md) — who it is. **This file** — what it can reach.
 [Loop checklist](03-loop-checklist.md) — how it works. A skill — how you do one task.
 [Making it remember](08-make-it-remember.md) — how they stop rotting.
-[The generator](01-generator-prompt.md) fills the first four in, in your words, in five minutes.
+[The Setup Interview](01-generator-prompt.md) fills the first four in, in your words, in five minutes.
 
 **Where it goes:** into your `AGENTS.md` alongside the soul file, which is the filename most
 terminal agents read. In a chat window, the plain-chat version above, pasted at the top.

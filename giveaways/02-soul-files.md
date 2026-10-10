@@ -10,7 +10,7 @@ sounds like you — that's the whole setup.
 Copilot custom instructions · `AGENTS.md` in a project folder, which is the one most terminal
 tools read · or just the top of a chat.
 
-**If none of these fit**, use [the generator](01-generator-prompt.md) — six questions and it
+**If none of these fit**, use [the Setup Interview](01-generator-prompt.md) — six questions and it
 writes one for your actual job.
 
 ---

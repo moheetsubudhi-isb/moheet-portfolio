@@ -142,5 +142,5 @@ of the same broken idea until you interrupt it.
 
 The loop checklist is one of four. [The soul file](02-soul-files.md) says *who* it is.
 [The tool registry](04-tool-registry.md) says *what it can reach*. A skill says *how you do one
-task*. [The generator](01-generator-prompt.md) writes all four from a five-minute interview —
+task*. [The Setup Interview](01-generator-prompt.md) writes all four from a five-minute interview —
 including this one, filled in with your own stop rule rather than mine.

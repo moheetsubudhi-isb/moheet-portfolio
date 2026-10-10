@@ -9,7 +9,7 @@ Three steps, and each is a prompt you paste:
 | | Step | What it does |
 |---|---|---|
 | 1 | **Find it** — the Repeat Finder | Looks for what you keep redoing, and says which of it is worth writing down |
-| 2 | **Write it** — [the generator](01-generator-prompt.md) | Interviews you about one task and writes the skill from your own answers |
+| 2 | **Write it** — [the Setup Interview](01-generator-prompt.md) | Interviews you about one task and writes the skill from your own answers |
 | 3 | **Fix it** — the Skill Doctor | Checks any skill, flags the risky lines, and rewrites it so it learns from corrections |
 
 Step 2 already exists. This page is steps 1 and 3.
@@ -141,7 +141,7 @@ reading a very large history can miss things, which is why it counts with comman
 
 ## Step 2 · Write it
 
-Pick the top suggestion and give it to [the generator](01-generator-prompt.md), or just say yes
+Pick the top suggestion and give it to [the Setup Interview](01-generator-prompt.md), or just say yes
 when the Finder offers. It writes the skill from how *you* describe doing the task, and marks
 what you left out with `(check this)`.
 

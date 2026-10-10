@@ -1,4 +1,4 @@
-# The generator
+# The Setup Interview
 
 **What it does.** Six questions, about five minutes, then it writes four short files you'll
 actually use: a soul file, a loop checklist, a tool registry, and one real skill.
