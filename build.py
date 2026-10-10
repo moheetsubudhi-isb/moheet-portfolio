@@ -702,7 +702,7 @@ def cv_field(k, v):
     return f'<div class="f"><span class="k">{k}</span><span class="v">{v}</span></div>'
 
 DL = (f'<div class="cv-dl"><a class="btn primary" href="{CV_PDF}" download>Download the CV</a>'
-      f'<span class="note">PDF &middot; January 2026 edition</span></div>')
+      f'<span class="note">PDF &middot; October 2026 edition</span></div>')
 
 CV = DL + f"""
 <div class="form">
@@ -723,14 +723,14 @@ CV = DL + f"""
 </div></div>
 
 <div class="fsec"><h3 class="fh"><b>2.</b> In brief</h3>
-<p>I work on how a business runs: its processes, its compliance and its customers. Since 2020
-I have done this across SaaS, government and consulting.</p>
-<p>I redesign processes, automate the manual parts, and change systems without adding risk, so
-costs come down and customers have a better time. I am at home with data analysis, dashboards
-and projects that cut across teams.</p></div>
+<p>Product manager for business automation at Mailmodo (YC21). Finds routine work that teams repeat by hand and builds systems that do it, with checks so results can be trusted. Recent builds: an always-on Slack agent for customer success, a cold-email console that blocks costly mistakes, and usage-based groups for self-serve customers. Before this: nearly four years in sales and customer success, and consulting for government and startups since 2020.</p></div>
 
 <div class="fsec"><h3 class="fh"><b>3.</b> Employment record</h3>
-{cv_rec("Jul 2026 &ndash; now", "Product Manager, Business Automation", "Mailmodo (YC21), Bangalore")}
+{cv_rec("Jul 2026 &ndash; now", "Product Manager, Business Automation", "Mailmodo (YC21), Bangalore", [
+    "Built <strong>Ishaan</strong>, an always-on agent in Slack that runs routine customer-success work: 19 scheduled jobs, answers drawn from customer and product knowledge, and its own tool connections tested and repaired every 30 minutes. <a href=\"#projects/ishaan\" data-jump=\"projects/ishaan\">Read more</a>.",
+    "Built the <strong>Outreach Console</strong>, an internal app where one person runs a whole cold-email campaign from one screen, with the costly mistakes (double sends, mailing people who opted out) blocked in code. <a href=\"#projects/outreach\" data-jump=\"projects/outreach\">Read more</a>.",
+    "Built the <strong>BestHunt AI model leaderboard</strong>, which ranks 400+ priced models by what real work costs, refreshed every week. <a href=\"#projects/leaderboard\" data-jump=\"projects/leaderboard\">Read more</a>.",
+    "Redesigned <strong>self-serve customer care</strong> into four groups sorted by how customers use the product, placed automatically from daily usage data. <a href=\"#projects/self-serve\" data-jump=\"projects/self-serve\">Read more</a>."])}
 {cv_rec("Jan 2024 &ndash; Jun 2026", "Customer Success &amp; Product Operations", "Mailmodo (YC21), Bangalore", [
     "Ran customer success operations for 200+ SaaS accounts worth $27k MRR, and planned how each account would grow.",
     "Doubled MRR on several accounts, month after month, while keeping a 75% customer retention rate.",
@@ -764,7 +764,7 @@ and projects that cut across teams.</p></div>
 {cv_rec("May 2020 &ndash; Feb 2021", "Founder", "V DO Hosting", [
     "Started the company during the COVID-19 pandemic.",
     "Built a working business around video conferencing and virtual meeting platforms.",
-    "Handled 500+ events with 60,000+ participants.",
+    "Handled 700+ events with 2,50,000+ participants.",
     "Led a team of 10 people who kept it running smoothly."])}
 {cv_rec("Feb 2020 &ndash; Apr 2020", "Telesales Representative", "Molson Coors Beverage Company, UK", [
     "Worked in telesales, handling customers alongside 2 area managers.",
