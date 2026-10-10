@@ -1152,7 +1152,7 @@ automatic or needs a person.</p>
 <li><strong>A clear way to grow revenue.</strong> The data showed that customers who use automatic emails have higher open and click rates and send much more. The plan is to move the others across, and see whether it helps them as much.</li>
 <li><strong>Every customer gets a message that fits</strong>, instead of the same one as everybody else.</li>
 </ul>
-<p>It is live and running. How much it has reduced the number of customers leaving is still being measured, and I will add the figure here.</p>
+<p>All of it is live: the four groups, the daily usage data and the plan for each group. How much it has reduced the number of customers leaving is still being measured, and I will add the figure here.</p>
 
 <h3>What the data showed</h3>
 <p>The first look at 88 customers on Auto Pilot found the biggest opportunity in the whole group:</p>
@@ -1572,6 +1572,32 @@ gatherings, social gatherings, birthday parties, Zumba classes, coaching and exa
         ]))
 
     v.append(dict(
+        slug="content", label="Content", icon="articles",
+        title="Things I have written",
+        lede="Articles on LinkedIn, about automation I run at work.",
+        children=[
+            dict(slug="ai-colleague", label="Meet Ishaan", icon="articles",
+                 title="Say Hi to Our AI Colleague. It Never Takes a Lunch Break.",
+                 lede="How we built an agent that drafts replies to customer queries. Published 22 July 2026.",
+                 body="""
+<p>The CS team at Mailmodo spent a lot of time on queries that followed one pattern: check the plan in billing, check the health score and credit use, search the help docs, write a reply. Four steps, every time.</p>
+<p>This article explains how Ishaan does the first three and hands a person a draft instead of a blank screen. It reads the query, looks up the account, searches the help docs, sorts the question, and posts a reply to Slack. Nothing is sent until a person approves it.</p>
+<p><a href="https://www.linkedin.com/pulse/we-built-ai-agent-run-our-customer-support-heres-how-actually-moheet-b2nme/" target="_blank" rel="noopener">Read it on LinkedIn &rarr;</a></p>
+<p>The build behind it is on the <a href="#projects/ishaan" data-jump="projects/ishaan">Ishaan project page</a>.</p>"""),
+            dict(slug="cron-jobs", label="Cron jobs", icon="articles",
+                 title="Cron jobs",
+                 lede="The quiet workers behind automation. Published 29 August 2026.",
+                 body="""
+<p>A cron job is a recurring reminder that does the work itself. The article covers the three kinds that matter most in my setup:</p>
+<ul>
+<li><strong>Refresh the context</strong>, so answers are based on current information.</li>
+<li><strong>Repair the tools</strong>, by checking that each one actually responds.</li>
+<li><strong>Verify the outcome</strong>, because &ldquo;the process ran&rdquo; and &ldquo;the work got done&rdquo; are not the same thing.</li>
+</ul>
+<p><a href="https://www.linkedin.com/pulse/cron-jobs-moheet-subudhi-mf4of/" target="_blank" rel="noopener">Read it on LinkedIn &rarr;</a></p>"""),
+        ]))
+
+    v.append(dict(
         slug="cv", label="Moheet CV", icon="cv",
         stamp=dict(img="cv/portrait.jpg", text="VERIFIED"),
         title="My work, so far",
@@ -1703,6 +1729,9 @@ Partner builds something new.</p>
         "outreach": "outreach console cold email outbound sdr sales prospecting apollo sequence campaign mailmodo deliverability",
         "leaderboard": "benchmark benchmarking leaderboard ai models pricing besthunt openrouter llm compare cost ranking",
         "lpg-guru": "lpg guru lpgguru gas agency distributor hpcl erp saas crm ivrs compliance solarc ai chat",
+        "content": "content writing articles linkedin blog posts essays ishaan cron jobs automation",
+        "ai-colleague": "ishaan ai agent customer support queries slack draft mailmodo linkedin article",
+        "cron-jobs": "cron jobs automation scheduled refresh repair verify linkedin article",
         "osda": "osda odisha government digital transformation cms dashboards compliance bizarc",
         "neoteric": "neoteric consultancy pr campaign government branding brand identity sop bizarc",
         "build": "session talk presentation how to build with ai giveaway pack take home "
@@ -1734,6 +1763,7 @@ Partner builds something new.</p>
              children=[by[k] for k in ORDER]),
         by["skills"],
         by["projects"],
+        by["content"],
         by["cv"],
     ]
     for item in root:
