@@ -46,7 +46,7 @@ def content():
                           "/plugin install statistics-toolkit@business-analytics-skills")
     c["installCodex"] = "codex plugin marketplace add moheetsubudhi-isb/business-analytics-skills"
     c["installCli"] = "npx skills add moheetsubudhi-isb/business-analytics-skills --list"
-    c["ollama"] = "ollama run qwen3.5:2b"
+    c["ollama"] = "ollama run llama3.2"
     c["planner"] = between(read("09-build-sheet.md"),
                            "===== COPY FROM HERE =====", "===== COPY TO HERE =====")
     return c
