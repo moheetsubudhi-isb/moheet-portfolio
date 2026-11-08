@@ -1,0 +1,40 @@
+# Moheet Subudhi
+
+> Moheet Subudhi builds business automation and AI agents at Mailmodo. See his projects and his CV, and take a free pack on how to build with AI.
+
+Moheet Subudhi is a product manager for business automation at Mailmodo (YC21). He builds AI agents, outreach systems and customer success automation.
+
+
+## How to Build with AI
+
+- [The seven parts](https://moheetsubudhi.com/build/parts/): The seven parts of building with AI: model, harness, loop, MCP, skills, context and memory. Six are not the model, and they are where things break.
+- [The build sheet](https://moheetsubudhi.com/build/sheet/): The order to use the How to Build with AI giveaways in, and a prompt that builds your idea with you, part by part.
+- [The Setup Interview](https://moheetsubudhi.com/build/generator/): The Setup Interview is one prompt that asks about your work for five minutes, then writes four files that set an AI up for your actual job.
+- [Five soul files](https://moheetsubudhi.com/build/soul/): Five soul files that say who an AI is when it works with you: its standards, its voice and what it never does. Pick the closest to your job.
+- [The loop checklist](https://moheetsubudhi.com/build/loop/): A loop checklist that makes an AI agent finish instead of wander: the goal, the check, the stop and the limit, as a prompt you can copy.
+- [The tool registry](https://moheetsubudhi.com/build/tools/): A tool registry for AI agents: which tool answers which question, and what it may do without asking you, so it stops guessing and overstepping.
+- [The skills kit](https://moheetsubudhi.com/build/kit/): Three prompts for skills: one finds the tasks you repeat, one writes the skill from how you do it, and one checks any skill and fixes it.
+- [Memory](https://moheetsubudhi.com/build/memory/): How to give an AI a memory that outlives the conversation, so you stop re-explaining yourself: context, memory, and how Moheet built his own.
+- [Run it on your laptop](https://moheetsubudhi.com/build/local/): Open AI models and how to run one on your own laptop: no account, no API and no data leaving your machine. Six models from six makers.
+- [Business Analytics Skills](https://moheetsubudhi.com/skills/): Thirty-six skills for AI assistants across machine learning, statistics, optimisation, pricing, decision analysis, data engineering and recommenders.
+
+## My projects
+
+- [Ishaan](https://moheetsubudhi.com/projects/ishaan/): Ishaan is an always-on AI agent in Slack that runs customer success operations at Mailmodo: 19 scheduled jobs, and it checks and repairs its own work.
+- [Self-serve strategy](https://moheetsubudhi.com/projects/self-serve/): How Mailmodo's small self-serve customers were sorted into four groups by how they use the product, so the team knows who to help and how.
+- [Outreach Console](https://moheetsubudhi.com/projects/outreach/): An internal web app where one person runs a whole cold-email campaign, with the costly mistakes, such as double sends and mailing opt-outs, blocked in code.
+- [AI model leaderboard](https://moheetsubudhi.com/projects/leaderboard/): BestHunt's AI model leaderboard ranks 400+ priced models by what real work costs, in plain money terms, refreshed every Monday.
+- [LPG Guru](https://moheetsubudhi.com/projects/lpg-guru/): One platform to run an LPG gas agency, with an AI assistant on top. It replaces paper registers, spreadsheets, an IVR vendor and a bulk-messaging tool.
+- [Ownr](https://moheetsubudhi.com/projects/ownr/): Ownr is one private memory and persona that every AI you use plugs into, so each tool starts from what you already told another.
+- [VDO Hosting](https://moheetsubudhi.com/projects/vdo-hosting/): VDO Hosting put India's meetings, ceremonies and classes online during the 2020 lockdown, including for people the internet had left behind: 700+ events.
+- [Mahabeer Inventory](https://moheetsubudhi.com/projects/mahabeer/): A custom inventory system for Mahabeer, built after auditing 120+ warehouse transactions a day. Order accuracy went from 82% to 97%.
+- [Royal Living Tangi](https://moheetsubudhi.com/projects/royal-living-tangi/): A data governance project for an LPG agency with 34,000+ customers: 14,500+ records cleaned and 5,027+ addresses verified.
+- [OSDA](https://moheetsubudhi.com/projects/osda/): A Rs 60-lakh digital transformation for Skilled in Odisha, the Government of Odisha's skilling body: a modular CMS, push notifications and dashboards.
+- [Neoteric](https://moheetsubudhi.com/projects/neoteric/): A government PR campaign run by a 45-member team with standard operating procedures and compliance checks, reaching 2,50,000+ impressions.
+- [IWD Secretary App](https://moheetsubudhi.com/projects/iwd-app/): A reporting app built for Inner Wheel District 301 in Delhi: 2,400+ members, 60+ clubs, and monthly and yearly compliance reports made audit-ready.
+
+## Content
+
+- [Meet Ishaan](https://moheetsubudhi.com/content/ai-colleague/): How Mailmodo built Ishaan, an AI agent that reads customer queries, checks the account and drafts a reply for a person to approve.
+- [Cron jobs](https://moheetsubudhi.com/content/cron-jobs/): The quiet workers behind automation: three kinds of cron job that refresh context, repair tools and check that the work actually happened.
+- [Moheet CV](https://moheetsubudhi.com/cv/): Moheet Subudhi's CV: product manager for business automation at Mailmodo, and seven roles since 2020 across SaaS, government and consulting.

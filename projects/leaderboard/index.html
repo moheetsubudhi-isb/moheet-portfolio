@@ -1,0 +1,1498 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EZKQBDEGY9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  /* The tag loads everywhere but reports only from the real site, so staging, previews
+     and localhost never count as visits. Page views are sent by the page itself
+     (see apply), because this is one page that swaps its content: Google would
+     otherwise see the home page and nothing else. */
+  if (location.hostname === "moheetsubudhi.com") {
+    gtag('config', 'G-EZKQBDEGY9', { send_page_view: false });
+  }
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BestHunt AI model leaderboard | Moheet Subudhi</title>
+<meta name="description" content="BestHunt&#x27;s AI model leaderboard ranks 400+ priced models by what real work costs, in plain money terms, refreshed every Monday.">
+<link rel="canonical" href="https://moheetsubudhi.com/projects/leaderboard/">
+<meta name="theme-color" content="#F2EEE3">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Moheet Subudhi">
+<meta property="og:url" content="https://moheetsubudhi.com/projects/leaderboard/">
+<meta property="og:title" content="BestHunt AI model leaderboard | Moheet Subudhi">
+<meta property="og:description" content="BestHunt&#x27;s AI model leaderboard ranks 400+ priced models by what real work costs, in plain money terms, refreshed every Monday.">
+<meta property="og:image" content="https://moheetsubudhi.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Moheet Subudhi">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BestHunt AI model leaderboard | Moheet Subudhi">
+<meta name="twitter:description" content="BestHunt&#x27;s AI model leaderboard ranks 400+ priced models by what real work costs, in plain money terms, refreshed every Monday.">
+<meta name="twitter:image" content="https://moheetsubudhi.com/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Person","@id":"https://moheetsubudhi.com/#person","name":"Moheet Subudhi","url":"https://moheetsubudhi.com/"},{"@type":"WebSite","@id":"https://moheetsubudhi.com/#website","name":"Moheet Subudhi","url":"https://moheetsubudhi.com/","publisher":{"@id":"https://moheetsubudhi.com/#person"}},{"@type":"WebPage","@id":"https://moheetsubudhi.com/projects/leaderboard/#page","url":"https://moheetsubudhi.com/projects/leaderboard/","name":"BestHunt AI model leaderboard","description":"BestHunt's AI model leaderboard ranks 400+ priced models by what real work costs, in plain money terms, refreshed every Monday.","isPartOf":{"@id":"https://moheetsubudhi.com/#website"},"author":{"@id":"https://moheetsubudhi.com/#person"},"image":"https://moheetsubudhi.com/og.png","dateModified":"2026-11-08"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://moheetsubudhi.com/"},{"@type":"ListItem","position":2,"name":"My projects","item":"https://moheetsubudhi.com/projects/"},{"@type":"ListItem","position":3,"name":"AI model leaderboard","item":"https://moheetsubudhi.com/projects/leaderboard/"}]}]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Hanken+Grotesk:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+/* Every tile for every folder is in the markup and all but one set is hidden.
+   A display rule on the element beats the attribute, so say it once, here. */
+[hidden]{display:none!important}
+:root{
+  --paper:#F2EEE3; --paper-2:#EAE4D6; --paper-3:#E2DBC9;
+  --ink:#17150F; --muted:#5C574C; --faint:#8C8573;
+  --line:rgba(23,21,15,.13); --line-2:rgba(23,21,15,.26);
+  --accent:#2F4FD4; --accent-rgb:47,79,212;
+  --accent-2:#8094E4; --accent-2-rgb:128,148,228;
+  --accent-soft:rgba(var(--accent-rgb),.10);
+  --display:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --body:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --e:cubic-bezier(.2,.8,.2,1);
+  --r:10px;
+  --panel:#FAF8F3;     /* the results panel, and so also the wipe that reveals the arrow */
+  --rule:29px;          /* the ruling pitch, and the body line-height, so text sits on it */
+}
+html{-webkit-text-size-adjust:100%;background:var(--paper)}
+
+/* Paper. A fixed, non-interactive overlay so the grain never repaints while
+   anything scrolls: fibre speckle, a faint rule, and a soft vignette. */
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  opacity:.55;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E")}
+/* The ruling and the vignette are light on the page, not ink on it: both stay put
+   while the content moves over them. Fixed rather than attached, because iOS Safari
+   ignores background-attachment:fixed. */
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 31px, rgba(23,21,15,.045) 31px 32px),
+    radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(23,21,15,.07) 100%)}
+body > *{position:relative;z-index:1}
+@media (prefers-reduced-transparency: reduce){body::before{display:none}}
+body{background-color:var(--paper);color:var(--ink);font-family:var(--body);
+  line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:820px;margin:0 auto;padding:0 20px}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(47,79,212,.3)}
+a:hover{border-bottom-color:var(--accent)}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.025em}
+h1{font-weight:800;line-height:.94;font-size:clamp(38px,min(9vw,10vh),84px)}
+h2,.view-head h1{font-weight:800;line-height:1.04;font-size:clamp(27px,5.4vw,42px)}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+h3{font-weight:600;font-size:clamp(17px,3.4vw,21px);letter-spacing:-.01em}
+p{color:var(--muted);font-size:clamp(15px,3.6vw,17px)}
+p + p{margin-top:13px}
+p strong,li strong{color:var(--ink);font-weight:600}
+.lead{font-size:clamp(16px,4vw,19px);max-width:56ch}
+
+/* ---------- the poster ----------
+   Objects sit around the title at wide widths, the way a printed poster would lay
+   them out. Below 1040px, and whenever a search is running, they fall back to a
+   plain grid: a scatter cannot survive a narrow screen or a changing item count. */
+/* The poster is exactly one screen: the objects and the contact row share it, so a
+   laptop never scrolls to reach either. */
+/* One shell: the poster or an opened item, and under either of them the same
+   contact bar. Nothing is duplicated, so the bar cannot drift between the two. */
+#shell{min-height:100dvh;display:flex;flex-direction:column}
+#poster{flex:1;display:flex;flex-direction:column;justify-content:center}
+body.open #poster{display:none}
+/* The poster fills what the bar and the contact row leave, and centres its own
+   contents inside that, so the bar stays at the top of the page. */
+#hub{display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(12px,2.4vh,28px) 0 clamp(8px,1.2vh,14px);position:relative;flex:1}
+#hub.scatter{flex:1}
+/* Climbing out of a folder, back to whatever holds it. */
+/* A poster inside a folder uses the same bar as an opened item, at the top of
+   the page rather than floating over the heading. */
+#poster > .topbar{position:sticky;flex:0 0 auto}
+#poster > .topbar .inner{max-width:none;padding-left:clamp(14px,3vw,34px);
+  padding-right:clamp(14px,3vw,34px)}
+@media(max-width:639px){#poster > .topbar .where{display:none}}
+/* The heading is a full-width block, so it sits over the objects beside it and
+   eats their clicks. It is only text, so it takes no pointer events. */
+.poster-title{text-align:center;padding:0 20px;position:relative;z-index:2;
+  pointer-events:none}
+/* Ink settling: each word arrives slightly late and slightly out of focus,
+   then sets. The old heading leaves as one block rather than word by word, so
+   the change reads as a relabel and not as two animations fighting. */
+@keyframes inkIn{
+  from{opacity:0;transform:translateY(9px);filter:blur(7px)}
+  to{opacity:1;transform:none;filter:blur(0)}
+}
+.poster-title h1 .w{display:inline-block;animation:inkIn .38s var(--e) both;
+  animation-delay:var(--d,0s)}
+.poster-title h1,.poster-title .sub{transition:opacity .16s var(--e),filter .16s var(--e)}
+.poster-title h1.out,.poster-title .sub.out{opacity:0;filter:blur(5px)}
+.poster-title .sub .w{display:inline-block;animation:inkIn .38s var(--e) both .12s}
+@media (prefers-reduced-motion: reduce){
+  .poster-title h1 .w,.poster-title .sub .w{animation:none}
+}
+.poster-title .sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin-top:clamp(8px,1.4vh,14px)}
+@media(min-width:520px){.poster-title .sub{font-size:11px;letter-spacing:.24em}}
+.objects{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;
+  max-width:980px;margin:clamp(14px,2.4vh,30px) auto 0;padding:0 14px}
+@media(min-width:720px){.objects{grid-template-columns:repeat(4,1fr);gap:10px}}
+/* On a phone every folder is the same two-column grid with the same tile, however
+   many it holds, and a full folder scrolls. Squeezing eight or eleven tiles onto one
+   screen shrank the thumbs until the icons spilled out of them (Moheet, 6 Oct 2026). */
+/* Two or three objects are a row in the middle, not a stripe across the page. */
+/* auto side margins on a column flex item shrink it to its content, so the width
+   has to be stated or the row collapses */
+/* One or two objects centre as a row at the same size as every other tile.
+   Scaling them up to fill the space changed the proportion of the icon to the
+   card, which is the thing that made the poster read. */
+.objects.few{display:flex;width:100%;justify-content:center;
+  gap:clamp(12px,2.5vw,26px);max-width:560px}
+.objects.few .obj{flex:0 1 200px}
+@media(min-width:850px){
+  #hub.scatter .objects{display:block;position:absolute;inset:0;max-width:none;
+    margin:0;padding:0;pointer-events:none}
+  #hub.scatter .obj{position:absolute;width:124px;pointer-events:auto;padding:7px;z-index:3;
+    transform:rotate(var(--r))}
+  #hub.scatter .obj .label{font-size:13px;line-height:1.15}
+  #hub.scatter .obj .thumb{padding:10px}
+  #hub.scatter .obj:hover,#hub.scatter .obj:focus-visible{
+    transform:rotate(0deg) translateY(-4px) scale(1.04);z-index:4}
+  #hub.scatter .obj{cursor:grab;touch-action:none}
+  #hub.scatter .obj.dragging{cursor:grabbing;z-index:5;transform:rotate(0deg) scale(1.06);
+    filter:drop-shadow(0 10px 18px rgba(23,21,15,.18))}
+  #hub.scatter .obj .thumb{aspect-ratio:1/1}
+}
+.obj{position:relative;display:flex;flex-direction:column;gap:4px;text-align:left;
+  background:transparent;border:0;padding:7px 7px 9px;cursor:pointer;
+  border-radius:var(--r);transition:transform .22s var(--e),background .22s var(--e);
+  font-family:inherit;color:inherit}
+.obj:hover,.obj:focus-visible{background:rgba(23,21,15,.045);transform:translateY(-3px)}
+.obj:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.obj:active{transform:translateY(-1px)}
+.obj .thumb{aspect-ratio:16/11;display:grid;place-items:center;overflow:hidden;
+  border-radius:8px;background:var(--paper-2);padding:6px;
+  border:1px solid rgba(23,21,15,.07);max-height:clamp(52px,8.6vh,104px)}
+.obj .thumb svg{width:100%;height:auto;max-height:100%}
+.obj .thumb .ico{width:clamp(30px,38%,52px);height:auto;max-height:72%;aspect-ratio:1/1;
+  color:var(--accent)}
+.obj .thumb .ico svg{width:100%;height:100%}
+.obj .thumb .glyph{font-family:var(--display);font-weight:800;
+  font-size:clamp(26px,6vw,40px);color:var(--accent);letter-spacing:-.03em}
+.obj .n{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--faint)}
+.obj .label{font-family:var(--display);font-weight:600;font-size:clamp(13px,3.2vw,15.5px);
+  line-height:1.18;letter-spacing:-.01em}
+.obj .label .arrow{color:var(--accent);opacity:0;transition:opacity .2s}
+/* While a search is open the objects step back rather than crowd the panel.
+   Faded, not removed: in the scatter they are positioned absolutely, so this
+   hides them without anything reflowing. */
+#hub.searching .obj{opacity:0;pointer-events:none;transition:opacity .18s var(--e)}
+.obj:hover .label .arrow{opacity:1}
+
+/* ---------- search ---------- */
+.search{position:relative;z-index:2;max-width:360px;margin:clamp(12px,2vh,20px) auto 0;
+  padding:0 20px}
+.search .box{position:relative;display:flex;align-items:center;gap:9px;
+  border:1px solid var(--line-2);border-radius:999px;padding:9px 15px;
+  background:rgba(255,255,255,.4)}
+.search .box:focus-within{border-color:var(--accent)}
+.search svg{width:16px;height:16px;color:var(--faint);flex:none}
+.search input{flex:1;border:0;background:transparent;font-family:var(--body);
+  font-size:15px;color:var(--ink);outline:none;min-width:0}
+.search input::placeholder{color:var(--faint)}
+.search .count{font-family:var(--mono);font-size:10.5px;color:var(--faint);
+  text-align:center;margin-top:9px;min-height:14px}
+
+/* Search is a list of every node, not a filter over the tiles: once most of the
+   page lives inside folders, hiding root tiles would find almost nothing. */
+/* Anchored under the box rather than placed in the flow: the heading, the
+   search and the objects must not move while someone is typing. */
+/* One width, set by the viewport and not by what happens to match, so the
+   panel does not resize itself under the cursor as someone types. */
+.results{position:absolute;z-index:8;top:calc(100% + 9px);left:50%;
+  transform:translateX(-50%);width:min(min(560px,78vw),calc(100vw - 32px));
+  text-align:left}
+.results[hidden]{display:none}
+/* Solid, not translucent: the nothing-found arrow is revealed by sliding a
+   panel-coloured cover off it, and the cover has to match exactly. */
+.results ol{list-style:none;margin:0;border:1px solid var(--line-2);border-radius:var(--r);
+  background:var(--panel);overflow:hidden;max-height:min(46vh,340px);overflow-y:auto}
+.results li + li{border-top:1px solid var(--line)}
+.results button{width:100%;display:flex;align-items:center;gap:11px;text-align:left;
+  background:transparent;border:0;padding:10px 13px;cursor:pointer;font-family:inherit;
+  color:inherit}
+.results button:hover,.results button.on{background:var(--accent-soft)}
+.results .ico{width:18px;height:18px;flex:none;color:var(--accent)}
+.results .ico svg{width:100%;height:100%}
+.results .t{flex:1;min-width:0;font-family:var(--display);font-weight:600;font-size:14.5px;
+  letter-spacing:-.01em;line-height:1.25;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+/* The trail is pushed to the far end rather than following the name, which is
+   what made the two read as one run-on word. */
+.results .c{flex:none;margin-left:14px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.08em;color:var(--faint);text-transform:uppercase;white-space:nowrap}
+@media(max-width:519px){.results .c{display:none}}
+
+/* Nothing found is not an error, it is an invitation. */
+.results .none{padding:20px 16px;display:flex;flex-direction:column;
+  align-items:center;gap:2px;text-align:center}
+
+.results .none .say{font-family:var(--display);font-weight:600;font-size:15.5px;
+  letter-spacing:-.01em}
+.results .none .sub2{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
+  color:var(--faint);text-transform:uppercase;margin-top:4px}
+
+
+/* ---------- accent picker ---------- */
+.swatches{position:relative;z-index:2;display:flex;justify-content:center;gap:7px;
+  margin-top:clamp(10px,1.8vh,16px)}
+.sw{width:17px;height:17px;border-radius:999px;border:1px solid rgba(23,21,15,.2);
+  cursor:pointer;padding:0;transition:transform .15s var(--e),box-shadow .15s var(--e)}
+.sw:hover{transform:scale(1.18)}
+.sw[aria-pressed=true]{box-shadow:0 0 0 2px var(--paper),0 0 0 3.5px var(--ink)}
+.sw:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+/* ---------- contact ---------- */
+.contact{position:relative;z-index:2;display:flex;justify-content:center;gap:8px;
+  flex-wrap:wrap;margin-top:clamp(14px,2.4vh,26px);padding:0 20px}
+.contact a{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+  font-size:12px;letter-spacing:.03em;color:var(--muted);border:1px solid var(--line);
+  border-radius:999px;padding:8px 15px;background:rgba(255,255,255,.35)}
+.contact a:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.contact svg{width:16px;height:16px;flex:none}
+.hub-foot{text-align:center;margin-top:10px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.1em;color:var(--faint)}
+/* The same bar under the poster and under an opened item: how to reach me, the
+   accent, and the reset once anything has been moved. */
+#chrome{flex:0 0 auto;border-top:1px solid var(--line);margin-top:auto;
+  padding:clamp(12px,2vh,20px) 20px clamp(14px,2.4vh,26px)}
+#chrome .row{max-width:980px;margin:0 auto;display:flex;align-items:center;
+  justify-content:center;gap:10px;flex-wrap:wrap}
+#chrome .contact{margin-top:0;padding:0;gap:8px}
+#chrome .swatches{margin-top:0}
+#chrome .tail{position:relative;display:flex;align-items:center;gap:10px}
+.corner{position:fixed;left:clamp(14px,2.4vw,30px);bottom:clamp(14px,2.4vh,26px);z-index:7;
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none}
+.corner > *{pointer-events:auto}
+body.open .corner{display:none}
+
+/* ---------- a detail view ---------- */
+#view{display:none}
+body.open #hub{display:none}
+body.open #view{display:block}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(242,238,227,.9);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line)}
+.topbar .inner{max-width:820px;margin:0 auto;padding:11px 20px;
+  display:flex;align-items:center;gap:14px}
+.back{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--ink);
+  border:1px solid var(--line-2);border-radius:999px;padding:7px 14px;background:transparent;
+  cursor:pointer;white-space:nowrap}
+.back:hover{border-color:var(--accent);color:var(--accent)}
+.where{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint);overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;min-width:0}
+.topbar .search{margin:0 0 0 auto;padding:0;flex:0 1 268px;min-width:132px;z-index:41}
+.topbar .search .box{padding:7px 13px}
+.topbar .search input{font-size:13.5px}
+.topbar .search .count{display:none}
+/* Anchored to the right edge of the box here, not centred on it, or it would
+   hang off the side of the window. */
+.topbar .search .results{left:auto;right:0;transform:none;
+  width:min(420px,calc(100vw - 28px))}
+/* On a narrow screen the trail gives way to the input: the heading underneath
+   already says where you are. */
+@media(max-width:639px){
+  .topbar .where{display:none}
+  .topbar .search{flex:1 1 auto}
+}
+/* Written on the lines: prose uses the ruling pitch for its line-height, and the
+   page starts on a whole number of rules so the two stay in step as you scroll. */
+#view{padding-top:0}
+.view-body p,.view-body li,.notes li{line-height:var(--rule)}
+.view-body p{font-size:clamp(15px,3.6vw,16.5px)}
+.view-head{padding-top:calc(var(--rule) * 2)}
+.view-head .n{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent)}
+.view-head h1,.view-head h2{margin-top:12px}
+.view-head .lead{margin-top:16px}
+/* Top and bottom only: these share an element with .wrap, whose side padding
+   keeps text off the screen edge on a phone. */
+.view-body{padding-top:var(--rule);padding-bottom:clamp(50px,11vw,86px)}
+.view-body > * + *{margin-top:var(--rule)}
+
+/* ---------- shared blocks ---------- */
+.panel{border:1px solid var(--line);border-radius:var(--r);background:var(--paper-2);
+  margin-top:24px;overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:12px;padding:12px 15px;
+  border-bottom:1px solid var(--line)}
+.panel-head .t{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.05em}
+.panel-head .note{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;
+  color:var(--faint);margin-left:auto;text-align:right}
+.panel-head .t + .copy{margin-left:auto}
+pre{font-family:var(--mono);font-size:12.5px;line-height:1.62;color:var(--ink);
+  padding:15px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;max-height:340px}
+.copy{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;padding:7px 14px;
+  border-radius:999px;border:1px solid var(--line-2);background:transparent;color:var(--ink);
+  cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s,background .15s}
+.copy:hover{border-color:var(--accent);color:var(--accent)}
+.copy.done{border-color:var(--accent);color:#fff;background:var(--accent)}
+.btn{font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;padding:11px 18px;
+  border-radius:999px;border:1px solid var(--line-2);color:var(--ink);background:transparent;
+  cursor:pointer;display:inline-block}
+.btn:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.btn.primary:hover{background:#2440b8;border-color:#2440b8;color:#fff}
+
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:22px}
+.tab{font-family:var(--mono);font-size:11.5px;padding:8px 13px;border-radius:999px;
+  border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.tab:hover{color:var(--ink);border-color:var(--line-2)}
+.tab[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* the PIN pop-up: the paper card, the mono kicker, the accent. No native dialog, so
+   it looks the same on every OS. */
+.scrim{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;
+  background:rgba(23,21,15,.38);opacity:0;transition:opacity .2s var(--e)}
+.scrim.on{opacity:1}
+.dialog{position:relative;width:min(380px,100%);background:var(--paper);
+  border:1px solid var(--line-2);border-radius:14px;padding:30px 28px 24px;text-align:center;
+  box-shadow:0 24px 60px rgba(23,21,15,.22);transform:translateY(10px) scale(.97);
+  transition:transform .24s var(--e)}
+.scrim.on .dialog{transform:none}
+.dlg-kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;color:var(--faint)}
+.dialog h3{margin-top:10px;font-size:clamp(24px,6vw,30px);font-weight:800;letter-spacing:-.025em}
+.dlg-hint{margin-top:6px;font-size:14.5px}
+.dlg-x{position:absolute;top:10px;right:12px;width:34px;height:34px;border:0;background:transparent;
+  font-size:24px;line-height:1;color:var(--faint);cursor:pointer;border-radius:8px}
+.dlg-x:hover{color:var(--ink);background:rgba(23,21,15,.06)}
+.cells{position:relative;display:flex;justify-content:center;gap:10px;margin-top:22px;cursor:text}
+.cells input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;
+  font-size:16px;caret-color:transparent}   /* 16px so iOS does not zoom the page */
+.cell{width:50px;height:60px;display:grid;place-items:center;border:1px solid var(--line-2);
+  border-radius:var(--r);background:rgba(255,255,255,.55);font-family:var(--mono);
+  font-size:26px;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.cell.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.cells.bad .cell{border-color:#B3431E}
+.cells.bad{animation:nope .34s}
+@keyframes nope{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.dlg-msg{min-height:var(--rule);margin-top:14px;font-family:var(--mono);font-size:12px;
+  letter-spacing:.04em;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){
+  .scrim,.dialog{transition:none}.cells.bad{animation:none}
+}
+/* a small lock on the tile, so it reads as locked before it is touched */
+.lockmark{position:absolute;right:7px;bottom:7px;width:17px;height:17px;color:var(--faint)}
+.lockmark svg{width:100%;height:100%}
+.thumb{position:relative}
+
+.split{display:grid;gap:16px;margin-top:24px}
+@media(min-width:760px){.split{grid-template-columns:1fr 1fr}.split .panel{margin-top:0}}
+
+details{border:1px solid var(--line);border-radius:var(--r);background:var(--paper-2);
+  margin-top:12px;overflow:hidden}
+summary{padding:13px 15px;cursor:pointer;font-family:var(--mono);font-size:12.5px;
+  color:var(--ink);list-style:none;display:flex;align-items:center;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary .arrow{color:var(--faint);transition:transform .15s}
+details[open] summary .arrow{transform:rotate(90deg)}
+summary .note{color:var(--faint);font-size:11px;margin-left:auto}
+summary .copy{margin-left:auto}
+summary .note + .copy{margin-left:14px}
+
+.fig{margin-top:24px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--paper-2);padding:16px;overflow:hidden}
+.fig svg{display:block;width:100%;height:auto}
+.fig .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--faint);margin-top:11px}
+
+table{width:100%;border-collapse:collapse;margin-top:20px;font-size:14.5px}
+th,td{text-align:left;padding:11px 12px 11px 0;vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--faint);font-weight:400;border-bottom:1px solid var(--line-2)}
+td{color:var(--muted);border-bottom:1px solid var(--line)}
+td:first-child{color:var(--ink);font-weight:600;white-space:nowrap;padding-right:18px}
+code{font-family:var(--mono);font-size:.88em;color:var(--ink);
+  background:var(--paper-3);padding:2px 6px;border-radius:5px}
+
+ul{list-style:none;margin-top:16px}
+ul li{color:var(--muted);font-size:clamp(15px,3.6vw,16.5px);padding:8px 0 8px 20px;
+  position:relative}
+ul li::before{content:"";position:absolute;left:0;top:17px;width:8px;height:1px;
+  background:var(--faint)}
+
+.rule{font-family:var(--display);font-weight:800;font-size:clamp(21px,4.8vw,32px);
+  line-height:1.22;letter-spacing:-.02em;color:var(--ink);max-width:21ch;margin-top:22px}
+.formula{font-family:var(--mono);font-size:clamp(11.5px,2.9vw,14px);line-height:2;
+  display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}
+.f-op{color:var(--faint)}.f-key{color:var(--accent)}
+.f-out{color:var(--ink);font-weight:500}
+.f-end{color:var(--ink);font-weight:700;border-bottom:2px solid var(--accent)}
+
+/* The nudge sits above the reset in the bar, so the arrow points past it at the
+   folders rather than at the button under it. */
+.hint{display:flex;flex-direction:column;align-items:flex-start;gap:3px;white-space:nowrap;
+  font-family:var(--mono);font-size:10.5px;line-height:1.35;letter-spacing:.06em;
+  color:var(--faint);text-align:left;animation:hintIn .6s var(--e) both .9s}
+.hint svg{width:68px;height:38px;fill:none;stroke:var(--faint);stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round;margin-left:6px}
+/* Two passes over the same line, the way a pencil actually leaves one. */
+.hint svg path{stroke-dasharray:170;stroke-dashoffset:170;
+  animation:draw 1.1s var(--e) forwards 1.25s}
+.hint svg .pass2{opacity:.45;animation-delay:1.45s;animation-duration:.95s}
+.hint.gone{animation:hintOut .4s var(--e) both}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes hintIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes hintOut{to{opacity:0;transform:translateY(4px)}}
+body.open .hint,body.open .reset{display:none}
+.reset{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--faint);
+  background:rgba(255,255,255,.4);border:1px solid var(--line-2);border-radius:999px;
+  cursor:pointer;padding:6px 12px}
+.reset:hover{color:var(--accent);border-color:var(--accent)}
+@media (prefers-reduced-motion: reduce){
+  .hint{animation:none}
+  .hint svg path{animation:none;stroke-dashoffset:0}
+}
+
+html.reveal .view-body > *{opacity:0;transform:translateY(16px);
+  transition:opacity .5s var(--e),transform .5s var(--e)}
+html.reveal .view-body > *.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important;animation:none!important}
+  html.reveal .view-body > *{opacity:1;transform:none}
+}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes settle{
+  from{opacity:0;transform:rotate(var(--r)) translateY(-14px) scale(.94)}
+  to{opacity:1;transform:rotate(var(--r))}
+}
+html.anim .obj{animation:settle .5s var(--e) both;animation-delay:var(--d,0s)}
+html.anim #hub.scatter .obj{animation-name:settle}
+@media (prefers-reduced-motion: reduce){html.anim .obj{animation:none}}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.26s}
+
+/* ---------- the stamp ----------
+   Same tile, same size, same drag. Only what sits inside the thumb changes: a
+   perforated postage stamp with a photo instead of an icon. Frame and lettering
+   take the accent, so the picker recolours it like every other icon. */
+/* Pinned to the thumb's box: the thumb's height comes from max-height, which a
+   percentage height inside it cannot see. */
+.stamp-wrap{position:absolute;inset:clamp(2px,5%,5px);display:flex;justify-content:center;
+  filter:drop-shadow(0 1px 1.5px rgba(23,21,15,.22))}
+.stamp{--p:2.6px;height:100%;aspect-ratio:4/5;flex:none;background:#FFFDF7;
+  padding:calc(var(--p)*2.2);display:grid;grid-template-rows:1fr auto;gap:2px;
+  -webkit-mask:radial-gradient(var(--p),#0000 97%,#000) round
+      calc(var(--p)*-1.5) calc(var(--p)*-1.5)/calc(var(--p)*3) calc(var(--p)*3),
+    linear-gradient(#000 0 0) no-repeat 50%/calc(100% - var(--p)*3) calc(100% - var(--p)*3);
+  mask:radial-gradient(var(--p),#0000 97%,#000) round
+      calc(var(--p)*-1.5) calc(var(--p)*-1.5)/calc(var(--p)*3) calc(var(--p)*3),
+    linear-gradient(#000 0 0) no-repeat 50%/calc(100% - var(--p)*3) calc(100% - var(--p)*3)}
+.stamp img{display:block;width:100%;height:100%;min-height:0;object-fit:cover;
+  object-position:50% 18%;outline:1px solid var(--accent);outline-offset:1px}
+/* The stamp keeps its 4:5 shape whatever its label says: a long name is clipped,
+   never allowed to widen the stamp. Below about 56px tall the label is unreadable,
+   so it gives its room to the face instead. */
+.stamp-wrap{container-type:size}
+.stamp{min-width:0;grid-template-columns:minmax(0,1fr);overflow:hidden}
+.stamp .st{min-width:0;overflow:hidden}
+@container (max-height:56px){
+  .stamp{--p:1.7px;aspect-ratio:1/1;grid-template-rows:1fr;padding:calc(var(--p)*2)}
+  .stamp .st{display:none}
+  .stamp img.logo{padding:4%}
+}
+/* A logo sits whole on white; an icon takes the accent, like every other icon. */
+.stamp img.logo{object-fit:contain;object-position:50% 50%;background:#fff;padding:12%}
+.stamp .face.icon{display:grid;place-items:center;min-height:0;background:#fff;color:var(--accent);
+  outline:1px solid var(--accent);outline-offset:1px}
+.stamp .face.icon svg{width:58%;height:auto}
+.stamp .st{font-family:var(--mono);font-weight:500;font-size:7px;line-height:1;
+  letter-spacing:.14em;color:var(--accent);text-align:center;white-space:nowrap}
+
+/* ---------- the CV, as an old application form ----------
+   Restraint is the whole look: ruled boxes, mono small caps, one rubber stamp. */
+.cv-dl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cv-dl .note{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--faint)}
+.form{border:1.5px solid var(--ink);background:#FBF9F2;
+  box-shadow:3px 3px 0 rgba(23,21,15,.08)}
+.form-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  border-bottom:1.5px solid var(--ink);padding:9px 14px;font-family:var(--mono);
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink)}
+.fsec{padding:16px 14px 18px;border-bottom:1px solid var(--line-2)}
+.fsec:last-child{border-bottom:0}
+.fh{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink);display:flex;gap:10px;margin:0 0 12px}
+.fh b{color:var(--accent);font-weight:500}
+.form p,.form li{font-size:14.5px;line-height:1.55;color:var(--muted)}
+.form ul{margin-top:6px}
+.form li strong{color:var(--ink);font-weight:600}
+.form ul li{padding:2px 0 2px 16px}
+.form ul li::before{top:12px;width:7px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));
+  border-top:1px solid var(--line-2);border-left:1px solid var(--line-2)}
+.f{border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);
+  padding:7px 10px 8px;min-width:0}
+.f .k{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--faint)}
+.f .v{display:block;color:var(--ink);font-size:14.5px;line-height:1.4;overflow-wrap:anywhere}
+.f .v a{border-bottom:0}
+.particulars{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start}
+.photo{position:relative;width:clamp(84px,22vw,116px)}
+.photo img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;object-position:50% 18%;
+  border:1px solid var(--line-2);background:#fff;padding:3px}
+.photo .k{display:block;text-align:center;margin-top:5px;font-family:var(--mono);font-size:8.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.rubber{position:absolute;left:-16px;top:12px;transform:rotate(-14deg);
+  border:2px solid var(--accent);border-radius:4px;padding:3px 7px;
+  font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.18em;
+  color:var(--accent);background:rgba(251,249,242,.7);opacity:.9;white-space:nowrap;
+  pointer-events:none}
+.rec{display:grid;grid-template-columns:158px 1fr;gap:4px 16px;padding:12px 0;
+  border-top:1px dashed var(--line-2)}
+.rec:first-of-type{border-top:0;padding-top:2px}
+.rec .when{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+  padding-top:3px}
+.rec .who{font-family:var(--display);font-weight:600;font-size:16px;color:var(--ink);
+  letter-spacing:-.01em;line-height:1.3}
+.rec .who span{font-family:var(--body);font-weight:400;font-size:14px;color:var(--muted)}
+@media(max-width:559px){
+  .rec{grid-template-columns:1fr}
+  .particulars{grid-template-columns:1fr}
+  .photo{justify-self:start}
+  /* Beside the photo rather than over the face, which a narrow photo cannot spare. */
+  .rubber{left:calc(100% + 10px);top:38%}
+}
+.sign{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.sign .line{min-width:180px;border-bottom:1px solid var(--ink);padding:0 4px 2px;
+  font-family:var(--display);font-weight:800;font-size:20px;color:var(--ink);
+  transform:rotate(-2deg);transform-origin:left bottom}
+.sign .k{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--faint)}
+/* ---------- project diagrams ---------- */
+.arch{display:grid;gap:8px}
+.arch-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:8px}
+.node{border:1px solid var(--line-2);border-radius:var(--r);padding:11px 13px;background:var(--paper)}
+.node b{display:block;font-family:var(--display);font-weight:600;font-size:15px;color:var(--ink);
+  letter-spacing:-.01em}
+.node span{display:block;margin-top:3px;font-size:13.5px;line-height:1.45;color:var(--muted)}
+.node.strong{border-color:var(--accent);background:var(--accent-soft)}
+.node.guard{border-style:dashed}
+.arch .down{text-align:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--faint)}
+.steps{list-style:none;counter-reset:step;margin-top:16px}
+.steps li{counter-increment:step;position:relative;padding:8px 0 8px 36px;color:var(--muted);
+  font-size:clamp(15px,3.6vw,16.5px);line-height:var(--rule)}
+.steps li::before{content:counter(step);position:absolute;left:0;top:10px;width:24px;height:24px;
+  border-radius:999px;border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);
+  font-size:12px;line-height:22px;text-align:center}
+
+/* ---------- phones ----------
+   Below 16px, iOS Safari zooms the whole page when an input takes focus. */
+@media (max-width:719px), (pointer:coarse){
+  .search input,.topbar .search input{font-size:16px}
+}
+/* Fingers, not cursors: every control gets at least a 40px target. The swatches
+   keep their size and grow an invisible hit area instead. */
+@media (pointer:coarse){
+  .back,.copy,.tab,.reset{min-height:40px}
+  /* The taller back pill must not make the bar taller, or a full folder scrolls. */
+  .topbar .inner{padding-top:7px;padding-bottom:7px}
+  #chrome .swatches{gap:12px}
+  .sw{position:relative}
+  .sw::after{content:"";position:absolute;inset:-12px -6px}
+}
+/* The page is laid out under the notch and home bar (viewport-fit=cover), so keep
+   the edges and the contact row clear of them. */
+body{padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+#chrome{padding-bottom:calc(clamp(14px,2.4vh,26px) + env(safe-area-inset-bottom,0px))}
+/* A phone with its browser bars showing is short. Tighten the poster so a full
+   folder and the contact row still fit one screen: the same rules at every level,
+   just less air. */
+@media (max-width:719px){
+  .contact a{padding:8px 11px;gap:6px}
+  #chrome{padding-top:10px}
+  #chrome .row{gap:8px}
+}
+@media (max-width:719px) and (max-height:900px){
+  .obj .n{display:none}
+  .poster-title .sub{margin-top:6px}
+  .search{margin-top:10px}
+  .search .count{margin-top:4px;min-height:0}
+  .objects,.objects.many{margin-top:8px}
+  #hub{padding-top:8px;padding-bottom:6px}
+}
+/* Below the scatter width the tiles are a grid, and each thumb fills its column:
+   sized by aspect ratio and a max-height it came out half the column wide, so the
+   label ran past it. */
+@media(max-width:849px){
+  .obj .thumb{aspect-ratio:auto;width:100%;height:var(--th,clamp(76px,15vh,132px));max-height:none}
+}
+/* Below the scatter width the tiles are a grid and cannot be dragged, so the reset
+   and the drag hint have nothing to act on, and the corner would sit on the swatches. */
+@media(max-width:849px){.corner{display:none}}
+@media(max-width:559px){
+  .f .k,.photo .k,.sign .k{font-size:10px}
+  .form-head{font-size:10.5px}
+}
+</style>
+</head><body>
+
+<div id="shell">
+<div id="poster">
+<div class="topbar" id="hubBar" hidden><div class="inner">
+  <button class="back" id="hubUp">&larr; Back</button>
+  <span class="where" id="hubWhere"></span>
+</div></div>
+<main id="hub" class="scatter">
+  <div class="poster-title">
+    <h1 id="hubTitle">Things I have built</h1>
+    <div class="sub" id="hubSub">Mine, and for clients.</div>
+  </div>
+  <div class="search"><label class="box">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M192,112a80,80,0,1,1-80-80A80,80,0,0,1,192,112Z" opacity="0.2"/><path d="M229.66,218.34,179.6,168.28a88.21,88.21,0,1,0-11.32,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+    <input type="search" id="q" placeholder="Search everything" autocomplete="off"
+           aria-label="Search everything">
+    <div class="results" id="results" hidden></div>
+  </label><div class="count" id="count"></div></div>
+  <div class="objects"><button class="obj" data-go="build" data-parent="" data-find="how to build with ai how to build with ai everything from the session. session talk presentation how to build with ai giveaway pack take home seven parts model harness loop mcp skills context memory plain text tonight the seven parts the seven parts six of these seven are not the model. six of these seven are where things actually break. model harness loop mcp skills context memory overview recap formula summary nearly everyone starts at the model and stops there, which is why most attempts stall at something that talks back well and does nothing. the model is one part. the other six are the work, and they are all things you control. the whole thing, in one line model + harness + loop + mcp + skills + memory = your idea, working part what it is model predicts text. on its own it can only talk back. harness what it reads, what it may touch, who it is. start here . loop do, check, decide whether to go again. why work finishes. here . mcp one standard for reaching tools. here . skills one task, written down once. here . context what it sees right now. it fills up, and things fall out. memory what survives the conversation ending. here . the order matters. each one is only worth adding once the one before it holds. the build sheet from idea to working thing the order to use everything here in, and a prompt that builds your idea with you, part by part. build sheet build partner plan"><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,128a88,88,0,1,1-88-88A88,88,0,0,1,216,128Z" opacity="0.2"/><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L182.06,73.37a79.56,79.56,0,0,0-56.13-23.43h-.45A79.52,79.52,0,0,0,69.59,72.71,8,8,0,0,1,58.41,61.27a96,96,0,0,1,135,.79L208,76.69V48a8,8,0,0,1,16,0ZM186.41,183.29a80,80,0,0,1-112.47-.66L59.31,168H88a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V179.31l14.63,14.63A95.43,95.43,0,0,0,130,222.06h.53a95.36,95.36,0,0,0,67.07-27.33,8,8,0,0,0-11.18-11.44Z"/></svg></span></span><span class="n">(01)</span><span class="label">How to Build with AI <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="build/parts" data-parent="build" data-find="the seven parts the seven parts six of these seven are not the model. six of these seven are where things actually break. model harness loop mcp skills context memory overview recap formula summary nearly everyone starts at the model and stops there, which is why most attempts stall at something that talks back well and does nothing. the model is one part. the other six are the work, and they are all things you control. the whole thing, in one line model + harness + loop + mcp + skills + memory = your idea, working part what it is model predicts text. on its own it can only talk back. harness what it reads, what it may touch, who it is. start here . loop do, check, decide whether to go again. why work finishes. here . mcp one standard for reaching tools. here . skills one task, written down once. here . context what it sees right now. it fills up, and things fall out. memory what survives the conversation ending. here . the order matters. each one is only worth adding once the one before it holds."><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M112,56v48a8,8,0,0,1-8,8H56a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8h48A8,8,0,0,1,112,56Zm88-8H152a8,8,0,0,0-8,8v48a8,8,0,0,0,8,8h48a8,8,0,0,0,8-8V56A8,8,0,0,0,200,48Zm-96,96H56a8,8,0,0,0-8,8v48a8,8,0,0,0,8,8h48a8,8,0,0,0,8-8V152A8,8,0,0,0,104,144Zm96,0H152a8,8,0,0,0-8,8v48a8,8,0,0,0,8,8h48a8,8,0,0,0,8-8V152A8,8,0,0,0,200,144Z" opacity="0.2"/><path d="M200,136H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,200,136Zm0,64H152V152h48v48ZM104,40H56A16,16,0,0,0,40,56v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,104,40Zm0,64H56V56h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,64H152V56h48v48Zm-96,32H56a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,104,136Zm0,64H56V152h48v48Z"/></svg></span></span><span class="n">(01)</span><span class="label">The seven parts <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="build/sheet" data-parent="build" data-find="the build sheet from idea to working thing the order to use everything here in, and a prompt that builds your idea with you, part by part. build sheet build partner planner deploy publish github pages vercel framework plan idea agent tool app product capstone steps route brief ship build an agent, in seven steps pick the job. one task you repeat. not an assistant : one task. the repeat finder say who it is. its role, its standards, what it never does. the setup interview or a soul file pick the harness. a chat, a terminal agent, or a model on your own laptop if the data can t leave. run it on your laptop define done. the goal, the check, the stop, the limit. the loop checklist connect only what it needs, with a human in the loop on anything risky. the tool registry do it once badly, then write the skill. your corrections are the skill. the skill doctor give it memory, so tomorrow starts where today stopped. memory each step is only worth adding once the one before it holds. build a tool with ai, in five steps how the session deck and this site were built. write a one-page brief first. who uses it, what goes in, what comes out, and how you ll know it works. ask for a plan before any code. correct the plan, not the code. it is ten times cheaper. build the smallest version that works end to end. one input, one output, nothing else. test it on real data, with a check that can fail."><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M245.66,129,217,157.66a8,8,0,0,1-11.3,0L168.1,120l-28,28-32-32,28-28L80,31.78a87.81,87.81,0,0,1,98.31,18l67.35,67.89A8,8,0,0,1,245.66,129Z" opacity="0.2"/><path d="M251.34,112,183.88,44.08a96.1,96.1,0,0,0-135.77,0l-.09.09L34.25,58.4A8,8,0,0,0,45.74,69.53L59.47,55.35a79.92,79.92,0,0,1,18.71-13.9L124.68,88l-96,96a16,16,0,0,0,0,22.63l20.69,20.69a16,16,0,0,0,22.63,0l96-96,14.34,14.34h0L200,163.3a16,16,0,0,0,22.63,0l28.69-28.69A16,16,0,0,0,251.34,112ZM60.68,216,40,195.31l68-68L128.68,148ZM162.34,114.32,140,136.67,119.31,116l22.35-22.35a8,8,0,0,0,0-11.32L94.32,35a80,80,0,0,1,78.23,20.41l44.22,44.51L188,128.66l-14.34-14.34A8,8,0,0,0,162.34,114.32Zm49,37.66-12-12L228,111.25l12,12Z"/></svg></span></span><span class="n">(02)</span><span class="label">The build sheet <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="build/generator" data-parent="build" data-find="the setup interview the setup interview one prompt. it asks you questions for five minutes, then writes four files for your actual job. prompt interview setup start here chatgpt claude gemini copilot custom instructions it asks what you do, what you redo every week and resent, how you do it now, and what keeps going wrong. then it writes: how it should behave, how it should work, what it can reach, and how you do that one task. paste it as the first message in any chat. claude, chatgpt, gemini, copilot. it works in a terminal agent too, and on a phone. the setup interview about 5 minutes copy the third question is the one people rush. walk it through how you actually do the thing, fiddly parts included. the skill it writes is only as good as that answer."><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M194.82,151.43l-55.09,20.3-20.3,55.09a7.92,7.92,0,0,1-14.86,0l-20.3-55.09-55.09-20.3a7.92,7.92,0,0,1,0-14.86l55.09-20.3,20.3-55.09a7.92,7.92,0,0,1,14.86,0l20.3,55.09,55.09,20.3A7.92,7.92,0,0,1,194.82,151.43Z" opacity="0.2"/><path d="M197.58,129.06,146,110l-19-51.62a15.92,15.92,0,0,0-29.88,0L78,110l-51.62,19a15.92,15.92,0,0,0,0,29.88L78,178l19,51.62a15.92,15.92,0,0,0,29.88,0L146,178l51.62-19a15.92,15.92,0,0,0,0-29.88ZM137,164.22a8,8,0,0,0-4.74,4.74L112,223.85,91.78,169A8,8,0,0,0,87,164.22L32.15,144,87,123.78A8,8,0,0,0,91.78,119L112,64.15,132.22,119a8,8,0,0,0,4.74,4.74L191.85,144ZM144,40a8,8,0,0,1,8-8h16V16a8,8,0,0,1,16,0V32h16a8,8,0,0,1,0,16H184V64a8,8,0,0,1-16,0V48H152A8,8,0,0,1,144,40ZM248,88a8,8,0,0,1-8,8h-8v8a8,8,0,0,1-16,0V96h-8a8,8,0,0,1,0-16h8V72a8,8,0,0,1,16,0v8h8A8,8,0,0,1,248,88Z"/></svg></span></span><span class="n">(03)</span><span class="label">The Setup Interview <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="build/soul" data-parent="build" data-find="five soul files five soul files who the ai is when it works with you: its standards, its voice, what it never does. persona role tone voice style system prompt consultant data ops product marketing harness same model, different colleague. pick the closest to your job, then change two lines so it sounds like you. that is the whole setup. consultant data analytics operations programme product marketing growth copy where it goes: chatgpt custom instructions or a project, gemini gems, a claude project, copilot custom instructions, or agents.md in a project folder. model alone model text that is all it can do harness model read files run commands call tools and it keeps going until the job is done the harness is everything around the model"><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M160,112a32,32,0,1,1-32-32A32,32,0,0,1,160,112Z" opacity="0.2"/><path d="M224,40V76a8,8,0,0,1-16,0V48H180a8,8,0,0,1,0-16h36A8,8,0,0,1,224,40Zm-8,132a8,8,0,0,0-8,8v28H180a8,8,0,0,0,0,16h36a8,8,0,0,0,8-8V180A8,8,0,0,0,216,172ZM76,208H48V180a8,8,0,0,0-16,0v36a8,8,0,0,0,8,8H76a8,8,0,0,0,0-16ZM40,84a8,8,0,0,0,8-8V48H76a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8V76A8,8,0,0,0,40,84Zm136,92a8,8,0,0,1-6.41-3.19,52,52,0,0,0-83.2,0,8,8,0,1,1-12.8-9.62A67.94,67.94,0,0,1,101,141.51a40,40,0,1,1,53.94,0,67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,176,176Zm-48-40a24,24,0,1,0-24-24A24,24,0,0,0,128,136Z"/></svg></span></span><span class="n">(04)</span><span class="label">Five soul files <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="build/loop" data-parent="build" data-find="the loop checklist make it finish instead of wander four lines above any task: the goal, the check, the stop, the limit. agent wander stuck retry goal check stop limit finish done the check is the one people skip and the one that matters. &quot;i will review it carefully&quot; is not a check. &quot;both totals match the source file&quot; is, because it can fail. act observe correct chat one answer, then it stops agent tries, looks at what happened, fixes it, tries again do a step, check it, decide whether to go again for a chat paste above your task copy for a project folder goes in agents.md copy without a stop rule, a model will try variations of the same broken idea until you interrupt it. with one, it comes back after two."><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,128a88,88,0,1,1-88-88A88,88,0,0,1,216,128Z" opacity="0.2"/><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L182.06,73.37a79.56,79.56,0,0,0-56.13-23.43h-.45A79.52,79.52,0,0,0,69.59,72.71,8,8,0,0,1,58.41,61.27a96,96,0,0,1,135,.79L208,76.69V48a8,8,0,0,1,16,0ZM186.41,183.29a80,80,0,0,1-112.47-.66L59.31,168H88a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V179.31l14.63,14.63A95.43,95.43,0,0,0,130,222.06h.53a95.36,95.36,0,0,0,67.07-27.33,8,8,0,0,0-11.18-11.44Z"/></svg></span></span><span class="n">(05)</span><span class="label">The loop checklist <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="build/tools" data-parent="build" data-find="the tool registry stop it guessing and overstepping which tool for which question, and what it may do without asking you. mcp connector server integration access permissions registry composio human in the loop approval limits mcp.so once an agent has more than about three tools, it starts guessing. it searches the web for something sitting in your own files, or proposes a plan built on access it does not have. pasted into a plain chat with no tools at all, this tells the model what access you have, so it stops suggesting things you cannot do and starts asking for what it needs. the second half is the limits. a connector runs as you, so it can send, edit and delete. write down what it may only read, what it must bring to you first (that is human in the loop ), and what it must never touch. a written rule guides it; for risky actions, also set the tool itself to ask before it acts. it drafts, you press send. it keeps itself current. the template&#x27;s last section has the agent update the file after every task that used a tool: new tools get a line, wrong picks get fixed, broken ones get parked with a date. it may never change its own limits unless you tell it to. in a chat window it cannot save files, so it shows you the lines to change. if you have no tools connected start here copy the blank template copy a filled example, someone in data copy before agent agent agent mail calenda"><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M76,124l56,56-29,29a24,24,0,0,1-33.94,0L47,186.91A24,24,0,0,1,47,153ZM209,69.09,186.91,47A24,24,0,0,0,153,47L124,76l56,56,29-29A24,24,0,0,0,209,69.09Z" opacity="0.2"/><path d="M149.66,138.34a8,8,0,0,0-11.32,0L120,156.69,99.31,136l18.35-18.34a8,8,0,0,0-11.32-11.32L88,124.69,69.66,106.34a8,8,0,0,0-11.32,11.32L64.69,124,41.37,147.31a32,32,0,0,0,0,45.26l5.38,5.37-28.41,28.4a8,8,0,0,0,11.32,11.32l28.4-28.41,5.37,5.38a32,32,0,0,0,45.26,0L132,191.31l6.34,6.35a8,8,0,0,0,11.32-11.32L131.31,168l18.35-18.34A8,8,0,0,0,149.66,138.34Zm-52.29,65a16,16,0,0,1-22.62,0L52.69,181.25a16,16,0,0,1,0-22.62L76,135.31,120.69,180Zm140.29-185a8,8,0,0,0-11.32,0l-28.4,28.41-5.37-5.38a32.05,32.05,0,0,0-45.26,0L124,64.69l-6.34-6.35a8,8,0,0,0-11.32,11.32l80,80a8,8,0,0,0,11.32-11.32L191.31,132l23.32-23.31a32,32,0,0,0,0-45.26l-5.38-5.37,28.41-28.4A8,8,0,0,0,237.66,18.34Zm-34.35,79L180,120.69,135.31,76l23.32-23.31a16,16,0,0,1,22.62,0l22.06,22A16,16,0,0,1,203.31,97.37Z"/></svg></span></span><span class="n">(06)</span><span class="label">The tool registry <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="build/kit" data-parent="build" data-find="the skills kit find it. write it. fix it. three prompts for skills. skills skill doctor repeat finder find recurring repeat automate history review audit safe risky rewrite skill.md prompt agent chat a skill is one task written down once. everyone says to write them. nobody says which ones, or whether the ones you downloaded are any good. the first prompt finds what you keep redoing. the second is the setup interview , which writes the skill from how you do it. the third checks any skill and fixes it. 1 · the repeat finder chat or terminal copy it counts, it does not guess. every suggestion says how many times and where, and if nothing repeats enough it says so and stops. a terminal agent reads your saved history. a chat usually cannot, so it asks you five short questions instead and says that is what it used. it never prints a secret, and it asks before it reads anything. 3 · the skill doctor paste a skill under it copy paste any skill: yours, a colleague&#x27;s, one from github. it checks it, lists every risky line, and rewrites it so it improves each time you correct it. it only sees what you paste, so for a whole folder use a terminal agent. read the flagged lines yourself before you install anything."><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M232,120v72a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V120Z" opacity="0.2"/><path d="M224,64H176V56a24,24,0,0,0-24-24H104A24,24,0,0,0,80,56v8H32A16,16,0,0,0,16,80V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V80A16,16,0,0,0,224,64ZM96,56a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96ZM32,80H224v32H192v-8a8,8,0,0,0-16,0v8H80v-8a8,8,0,0,0-16,0v8H32ZM224,192H32V128H64v8a8,8,0,0,0,16,0v-8h96v8a8,8,0,0,0,16,0v-8h32v64Z"/></svg></span></span><span class="n">(07)</span><span class="label">The skills kit <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="build/memory" data-parent="build" data-find="memory memory a memory that outlives the conversation, so you stop re-explaining yourself every monday. remember forget context corrections agents.md claude.md learning second brain secondary ownr shared memory context is what it can see right now. it fills up, and things fall out. memory is what survives the conversation ending, and it is the whole difference between a tool you operate and a colleague who already knows the background. once is a correction. twice is a missing line in a file. correcting it in the moment costs nothing and teaches it nothing. the second time the same thing happens, write the line down. some tools now save your corrections for you. go and read what they saved, because they get it wrong sometimes. tool where to look claude code type /memory . on by default. chatgpt settings, personalization, memory. separate from custom instructions. claude settings, memory. a separate memory per project. gemini settings, personal context, memory. cursor, copilot, codex nothing is saved for you. write it in agents.md yourself. your laptop your phone another tool a teammate one memory shared · survives context what it holds right now. gone when the tab closes. memory still there tomorrow, in every tool, on every machine. context is this conversation. memory is every conversation. worth saying plainly: it does not get smarter. the model is fixed. what changes is how m"><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,124a48,48,0,0,1-32,45.27h0V176a40,40,0,0,1-80,0,40,40,0,0,1-80,0v-6.73h0a48,48,0,0,1,0-90.54V72a40,40,0,0,1,80,0,40,40,0,0,1,80,0v6.73A48,48,0,0,1,240,124Z" opacity="0.2"/><path d="M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124ZM88,208a32,32,0,0,1-31.81-28.56A55.87,55.87,0,0,0,64,180h8a8,8,0,0,0,0-16H64A40,40,0,0,1,50.67,86.27,8,8,0,0,0,56,78.73V72a32,32,0,0,1,64,0v68.26A47.8,47.8,0,0,0,88,128a8,8,0,0,0,0,16,32,32,0,0,1,0,64Zm104-44h-8a8,8,0,0,0,0,16h8a55.87,55.87,0,0,0,7.81-.56A32,32,0,1,1,168,144a8,8,0,0,0,0-16,47.8,47.8,0,0,0-32,12.26V72a32,32,0,0,1,64,0v6.73a8,8,0,0,0,5.33,7.54A40,40,0,0,1,192,164Zm16-52a8,8,0,0,1-8,8h-4a36,36,0,0,1-36-36V80a8,8,0,0,1,16,0v4a20,20,0,0,0,20,20h4A8,8,0,0,1,208,112ZM60,120H56a8,8,0,0,1,0-16h4A20,20,0,0,0,80,84V80a8,8,0,0,1,16,0v4A36,36,0,0,1,60,120Z"/></svg></span></span><span class="n">(08)</span><span class="label">Memory <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="build/local" data-parent="build" data-find="run it on your laptop open models, and running one yourself the weights are published, so you can download the model and run it on your own machine. no account, no api, no data leaving the building. ollama offline privacy compliance laptop cpu ram gpu open source weights licence llama qwen gemma mistral phi deepseek gpt-oss hugging face lm studio jan what open actually means here a model is a very large file of numbers, the weights. with gpt-5 or claude those numbers stay on the company s servers and you rent access through an api. with an open model the company publishes the file. you download it and run it, and nobody can switch it off, meter it, or see what you asked. open weights is not the same as open source. almost all of these publish the weights under their own licence while keeping the training data and code private. most allow commercial use; a few restrict it above a size of business. if you are shipping something commercial, read the licence rather than assuming. why it is worth knowing nothing leaves. the obvious one, and the only answer that satisfies a compliance team without a procurement cycle. no per-token cost. the work is free once the file is on disk, so you can run it over ten thousand rows without watching a meter. it cannot be deprecated. a model you have downloaded behaves the same next year. hosted models change underneath you. it works offline. genui"><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,72V176H40V72A16,16,0,0,1,56,56H200A16,16,0,0,1,216,72Z" opacity="0.2"/><path d="M232,168h-8V72a24,24,0,0,0-24-24H56A24,24,0,0,0,32,72v96H24a8,8,0,0,0-8,8v16a24,24,0,0,0,24,24H216a24,24,0,0,0,24-24V176A8,8,0,0,0,232,168ZM48,72a8,8,0,0,1,8-8H200a8,8,0,0,1,8,8v96H48ZM224,192a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8v-8H224ZM152,88a8,8,0,0,1-8,8H112a8,8,0,0,1,0-16h32A8,8,0,0,1,152,88Z"/></svg></span></span><span class="n">(09)</span><span class="label">Run it on your laptop <span class="arrow">&rarr;</span></span></button><button class="obj locked" data-go="build/slides" data-parent="build" data-find="the slides the slides from the session. four digits. slides deck presentation pin code locked session talk powerpoint locked. open it from the poster."><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M224,56V176a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8H216A8,8,0,0,1,224,56Z" opacity="0.2"/><path d="M216,40H136V24a8,8,0,0,0-16,0V40H40A16,16,0,0,0,24,56V176a16,16,0,0,0,16,16H79.36L57.75,219a8,8,0,0,0,12.5,10l29.59-37h56.32l29.59,37a8,8,0,1,0,12.5-10l-21.61-27H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,136H40V56H216V176ZM104,120v24a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm32-16v40a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm32-16v56a8,8,0,0,1-16,0V88a8,8,0,0,1,16,0Z"/></svg></span><span class="lockmark" aria-label="locked"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,96V208a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V96a8,8,0,0,1,8-8H208A8,8,0,0,1,216,96Z" opacity="0.2"/><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z"/></svg></span></span><span class="n">(10)</span><span class="label">The slides <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="skills" data-parent="" data-find="business analytics skills business analytics skills thirty-six skills across machine learning, statistics, optimisation, pricing, decision analysis, data engineering and recommenders. business analytics skills bas repo github machine learning statistics optimisation optimization pricing price elasticity regression clustering forecasting ab test experiment recommender data engineering toolkit install plugin marketplace each one asks what the work is for, follows a real method, checks its own logic, and hands back a decision rather than a number. mit licensed, yours to change. they install as seven toolkits from a marketplace, or as plain folders in any tool that reads the open agent skills format. the repository is moheetsubudhi-isb/business-analytics-skills . claude code copy codex copy any other tool, or several at once: cursor, copilot, gemini cli and more copy a prompt said once, then retyped a skill written down once, read every time skill.md name what to call it when so it knows to reach for it steps how you actually do it good what a right answer looks like avoid what you keep having to fix a skill is one task, written down once browse them first at the repository ."><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M192,88V200a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V88a8,8,0,0,1,8-8H184A8,8,0,0,1,192,88Z" opacity="0.2"/><path d="M184,72H40A16,16,0,0,0,24,88V200a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V88A16,16,0,0,0,184,72Zm0,128H40V88H184V200ZM232,56V176a8,8,0,0,1-16,0V56H64a8,8,0,0,1,0-16H216A16,16,0,0,1,232,56Z"/></svg></span></span><span class="n">(02)</span><span class="label">Business Analytics Skills <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects" data-parent="" data-find="my projects things i have built mine, and for clients. projects ownr portfolio work building side product repo client case study things i have built side project ishaan ishaan, an ops agent an always-on teammate in slack that runs customer success ops at mailmodo, and checks its own work. ishaan hermes agent ai agent mailmodo slack automation ops customer success self-healing self-review claude code mcp the problem customer success work at mailmodo spans many systems: account health, billing, the product knowledge base, slack. much of it is routine and daily, and it has to be right every time, because some of it reaches customers. what i did i built ishaan: two agents sharing one brain. claude code is the one i work with directly. hermes runs always on as ishaan in slack, where the team asks it questions and where it posts its scheduled work. how it is built the team asks ishaan in slack me works in claude code ishaan hermes, always on. 19 scheduled jobs, 13 plugins. claude code interactive, for the work i do by hand. both read and write one brain customer and product pages, a knowledge graph, and a vector knowledge base of the help centre. shared memory decisions and context that carry across sessions and machines, through ownr. tools over mcp customer success, billing, crm, analytics, slack and email. watched by the guard a watchdog restarts it within 5 seconds. self-heal re-"><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,88v24H69.77a8,8,0,0,0-7.59,5.47L32,208V64a8,8,0,0,1,8-8H93.33a8,8,0,0,1,4.8,1.6L128,80h72A8,8,0,0,1,208,88Z" opacity="0.2"/><path d="M245,110.64A16,16,0,0,0,232,104H216V88a16,16,0,0,0-16-16H130.67L102.94,51.2a16.14,16.14,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V208a8,8,0,0,0,8,8H211.1a8,8,0,0,0,7.59-5.47l28.49-85.47A16.05,16.05,0,0,0,245,110.64ZM93.34,64,123.2,86.4A8,8,0,0,0,128,88h72v16H69.77a16,16,0,0,0-15.18,10.94L40,158.7V64Zm112,136H43.1l26.67-80H232Z"/></svg></span></span><span class="n">(03)</span><span class="label">My projects <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/ishaan" data-parent="projects" data-find="ishaan ishaan, an ops agent an always-on teammate in slack that runs customer success ops at mailmodo, and checks its own work. ishaan hermes agent ai agent mailmodo slack automation ops customer success self-healing self-review claude code mcp the problem customer success work at mailmodo spans many systems: account health, billing, the product knowledge base, slack. much of it is routine and daily, and it has to be right every time, because some of it reaches customers. what i did i built ishaan: two agents sharing one brain. claude code is the one i work with directly. hermes runs always on as ishaan in slack, where the team asks it questions and where it posts its scheduled work. how it is built the team asks ishaan in slack me works in claude code ishaan hermes, always on. 19 scheduled jobs, 13 plugins. claude code interactive, for the work i do by hand. both read and write one brain customer and product pages, a knowledge graph, and a vector knowledge base of the help centre. shared memory decisions and context that carry across sessions and machines, through ownr. tools over mcp customer success, billing, crm, analytics, slack and email. watched by the guard a watchdog restarts it within 5 seconds. self-heal re-tests every tool every 30 minutes. invariant checks run each morning. every real tool call is recorded, and a drift detector flags when the system doc stops match"><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><span class="face icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M200,56H56A24,24,0,0,0,32,80V192a24,24,0,0,0,24,24H200a24,24,0,0,0,24-24V80A24,24,0,0,0,200,56ZM164,184H92a20,20,0,0,1,0-40h72a20,20,0,0,1,0,40Z" opacity="0.2"/><path d="M200,48H136V16a8,8,0,0,0-16,0V48H56A32,32,0,0,0,24,80V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32V80A32,32,0,0,0,200,48Zm16,144a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V80A16,16,0,0,1,56,64H200a16,16,0,0,1,16,16ZM72,108a12,12,0,1,1,12,12A12,12,0,0,1,72,108Zm88,0a12,12,0,1,1,12,12A12,12,0,0,1,160,108Zm4,28H92a28,28,0,0,0,0,56h72a28,28,0,0,0,0-56Zm-24,16v24H116V152ZM80,164a12,12,0,0,1,12-12h8v24H92A12,12,0,0,1,80,164Zm84,12h-8V152h8a12,12,0,0,1,0,24Z"/></svg></span><span class="st">MAILMODO</span></span></span></span><span class="n">(01)</span><span class="label">Ishaan <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/self-serve" data-parent="projects" data-find="self-serve strategy self-serve strategy mailmodo has a lot of small customers who run on their own. i worked out which ones to help, and how. self serve strategy segmentation churn customer success auto pilot dormant playbook vitally amplitude health score mailmodo cohort retention adoption the problem mailmodo is email software: businesses use it to send emails to their own customers. most of mailmodo s customers are small and use it without anyone from our team looking after them. that is called self-serve . a support team cannot talk to everyone, so it has to choose who to spend time on. we were choosing badly. the groups we used described what we had decided, not what the customer was doing: we decided they don t need help , they chose to be self-serve , they ghosted us . nothing in them told us who was about to leave and who was ready to spend more, so the same message went to everyone, it worked for no one, and more customers were leaving. what i did i redesigned it. every self-serve customer is now placed in one of four groups by how they actually use the product, and each group has its own plan: what to do, how often, and who does it. placement is automatic, from usage data that refreshes every day, so nobody sorts customers by hand. the goal was simple: keep more of these customers, help the ones who can grow, and stop spending the team s time on accounts that don t ne"><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><img class="face logo" src="/logos/mailmodo.png" alt="" draggable="false" width="350" height="350"><span class="st">MAILMODO</span></span></span></span><span class="n">(02)</span><span class="label">Self-serve strategy <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/outreach" data-parent="projects" data-find="outreach console outreach console cold outbound for mailmodo, from strategy to reply, with the expensive mistakes made impossible. outreach console cold email outbound sdr sales prospecting apollo sequence campaign mailmodo deliverability the problem cold email is easy to start and easy to wreck. one careless run can burn a sending domain, mail someone twice, mail someone who opted out, or send made-up details about a prospect. and cold contacts must never leak into mailmodo itself, which is opt-in only. what i did i built an internal web app at mailmodo where one person runs a whole campaign: who to target, a verified list from apollo or a csv, the copy, a personal opener for each lead, a paced multi-touch sequence, reply triage, and handing anyone who opts in over to mailmodo nurture. ai drafts the strategy, the copy and the openers. the rules decide what is sent. the same motion also runs from the terminal as an sdr agent on hermes and claude code, following 27 playbooks across 8 stages. how it is built the console one operator, one screen, the whole campaign. the sdr agent the same motion from the terminal, on hermes and claude code. same rules strategy list copy who to target, verified contacts, ai-drafted copy and openers. pre-flight send every email checked, then sent 2 to 8 minutes apart, inside the recipient s working hours. replies nurture each mailbox read over imap,"><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><img class="face logo" src="/logos/mailmodo.png" alt="" draggable="false" width="350" height="350"><span class="st">MAILMODO</span></span></span></span><span class="n">(03)</span><span class="label">Outreach Console <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/leaderboard" data-parent="projects" data-find="ai model leaderboard besthunt ai model leaderboard every ai model, ranked by what it costs to do real work. benchmark benchmarking leaderboard ai models pricing besthunt openrouter llm compare cost ranking the problem ai model leaderboards are written for developers: dollars per million tokens, context windows, quantization. besthunt.ai serves marketing, sales and ops teams, who want to know which model does their job well for the least money, and its promise is no pay-to-rank. what i did i built the leaderboard at mailmodo for besthunt.ai: a data pipeline and a static site. the pipeline pulls every model s price, hosts and benchmark scores from one public source, works out which models are the best value at their quality, and turns token maths into jobs a team recognises. how it is built one public source openrouter: every model s catalogue entry, per-host prices and uptime, and two benchmark families. no api keys. every monday build pull, enrich per host, and find the best-value models at each quality level. gate twelve checks against the live data. a failure restores yesterday s files. publish snapshot, changelog, rss, and csv and json downloads. becomes a static site the ranking, a page per model, the best model for each use case, findings, a changelog, the dataset and an embed. one source in, one checked dataset out the translation layer the data is the same as any develop"><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><img class="face logo" src="/logos/besthunt.svg" alt="" draggable="false" width="350" height="350"><span class="st">BESTHUNT</span></span></span></span><span class="n">(04)</span><span class="label">AI model leaderboard <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/lpg-guru" data-parent="projects" data-find="lpg guru lpg guru one platform to run an lpg gas agency, with an ai assistant on top. lpg guru lpgguru gas agency distributor hpcl erp saas crm ivrs compliance solarc ai chat the problem an hpcl distributor runs a regulated, high-volume business on tools that do not talk to each other. booking data sits in hpcl s portals; cash, stock, credit and staff sit in registers, excel, tally and whatsapp. reconciliation is done by hand every day, compliance is chased from lists, calls outside counter hours go unlogged, and answers live with the owner. the owner ends up being the integration layer. what i did at solarc ventures we built lpg guru, a vertical saas erp made only for hpcl lpg distributors. twelve modules run the agency from one record of its hpcl data: crm, ivrs, tickets, daily operations, inventory, credit management, accounts, hrms and payroll, and compliance and licences. on top sits lpg guru ai, a chat portal that brings hpcl s scattered platforms, circulars and scheme rules into one place, so staff ask a question in plain language instead of hunting across portals. lpg guru is independent technology built for distributors. it is not an hpcl product and carries no hpcl endorsement. how it is built the agency s hpcl data consumers and bookings from hpcl and cdcms. entered once, reused everywhere. one record front office crm, ivrs, tickets and consumer campaigns. operations"><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><img class="face logo" src="/logos/lpgguru.png" alt="" draggable="false" width="350" height="350"><span class="st">LPG GURU</span></span></span></span><span class="n">(05)</span><span class="label">LPG Guru <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/ownr" data-parent="projects" data-find="ownr ownr your memory, not the model’s. one private memory and persona that every ai you use plugs into. the problem every ai keeps its own memory, locked inside itself. tell chatgpt something on your phone and claude on your laptop has never heard it. switch tools and you start again. you end up repeating yourself and carrying context between your own assistants. and the context that would help most, how you actually work, is something nobody writes down. every memory tool today makes you curate it by hand. what i did we are building ownr: a portable agent self that you own. it holds who you are, what you know and how you work, and carries it to every ai you use over mcp: chatgpt, claude, cursor, claude code, codex and the agents you run. tell one ai something and every other one already knows it. what it holds persona your role, tone and preferences, learned from your own activity rather than typed into a settings page. memory projects, decisions with their reasons, standing rules and notes. versioned, editable, and nothing silently deleted. skills your skill files from claude code, codex, cursor and antigravity in one versioned registry, plus new skills drawn from the rules and decisions you keep repeating. handoffs leave a task in one tool, pick it up in another where you stopped. the next layer we are building. one self, carried to every ai it fills itself the point is goo"><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><img class="face logo" src="/logos/ownr.svg" alt="" draggable="false" width="350" height="350"><span class="st">OWNR</span></span></span></span><span class="n">(06)</span><span class="label">Ownr <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/vdo-hosting" data-parent="projects" data-find="vdo hosting vdo hosting when india locked down, we put its gatherings online, for the people the internet had left behind. vdo hosting video virtual events webinar zoom lockdown covid founder startup agm live streaming 3d hosting digital divide the problem in march 2020 every meeting, ceremony, class and celebration in india had to move online, overnight. the tools existed. the people running these events, most of them over 30, had never used them. a bank still had to hold its agm, a coach still had to run an exam, a family still wanted the birthday. the lockdown had opened a digital divide right in the middle of everyday life. what i did i founded vdo hosting in may 2020 to close it. we did not sell software. we ran the event, so the host never had to learn a setting: planning it with them, choosing the right platform, hosting it live, streaming it, and handing back the recording. everything, held online if people gathered for it, we hosted it: events, talk shows, keynotes, award ceremonies, corporate meetings, annual general meetings for banks, celebrity and youtube events, religious gatherings, social gatherings, birthday parties, zumba classes, coaching and exams. the whole event, end to end before personal planning with the host, the right platform for the format, and the graphics. during live hosting, interactive formats, streaming to social media, broadcasting, and immer"><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><img class="face logo" src="/logos/vdo-hosting.svg" alt="" draggable="false" width="350" height="350"><span class="st">VDO HOSTING</span></span></span></span><span class="n">(07)</span><span class="label">VDO Hosting <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/mahabeer" data-parent="projects" data-find="mahabeer inventory mahabeer inventory an inventory app that tripled a rental business’s orders. mahabeer inventory warehouse stock e-way bill app rental steel bizarc the problem mahabeer rents steel shuttering rods to construction sites and events from three warehouses, two in delhi and one in punjab. stock lived in excel, interstate e-way bills were done by hand, and rods going out and coming back were hard to track. what i did at bizarc ventures i audited their 120+ warehouse transactions a day, then we built a custom app around what they actually do: live stock across all three warehouses, orders allocated from one stock table, order history and tracking, and e-way bills generated for interstate moves. what came of it a rental business tripled its monthly orders and stopped losing track of its steel. orders went from 30 to 90 a month within four months of using the app. order accuracy rose from 82% to 97% , and the risk of billing mistakes fell by 90%. stock in all three warehouses is visible live , so a missing rod shows up instead of going unnoticed. the excel sheets are gone , and the interstate bills are produced inside the app."><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><span class="face icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M184,128v64H72V128Z" opacity="0.2"/><path d="M240,184h-8V57.9l9.67-2.08a8,8,0,1,0-3.35-15.64l-224,48A8,8,0,0,0,16,104a8.16,8.16,0,0,0,1.69-.18L24,102.47V184H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM40,99,216,61.33V184H192V128a8,8,0,0,0-8-8H72a8,8,0,0,0-8,8v56H40Zm136,53H80V136h96ZM80,168h96v16H80Z"/></svg></span><span class="st">MAHABEER</span></span></span></span><span class="n">(08)</span><span class="label">Mahabeer Inventory <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/royal-living-tangi" data-parent="projects" data-find="royal living tangi royal living tangi cleaning a 34,000-customer gas agency database, by phone and on foot. royal living tangi lpg gas hpcl database data cleaning pmuy ivrs gsm bizarc the problem royal living tangi, an hpcl lpg agency, serves 34,000 customers. about 1% skipped booking and phoned the delivery staff directly, so orders and routes could not be tracked, and the customer records had drifted. what i did at bizarc ventures i cleaned the database first: duplicates merged, conflicts resolved. then i led a remote team of 7, hired from the customers&#x27; own areas so language was never a barrier, to call customers, verify their details and show them online booking and the pmuy scheme. gsm-based outbound calling replaced the old ivrs line. for customers a call could not reach, we worked with self-help groups and mission shakti groups to verify them in person. what came of it a gas agency now has a clean customer database, and a team that keeps it clean. 14,500 records cleaned and 5,027 addresses verified in two months , out of 34,000 customers. customers who used to phone the delivery staff directly are being brought back into the proper booking process, with online booking explained on every call. calls now run on gsm-based outbound calling in place of the old ivrs line. digital bookings are projected to rise 12 15%."><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><span class="face icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M215.94,182.08A48.33,48.33,0,0,1,168,224,136,136,0,0,1,32,88,48.33,48.33,0,0,1,73.92,40.06a8,8,0,0,1,8.3,4.8l21.13,47.2a8,8,0,0,1-.66,7.53L81.32,125a7.93,7.93,0,0,0-.54,7.81c8.27,16.93,25.77,34.22,42.75,42.41a7.92,7.92,0,0,0,7.83-.59l25-21.3a8,8,0,0,1,7.59-.69l47.16,21.13A8,8,0,0,1,215.94,182.08Z" opacity="0.2"/><path d="M144.27,45.93a8,8,0,0,1,9.8-5.66,86.22,86.22,0,0,1,61.66,61.66,8,8,0,0,1-5.66,9.8A8.23,8.23,0,0,1,208,112a8,8,0,0,1-7.73-5.94,70.35,70.35,0,0,0-50.33-50.33A8,8,0,0,1,144.27,45.93Zm-2.33,41.8c13.79,3.68,22.65,12.54,26.33,26.33A8,8,0,0,0,176,120a8.23,8.23,0,0,0,2.07-.27,8,8,0,0,0,5.66-9.8c-5.12-19.16-18.5-32.54-37.66-37.66a8,8,0,1,0-4.13,15.46Zm81.94,95.35A56.26,56.26,0,0,1,168,232C88.6,232,24,167.4,24,88A56.26,56.26,0,0,1,72.92,32.12a16,16,0,0,1,16.62,9.52l21.12,47.15,0,.12A16,16,0,0,1,109.39,104c-.18.27-.37.52-.57.77L88,129.45c7.49,15.22,23.41,31,38.83,38.51l24.34-20.71a8.12,8.12,0,0,1,.75-.56,16,16,0,0,1,15.17-1.4l.13.06,47.11,21.11A16,16,0,0,1,223.88,183.08Zm-15.88-2s-.07,0-.11,0h0l-47-21.05-24.35,20.71a8.44,8.44,0,0,1-.74.56,16,16,0,0,1-15.75,1.14c-18.73-9.05-37.4-27.58-46.46-46.11a16,16,0,0,1,1-15.7,6.13,6.13,0,0,1,.57-.77L96,95.15l-21-47a.61.61,0,0,1,0-.12A40.2,40.2,0,0,0,40,88,128.14,128.14,0,0,0,168,216,40.21,40.21,0,0,0,208,181.07Z"/></svg></span><span class="st">ROYAL LIVING</span></span></span></span><span class="n">(09)</span><span class="label">Royal Living Tangi <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/osda" data-parent="projects" data-find="osda osda, government of odisha a ₹60-lakh digital transformation, built for 12,000+ users. osda odisha government digital transformation cms dashboards compliance bizarc the problem osda, part of the government of odisha, needed its digital platform rebuilt for the 12,000+ people who use it: more transparent, and within government compliance rules. what i did at bizarc ventures i directed the 60-lakh project, keeping product decisions in line with the government&#x27;s compliance goals. we launched process automation features: a modular cms, push notifications and analytics dashboards. what came of it a government platform that is easier to see into, for the 12,000+ people who use it. a 60-lakh digital transformation , delivered inside the government s compliance rules. a modular cms, push notifications and analytics dashboards , so the people using the platform can see what is happening on it."><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><img class="face logo" src="/logos/osda.jpg" alt="" draggable="false" width="350" height="350"><span class="st">OSDA</span></span></span></span><span class="n">(10)</span><span class="label">OSDA <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/neoteric" data-parent="projects" data-find="neoteric neoteric from an idea to a working consultancy, and a 2,50,000-impression campaign. neoteric consultancy pr campaign government branding brand identity sop bizarc the problem neoteric was a new consultancy with good ideas and little else: no aligned team, no way of running day to day, no brand, and a government pr campaign to deliver. what i did at bizarc ventures we built the business around the idea. we helped hire and align the team, wrote the standard operating procedures, and automated the routine work so they could focus on clients. we wrote the brand story and designed the identity: logo, colours and imagery. i designed and ran the government pr campaign with a 45-member team, standard sops and compliance checks on every outreach step. what came of it a new consultancy went from an idea to a working business, and ran a government campaign that generated 2,50,000+ impressions. a team, written ways of working and a brand of its own: logo, colours, imagery and story. a government pr campaign run by 45 people with standard steps and compliance checks on every outreach step, generating 2,50,000+ impressions."><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><span class="face icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M240,120a40,40,0,0,1-40,40H160V80h40A40,40,0,0,1,240,120Z" opacity="0.2"/><path d="M248,120a48.05,48.05,0,0,0-48-48H160.2c-2.91-.17-53.62-3.74-101.91-44.24A16,16,0,0,0,32,40V200a16,16,0,0,0,26.29,12.25c37.77-31.68,77-40.76,93.71-43.3v31.72A16,16,0,0,0,159.12,214l11,7.33A16,16,0,0,0,194.5,212l11.77-44.36A48.07,48.07,0,0,0,248,120ZM48,199.93V40h0c42.81,35.91,86.63,45,104,47.24v65.48C134.65,155,90.84,164.07,48,199.93Zm131,8,0,.11-11-7.33V168h21.6ZM200,152H168V88h32a32,32,0,1,1,0,64Z"/></svg></span><span class="st">NEOTERIC</span></span></span></span><span class="n">(11)</span><span class="label">Neoteric <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="projects/iwd-app" data-parent="projects" data-find="iwd secretary app iwd secretary app taking 2,400+ women changemakers from paper to an app. iwd inner wheel secretary app ngo club reports women bizarc the problem inner wheel district 301 in delhi has 2,400+ members across 60+ clubs, running events and projects all year, with no system to count them: who benefited, how many hours members gave, what each project cost. what i did at bizarc ventures we built the iwd secretary app with them. every club&#x27;s projects sit in one place, each tracking beneficiaries, members&#x27; hours and spend. the monthly and yearly reports for the international body are generated automatically, and finance reports export as pdf. what came of it 2,400+ volunteers across 60+ clubs now report their work in one app, instead of by hand. every club onboarded. reports write themselves. the monthly and yearly reports for the international body are produced automatically and are ready for audit. every project is tracked: beneficiaries, hours given and money spent, with finance reports exported as pdf. the work is visible. anyone outside the club can see what the district does."><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><img class="face logo" src="/logos/innerwheel.jpg" alt="" draggable="false" width="350" height="350"><span class="st">INNER WHEEL</span></span></span></span><span class="n">(12)</span><span class="label">IWD Secretary App <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="content" data-parent="" data-find="content things i have written articles on linkedin, about automation i run at work. content writing articles linkedin blog posts essays ishaan cron jobs automation meet ishaan say hi to our ai colleague. it never takes a lunch break. how we built an agent that drafts replies to customer queries. published 22 july 2026. ishaan ai agent customer support queries slack draft mailmodo linkedin article the cs team at mailmodo spent a lot of time on queries that followed one pattern: check the plan in billing, check the health score and credit use, search the help docs, write a reply. four steps, every time. this article explains how ishaan does the first three and hands a person a draft instead of a blank screen. it reads the query, looks up the account, searches the help docs, sorts the question, and posts a reply to slack. nothing is sent until a person approves it. read it on linkedin the build behind it is on the ishaan project page . cron jobs cron jobs the quiet workers behind automation. published 29 august 2026. cron jobs automation scheduled refresh repair verify linkedin article a cron job is a recurring reminder that does the work itself. the article covers the three kinds that matter most in my setup: refresh the context , so answers are based on current information. repair the tools , by checking that each one actually responds. verify the outcome , because the process r"><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H40a8,8,0,0,0-8,8V216l32-16,32,16,32-16,32,16,32-16,32,16V56A8,8,0,0,0,216,48ZM112,160H64V96h48Z" opacity="0.2"/><path d="M216,40H40A16,16,0,0,0,24,56V216a8,8,0,0,0,11.58,7.15L64,208.94l28.42,14.21a8,8,0,0,0,7.16,0L128,208.94l28.42,14.21a8,8,0,0,0,7.16,0L192,208.94l28.42,14.21A8,8,0,0,0,232,216V56A16,16,0,0,0,216,40Zm0,163.06-20.42-10.22a8,8,0,0,0-7.16,0L160,207.06l-28.42-14.22a8,8,0,0,0-7.16,0L96,207.06,67.58,192.84a8,8,0,0,0-7.16,0L40,203.06V56H216ZM136,112a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,112Zm0,32a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,144ZM64,168h48a8,8,0,0,0,8-8V96a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8v64A8,8,0,0,0,64,168Zm8-64h32v48H72Z"/></svg></span></span><span class="n">(04)</span><span class="label">Content <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="content/ai-colleague" data-parent="content" data-find="meet ishaan say hi to our ai colleague. it never takes a lunch break. how we built an agent that drafts replies to customer queries. published 22 july 2026. ishaan ai agent customer support queries slack draft mailmodo linkedin article the cs team at mailmodo spent a lot of time on queries that followed one pattern: check the plan in billing, check the health score and credit use, search the help docs, write a reply. four steps, every time. this article explains how ishaan does the first three and hands a person a draft instead of a blank screen. it reads the query, looks up the account, searches the help docs, sorts the question, and posts a reply to slack. nothing is sent until a person approves it. read it on linkedin the build behind it is on the ishaan project page ."><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H40a8,8,0,0,0-8,8V216l32-16,32,16,32-16,32,16,32-16,32,16V56A8,8,0,0,0,216,48ZM112,160H64V96h48Z" opacity="0.2"/><path d="M216,40H40A16,16,0,0,0,24,56V216a8,8,0,0,0,11.58,7.15L64,208.94l28.42,14.21a8,8,0,0,0,7.16,0L128,208.94l28.42,14.21a8,8,0,0,0,7.16,0L192,208.94l28.42,14.21A8,8,0,0,0,232,216V56A16,16,0,0,0,216,40Zm0,163.06-20.42-10.22a8,8,0,0,0-7.16,0L160,207.06l-28.42-14.22a8,8,0,0,0-7.16,0L96,207.06,67.58,192.84a8,8,0,0,0-7.16,0L40,203.06V56H216ZM136,112a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,112Zm0,32a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,144ZM64,168h48a8,8,0,0,0,8-8V96a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8v64A8,8,0,0,0,64,168Zm8-64h32v48H72Z"/></svg></span></span><span class="n">(01)</span><span class="label">Meet Ishaan <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="content/cron-jobs" data-parent="content" data-find="cron jobs cron jobs the quiet workers behind automation. published 29 august 2026. cron jobs automation scheduled refresh repair verify linkedin article a cron job is a recurring reminder that does the work itself. the article covers the three kinds that matter most in my setup: refresh the context , so answers are based on current information. repair the tools , by checking that each one actually responds. verify the outcome , because the process ran and the work got done are not the same thing. read it on linkedin"><span class="thumb"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H40a8,8,0,0,0-8,8V216l32-16,32,16,32-16,32,16,32-16,32,16V56A8,8,0,0,0,216,48ZM112,160H64V96h48Z" opacity="0.2"/><path d="M216,40H40A16,16,0,0,0,24,56V216a8,8,0,0,0,11.58,7.15L64,208.94l28.42,14.21a8,8,0,0,0,7.16,0L128,208.94l28.42,14.21a8,8,0,0,0,7.16,0L192,208.94l28.42,14.21A8,8,0,0,0,232,216V56A16,16,0,0,0,216,40Zm0,163.06-20.42-10.22a8,8,0,0,0-7.16,0L160,207.06l-28.42-14.22a8,8,0,0,0-7.16,0L96,207.06,67.58,192.84a8,8,0,0,0-7.16,0L40,203.06V56H216ZM136,112a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,112Zm0,32a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,144ZM64,168h48a8,8,0,0,0,8-8V96a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8v64A8,8,0,0,0,64,168Zm8-64h32v48H72Z"/></svg></span></span><span class="n">(02)</span><span class="label">Cron jobs <span class="arrow">&rarr;</span></span></button><button class="obj" data-go="cv" data-parent="" data-find="moheet cv my work, so far seven roles since 2020, in plain lines. cv resume résumé experience work history employment career hire download pdf mailmodo bizarc v do hosting molson coors education skills osda odisha government lpg neoteric mahabeer iwd vitally hubspot download the cv pdf october 2026 edition application for employment form cv 2026 1. particulars name moheet subudhi present post product manager, business automation mailmodo email email phone +91 98613 79000 linkedin linkedin.com/in/moheetsubudhi languages english (fluent), hindi, odia photograph verified 2. in brief product manager for business automation at mailmodo (yc21). finds routine work that teams repeat by hand and builds systems that do it, with checks so results can be trusted. recent builds: an always-on slack agent for customer success, a cold-email console that blocks costly mistakes, and usage-based groups for self-serve customers. before this: nearly four years in sales and customer success, and consulting for government and startups since 2020. 3. employment record jul 2026 now product manager, business automation mailmodo (yc21), bangalore built ishaan , an always-on agent in slack that runs routine customer-success work: 19 scheduled jobs, answers drawn from customer and product knowledge, and its own tool connections tested and repaired every 30 minutes. read more . built the outreach console , "><span class="thumb has-stamp"><span class="stamp-wrap"><span class="stamp"><img class="face" src="/cv/portrait.jpg" alt="" draggable="false" width="350" height="350"><span class="st">VERIFIED</span></span></span></span><span class="n">(05)</span><span class="label">Moheet CV <span class="arrow">&rarr;</span></span></button></div>
+</main>
+</div>
+
+<div id="view">
+  <div class="topbar"><div class="inner">
+    <button class="back" id="back">&larr; Back</button>
+    <span class="where" id="where"></span>
+  </div></div>
+  <article class="pane" data-pane="build/parts" hidden></article><article class="pane" data-pane="build/sheet" hidden></article><article class="pane" data-pane="build/generator" hidden></article><article class="pane" data-pane="build/soul" hidden></article><article class="pane" data-pane="build/loop" hidden></article><article class="pane" data-pane="build/tools" hidden></article><article class="pane" data-pane="build/kit" hidden></article><article class="pane" data-pane="build/memory" hidden></article><article class="pane" data-pane="build/local" hidden></article><article class="pane" data-pane="build/slides" hidden></article><article class="pane" data-pane="skills" hidden></article><article class="pane" data-pane="projects/ishaan" hidden></article><article class="pane" data-pane="projects/self-serve" hidden></article><article class="pane" data-pane="projects/outreach" hidden></article><article class="pane" data-pane="projects/leaderboard" hidden><div class="wrap view-head"><span class="n">(04)</span><h1>BestHunt AI model leaderboard</h1><p class="lead">Every AI model, ranked by what it costs to do real work.</p></div><div class="wrap view-body"><h3>The problem</h3>
+<p>AI model leaderboards are written for developers: dollars per million tokens, context windows, quantization. besthunt.ai serves marketing, sales and ops teams, who want to know which model does their job well for the least money, and its promise is no pay-to-rank.</p>
+<h3>What I did</h3>
+<p>I built the leaderboard at Mailmodo for besthunt.ai: a data pipeline and a static site. The pipeline pulls every model&rsquo;s price, hosts and benchmark scores from one public source, works out which models are the best value at their quality, and turns token maths into jobs a team recognises.</p>
+
+<h3>How it is built</h3>
+<div class="fig"><div class="arch">
+<div class="arch-row"><div class="node"><b>One public source</b><span>OpenRouter: every model&rsquo;s catalogue entry, per-host prices and uptime, and two benchmark families. No API keys.</span></div></div>
+<div class="down">&darr; every Monday &darr;</div>
+<div class="arch-row"><div class="node strong"><b>Build</b><span>Pull, enrich per host, and find the best-value models at each quality level.</span></div><div class="node strong"><b>Gate</b><span>Twelve checks against the live data. A failure restores yesterday&rsquo;s files.</span></div><div class="node strong"><b>Publish</b><span>Snapshot, changelog, RSS, and CSV and JSON downloads.</span></div></div>
+<div class="down">&darr; becomes &darr;</div>
+<div class="arch-row"><div class="node"><b>A static site</b><span>The ranking, a page per model, the best model for each use case, findings, a changelog, the dataset and an embed.</span></div></div>
+</div><div class="cap">One source in, one checked dataset out</div></div>
+
+<h3>The translation layer</h3>
+<p>The data is the same as any developer leaderboard. The product is what it says to
+someone who does not think in tokens.</p>
+<ul>
+<li><code>$0.15 / 1M input tokens</code> becomes <strong>$0.23 to write 1,000 marketing emails</strong>.</li>
+<li><code>context 1,048,576 tokens</code> becomes <strong>reads about 1,500 pages at once</strong>.</li>
+<li><code>on_frontier</code> becomes <strong>best value at this quality</strong>.</li>
+<li><code>overpay 117&times;</code> becomes <strong>you are paying 117&times; more than you need to</strong>.</li>
+<li><code>tools: true</code> becomes <strong>can connect to your CRM and other tools</strong>.</li>
+</ul>
+
+<h3>Nothing goes live unchecked</h3>
+<p>New data is compared against what is live before anything is archived. It never drops
+below 150 models, never has a duplicate, never has an unpriced row, cannot shrink by more than
+a quarter, and the median price cannot jump more than five times. Any failure stops the run
+and puts the previous files back. Twelve tests prove each check rejects what it claims to.</p>
+
+<h3>What it taught me</h3>
+<ul>
+<li><strong>Never let an optional field decide who is in.</strong> The ranking once required a quality score. When benchmark coverage in the feed fell from 153 models to 56 in two days, the changelog announced 102 withdrawals, and 101 of them were still on sale. Now price alone decides, a missing score shows as a dash, and a change is reported only when the field exists on both dates.</li>
+<li><strong>One source beats three.</strong> Matching the same model named three different ways is the most expensive part of a build like this. One source that already carries prices, hosts and benchmarks under one id removes it.</li>
+<li><strong>A laptop can keep a schedule.</strong> Not with cron, which skips a job the machine slept through, but with launchd, which runs it the moment the lid opens.</li>
+</ul>
+<h3>What came of it</h3>
+<p><strong>Someone choosing an AI model for marketing or operations can see which one is the best value for their job, in plain money terms.</strong></p>
+<ul>
+<li><strong>It tracks 400+ priced models</strong> and ranks about 150 on quality, with a price worked out for six everyday jobs, like writing 1,000 marketing emails.</li>
+<li><strong>The headline finding:</strong> 150 of 157 models cost more than an equally capable alternative. Most people are paying more than they need to.</li>
+<li><strong>It can be trusted.</strong> It refreshes every Monday and checks its own data first, so a bad update cannot go live. Every change is published in a changelog with an RSS feed, and the whole dataset is a free download.</li>
+</ul>
+<h3>Tools</h3>
+<p>Python, Next.js (static export), the OpenRouter API, launchd, Vercel, GitHub</p>
+<p><a class="btn primary" href="https://besthunt-leaderboard.vercel.app" target="_blank" rel="noopener">See it live</a></p></div></article><article class="pane" data-pane="projects/lpg-guru" hidden></article><article class="pane" data-pane="projects/ownr" hidden></article><article class="pane" data-pane="projects/vdo-hosting" hidden></article><article class="pane" data-pane="projects/mahabeer" hidden></article><article class="pane" data-pane="projects/royal-living-tangi" hidden></article><article class="pane" data-pane="projects/osda" hidden></article><article class="pane" data-pane="projects/neoteric" hidden></article><article class="pane" data-pane="projects/iwd-app" hidden></article><article class="pane" data-pane="content/ai-colleague" hidden></article><article class="pane" data-pane="content/cron-jobs" hidden></article><article class="pane" data-pane="cv" hidden></article>
+</div>
+<nav class="sr-only" aria-label="All pages"><ul><li><a href="https://moheetsubudhi.com/">Home</a></li><li><a href="https://moheetsubudhi.com/build/">How to Build with AI</a></li><li><a href="https://moheetsubudhi.com/build/parts/">The seven parts</a></li><li><a href="https://moheetsubudhi.com/build/sheet/">From idea to working thing</a></li><li><a href="https://moheetsubudhi.com/build/generator/">The Setup Interview</a></li><li><a href="https://moheetsubudhi.com/build/soul/">Five soul files</a></li><li><a href="https://moheetsubudhi.com/build/loop/">Make it finish instead of wander</a></li><li><a href="https://moheetsubudhi.com/build/tools/">Stop it guessing and overstepping</a></li><li><a href="https://moheetsubudhi.com/build/kit/">Find it. Write it. Fix it.</a></li><li><a href="https://moheetsubudhi.com/build/memory/">Memory</a></li><li><a href="https://moheetsubudhi.com/build/local/">Open models, and running one yourself</a></li><li><a href="https://moheetsubudhi.com/skills/">Business Analytics Skills</a></li><li><a href="https://moheetsubudhi.com/projects/">My projects</a></li><li><a href="https://moheetsubudhi.com/projects/ishaan/">Ishaan, an ops agent</a></li><li><a href="https://moheetsubudhi.com/projects/self-serve/">Self-serve strategy</a></li><li><a href="https://moheetsubudhi.com/projects/outreach/">Outreach Console</a></li><li><a href="https://moheetsubudhi.com/projects/leaderboard/">BestHunt AI model leaderboard</a></li><li><a href="https://moheetsubudhi.com/projects/lpg-guru/">LPG Guru</a></li><li><a href="https://moheetsubudhi.com/projects/ownr/">Ownr</a></li><li><a href="https://moheetsubudhi.com/projects/vdo-hosting/">VDO Hosting</a></li><li><a href="https://moheetsubudhi.com/projects/mahabeer/">Mahabeer Inventory</a></li><li><a href="https://moheetsubudhi.com/projects/royal-living-tangi/">Royal Living Tangi</a></li><li><a href="https://moheetsubudhi.com/projects/osda/">OSDA, Government of Odisha</a></li><li><a href="https://moheetsubudhi.com/projects/neoteric/">Neoteric</a></li><li><a href="https://moheetsubudhi.com/projects/iwd-app/">IWD Secretary App</a></li><li><a href="https://moheetsubudhi.com/content/">Content</a></li><li><a href="https://moheetsubudhi.com/content/ai-colleague/">Say Hi to Our AI Colleague. It Never Takes a Lunch Break.</a></li><li><a href="https://moheetsubudhi.com/content/cron-jobs/">Cron jobs</a></li><li><a href="https://moheetsubudhi.com/cv/">My work, so far</a></li></ul></nav>
+
+<div id="chrome"><div class="row">
+  <div class="contact">
+    <a href="https://www.linkedin.com/in/moheetsubudhi/" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M224,40V216a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8H216A8,8,0,0,1,224,40Z" opacity="0.2"/><path d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24Zm0,192H40V40H216V216ZM96,112v64a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm88,28v36a8,8,0,0,1-16,0V140a20,20,0,0,0-40,0v36a8,8,0,0,1-16,0V112a8,8,0,0,1,15.79-1.78A36,36,0,0,1,184,140ZM100,84A12,12,0,1,1,88,72,12,12,0,0,1,100,84Z"/></svg>LinkedIn</a>
+    <a id="mail" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M224,56l-96,88L32,56Z" opacity="0.2"/><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM203.43,64,128,133.15,52.57,64ZM216,192H40V74.19l82.59,75.71a8,8,0,0,0,10.82,0L216,74.19V192Z"/></svg>Email</a>
+    <a href="https://wa.me/919861379000" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M128,32A96,96,0,0,0,44.89,176.07L32.42,213.46a8,8,0,0,0,10.12,10.12l37.39-12.47A96,96,0,1,0,128,32Zm24,152a80,80,0,0,1-80-80,32,32,0,0,1,32-32l16,32-12.32,18.47a48.19,48.19,0,0,0,25.85,25.85L152,136l32,16A32,32,0,0,1,152,184Z" opacity="0.2"/><path d="M187.58,144.84l-32-16a8,8,0,0,0-8,.5l-14.69,9.8a40.55,40.55,0,0,1-16-16l9.8-14.69a8,8,0,0,0,.5-8l-16-32A8,8,0,0,0,104,64a40,40,0,0,0-40,40,88.1,88.1,0,0,0,88,88,40,40,0,0,0,40-40A8,8,0,0,0,187.58,144.84ZM152,176a72.08,72.08,0,0,1-72-72A24,24,0,0,1,99.29,80.46l11.48,23L101,118a8,8,0,0,0-.73,7.51,56.47,56.47,0,0,0,30.15,30.15A8,8,0,0,0,138,155l14.62-9.74,23,11.48A24,24,0,0,1,152,176ZM128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"/></svg>WhatsApp</a>
+  </div>
+  <div class="tail">
+    <div class="swatches" role="group" aria-label="Accent colour"><button class="sw" data-accent="#2F4FD4" title="Cobalt" aria-label="Cobalt" aria-pressed="true" style="background:#2F4FD4"></button><button class="sw" data-accent="#1F6B4A" title="Forest" aria-label="Forest" aria-pressed="false" style="background:#1F6B4A"></button><button class="sw" data-accent="#B3431E" title="Rust" aria-label="Rust" aria-pressed="false" style="background:#B3431E"></button><button class="sw" data-accent="#8C2130" title="Oxblood" aria-label="Oxblood" aria-pressed="false" style="background:#8C2130"></button><button class="sw" data-accent="#5B33B5" title="Violet" aria-label="Violet" aria-pressed="false" style="background:#5B33B5"></button><button class="sw" data-accent="#11636E" title="Teal" aria-label="Teal" aria-pressed="false" style="background:#11636E"></button></div>
+  </div>
+</div></div>
+
+<div class="scrim" id="pinScrim" hidden>
+  <div class="dialog" id="pinDialog" role="dialog" aria-modal="true" aria-labelledby="pinTitle">
+    <button class="dlg-x" id="pinX" type="button" aria-label="Close">&times;</button>
+    <div class="dlg-kicker">LOCKED</div>
+    <h3 id="pinTitle"></h3>
+    <p class="dlg-hint" id="pinHint"></p>
+    <label class="cells" for="pinIn">
+      <input id="pinIn" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4"
+             autocomplete="one-time-code" autocapitalize="off" spellcheck="false"
+             aria-label="Four digit PIN">
+      <span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span>
+    </label>
+    <p class="dlg-msg" id="pinMsg" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<div class="corner">
+  <div class="hint" id="dragHint" hidden>
+    <svg viewBox="0 0 96 54" aria-hidden="true"><path d="M8 50C22 48 50 44 70 30 80 23 85 16 87 9"/><path class="pass2" d="M9 52C23 50 51 45 71 31 81 24 85 17 86.5 10"/><path d="M90 8l-13 2M90 8l-3 13"/></svg>
+    <span>drag the folders<br>anywhere you like</span>
+  </div>
+  <button id="resetSpots" class="reset" hidden>reset layout</button>
+</div>
+</div>
+
+<script src="/assets/site.1440ab6761.js"></script>
+<script>
+const ROUTE = "projects/leaderboard";
+const C = window.SITE.content;
+/* Every page carries its own text; the others arrive here, before anything binds to them. */
+document.querySelectorAll("[data-pane]").forEach(function (p) {
+  if (!p.firstChild && window.SITE.panes[p.dataset.pane]) p.innerHTML = window.SITE.panes[p.dataset.pane];
+});
+const SLUGS = ["build", "build/parts", "build/sheet", "build/generator", "build/soul", "build/loop", "build/tools", "build/kit", "build/memory", "build/local", "build/slides", "skills", "projects", "projects/ishaan", "projects/self-serve", "projects/outreach", "projects/leaderboard", "projects/lpg-guru", "projects/ownr", "projects/vdo-hosting", "projects/mahabeer", "projects/royal-living-tangi", "projects/osda", "projects/neoteric", "projects/iwd-app", "content", "content/ai-colleague", "content/cron-jobs", "cv"];        /* every addressable node, "projects/ownr" and so on */
+const TITLES = {"build": "How to Build with AI", "build/parts": "The seven parts", "build/sheet": "The build sheet", "build/generator": "The Setup Interview", "build/soul": "Five soul files", "build/loop": "The loop checklist", "build/tools": "The tool registry", "build/kit": "The skills kit", "build/memory": "Memory", "build/local": "Run it on your laptop", "build/slides": "The slides", "skills": "Business Analytics Skills", "projects": "My projects", "projects/ishaan": "Ishaan", "projects/self-serve": "Self-serve strategy", "projects/outreach": "Outreach Console", "projects/leaderboard": "AI model leaderboard", "projects/lpg-guru": "LPG Guru", "projects/ownr": "Ownr", "projects/vdo-hosting": "VDO Hosting", "projects/mahabeer": "Mahabeer Inventory", "projects/royal-living-tangi": "Royal Living Tangi", "projects/osda": "OSDA", "projects/neoteric": "Neoteric", "projects/iwd-app": "IWD Secretary App", "content": "Content", "content/ai-colleague": "Meet Ishaan", "content/cron-jobs": "Cron jobs", "cv": "Moheet CV"};
+const PARENTS = {"build": "", "build/parts": "build", "build/sheet": "build", "build/generator": "build", "build/soul": "build", "build/loop": "build", "build/tools": "build", "build/kit": "build", "build/memory": "build", "build/local": "build", "build/slides": "build", "skills": "", "projects": "", "projects/ishaan": "projects", "projects/self-serve": "projects", "projects/outreach": "projects", "projects/leaderboard": "projects", "projects/lpg-guru": "projects", "projects/ownr": "projects", "projects/vdo-hosting": "projects", "projects/mahabeer": "projects", "projects/royal-living-tangi": "projects", "projects/osda": "projects", "projects/neoteric": "projects", "projects/iwd-app": "projects", "content": "", "content/ai-colleague": "content", "content/cron-jobs": "content", "cv": ""};    /* so back climbs one level instead of jumping home */
+const FOLDERS = {"": {"t": "Hey, I\u2019m Moheet.", "s": "Steal anything."}, "build": {"t": "How to Build with AI", "s": "Everything from the session."}, "projects": {"t": "Things I have built", "s": "Mine, and for clients."}, "content": {"t": "Things I have written", "s": "Articles on LinkedIn, about automation I run at work."}};   /* a path the poster can stand at, and its heading */
+const PICS = {"build": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M216,128a88,88,0,1,1-88-88A88,88,0,0,1,216,128Z\" opacity=\"0.2\"/><path d=\"M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L182.06,73.37a79.56,79.56,0,0,0-56.13-23.43h-.45A79.52,79.52,0,0,0,69.59,72.71,8,8,0,0,1,58.41,61.27a96,96,0,0,1,135,.79L208,76.69V48a8,8,0,0,1,16,0ZM186.41,183.29a80,80,0,0,1-112.47-.66L59.31,168H88a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V179.31l14.63,14.63A95.43,95.43,0,0,0,130,222.06h.53a95.36,95.36,0,0,0,67.07-27.33,8,8,0,0,0-11.18-11.44Z\"/></svg>", "build/parts": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M112,56v48a8,8,0,0,1-8,8H56a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8h48A8,8,0,0,1,112,56Zm88-8H152a8,8,0,0,0-8,8v48a8,8,0,0,0,8,8h48a8,8,0,0,0,8-8V56A8,8,0,0,0,200,48Zm-96,96H56a8,8,0,0,0-8,8v48a8,8,0,0,0,8,8h48a8,8,0,0,0,8-8V152A8,8,0,0,0,104,144Zm96,0H152a8,8,0,0,0-8,8v48a8,8,0,0,0,8,8h48a8,8,0,0,0,8-8V152A8,8,0,0,0,200,144Z\" opacity=\"0.2\"/><path d=\"M200,136H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,200,136Zm0,64H152V152h48v48ZM104,40H56A16,16,0,0,0,40,56v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,104,40Zm0,64H56V56h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,64H152V56h48v48Zm-96,32H56a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,104,136Zm0,64H56V152h48v48Z\"/></svg>", "build/sheet": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M245.66,129,217,157.66a8,8,0,0,1-11.3,0L168.1,120l-28,28-32-32,28-28L80,31.78a87.81,87.81,0,0,1,98.31,18l67.35,67.89A8,8,0,0,1,245.66,129Z\" opacity=\"0.2\"/><path d=\"M251.34,112,183.88,44.08a96.1,96.1,0,0,0-135.77,0l-.09.09L34.25,58.4A8,8,0,0,0,45.74,69.53L59.47,55.35a79.92,79.92,0,0,1,18.71-13.9L124.68,88l-96,96a16,16,0,0,0,0,22.63l20.69,20.69a16,16,0,0,0,22.63,0l96-96,14.34,14.34h0L200,163.3a16,16,0,0,0,22.63,0l28.69-28.69A16,16,0,0,0,251.34,112ZM60.68,216,40,195.31l68-68L128.68,148ZM162.34,114.32,140,136.67,119.31,116l22.35-22.35a8,8,0,0,0,0-11.32L94.32,35a80,80,0,0,1,78.23,20.41l44.22,44.51L188,128.66l-14.34-14.34A8,8,0,0,0,162.34,114.32Zm49,37.66-12-12L228,111.25l12,12Z\"/></svg>", "build/generator": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M194.82,151.43l-55.09,20.3-20.3,55.09a7.92,7.92,0,0,1-14.86,0l-20.3-55.09-55.09-20.3a7.92,7.92,0,0,1,0-14.86l55.09-20.3,20.3-55.09a7.92,7.92,0,0,1,14.86,0l20.3,55.09,55.09,20.3A7.92,7.92,0,0,1,194.82,151.43Z\" opacity=\"0.2\"/><path d=\"M197.58,129.06,146,110l-19-51.62a15.92,15.92,0,0,0-29.88,0L78,110l-51.62,19a15.92,15.92,0,0,0,0,29.88L78,178l19,51.62a15.92,15.92,0,0,0,29.88,0L146,178l51.62-19a15.92,15.92,0,0,0,0-29.88ZM137,164.22a8,8,0,0,0-4.74,4.74L112,223.85,91.78,169A8,8,0,0,0,87,164.22L32.15,144,87,123.78A8,8,0,0,0,91.78,119L112,64.15,132.22,119a8,8,0,0,0,4.74,4.74L191.85,144ZM144,40a8,8,0,0,1,8-8h16V16a8,8,0,0,1,16,0V32h16a8,8,0,0,1,0,16H184V64a8,8,0,0,1-16,0V48H152A8,8,0,0,1,144,40ZM248,88a8,8,0,0,1-8,8h-8v8a8,8,0,0,1-16,0V96h-8a8,8,0,0,1,0-16h8V72a8,8,0,0,1,16,0v8h8A8,8,0,0,1,248,88Z\"/></svg>", "build/soul": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M160,112a32,32,0,1,1-32-32A32,32,0,0,1,160,112Z\" opacity=\"0.2\"/><path d=\"M224,40V76a8,8,0,0,1-16,0V48H180a8,8,0,0,1,0-16h36A8,8,0,0,1,224,40Zm-8,132a8,8,0,0,0-8,8v28H180a8,8,0,0,0,0,16h36a8,8,0,0,0,8-8V180A8,8,0,0,0,216,172ZM76,208H48V180a8,8,0,0,0-16,0v36a8,8,0,0,0,8,8H76a8,8,0,0,0,0-16ZM40,84a8,8,0,0,0,8-8V48H76a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8V76A8,8,0,0,0,40,84Zm136,92a8,8,0,0,1-6.41-3.19,52,52,0,0,0-83.2,0,8,8,0,1,1-12.8-9.62A67.94,67.94,0,0,1,101,141.51a40,40,0,1,1,53.94,0,67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,176,176Zm-48-40a24,24,0,1,0-24-24A24,24,0,0,0,128,136Z\"/></svg>", "build/loop": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M216,128a88,88,0,1,1-88-88A88,88,0,0,1,216,128Z\" opacity=\"0.2\"/><path d=\"M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L182.06,73.37a79.56,79.56,0,0,0-56.13-23.43h-.45A79.52,79.52,0,0,0,69.59,72.71,8,8,0,0,1,58.41,61.27a96,96,0,0,1,135,.79L208,76.69V48a8,8,0,0,1,16,0ZM186.41,183.29a80,80,0,0,1-112.47-.66L59.31,168H88a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V179.31l14.63,14.63A95.43,95.43,0,0,0,130,222.06h.53a95.36,95.36,0,0,0,67.07-27.33,8,8,0,0,0-11.18-11.44Z\"/></svg>", "build/tools": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M76,124l56,56-29,29a24,24,0,0,1-33.94,0L47,186.91A24,24,0,0,1,47,153ZM209,69.09,186.91,47A24,24,0,0,0,153,47L124,76l56,56,29-29A24,24,0,0,0,209,69.09Z\" opacity=\"0.2\"/><path d=\"M149.66,138.34a8,8,0,0,0-11.32,0L120,156.69,99.31,136l18.35-18.34a8,8,0,0,0-11.32-11.32L88,124.69,69.66,106.34a8,8,0,0,0-11.32,11.32L64.69,124,41.37,147.31a32,32,0,0,0,0,45.26l5.38,5.37-28.41,28.4a8,8,0,0,0,11.32,11.32l28.4-28.41,5.37,5.38a32,32,0,0,0,45.26,0L132,191.31l6.34,6.35a8,8,0,0,0,11.32-11.32L131.31,168l18.35-18.34A8,8,0,0,0,149.66,138.34Zm-52.29,65a16,16,0,0,1-22.62,0L52.69,181.25a16,16,0,0,1,0-22.62L76,135.31,120.69,180Zm140.29-185a8,8,0,0,0-11.32,0l-28.4,28.41-5.37-5.38a32.05,32.05,0,0,0-45.26,0L124,64.69l-6.34-6.35a8,8,0,0,0-11.32,11.32l80,80a8,8,0,0,0,11.32-11.32L191.31,132l23.32-23.31a32,32,0,0,0,0-45.26l-5.38-5.37,28.41-28.4A8,8,0,0,0,237.66,18.34Zm-34.35,79L180,120.69,135.31,76l23.32-23.31a16,16,0,0,1,22.62,0l22.06,22A16,16,0,0,1,203.31,97.37Z\"/></svg>", "build/kit": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M232,120v72a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V120Z\" opacity=\"0.2\"/><path d=\"M224,64H176V56a24,24,0,0,0-24-24H104A24,24,0,0,0,80,56v8H32A16,16,0,0,0,16,80V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V80A16,16,0,0,0,224,64ZM96,56a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96ZM32,80H224v32H192v-8a8,8,0,0,0-16,0v8H80v-8a8,8,0,0,0-16,0v8H32ZM224,192H32V128H64v8a8,8,0,0,0,16,0v-8h96v8a8,8,0,0,0,16,0v-8h32v64Z\"/></svg>", "build/memory": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M240,124a48,48,0,0,1-32,45.27h0V176a40,40,0,0,1-80,0,40,40,0,0,1-80,0v-6.73h0a48,48,0,0,1,0-90.54V72a40,40,0,0,1,80,0,40,40,0,0,1,80,0v6.73A48,48,0,0,1,240,124Z\" opacity=\"0.2\"/><path d=\"M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124ZM88,208a32,32,0,0,1-31.81-28.56A55.87,55.87,0,0,0,64,180h8a8,8,0,0,0,0-16H64A40,40,0,0,1,50.67,86.27,8,8,0,0,0,56,78.73V72a32,32,0,0,1,64,0v68.26A47.8,47.8,0,0,0,88,128a8,8,0,0,0,0,16,32,32,0,0,1,0,64Zm104-44h-8a8,8,0,0,0,0,16h8a55.87,55.87,0,0,0,7.81-.56A32,32,0,1,1,168,144a8,8,0,0,0,0-16,47.8,47.8,0,0,0-32,12.26V72a32,32,0,0,1,64,0v6.73a8,8,0,0,0,5.33,7.54A40,40,0,0,1,192,164Zm16-52a8,8,0,0,1-8,8h-4a36,36,0,0,1-36-36V80a8,8,0,0,1,16,0v4a20,20,0,0,0,20,20h4A8,8,0,0,1,208,112ZM60,120H56a8,8,0,0,1,0-16h4A20,20,0,0,0,80,84V80a8,8,0,0,1,16,0v4A36,36,0,0,1,60,120Z\"/></svg>", "build/local": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M216,72V176H40V72A16,16,0,0,1,56,56H200A16,16,0,0,1,216,72Z\" opacity=\"0.2\"/><path d=\"M232,168h-8V72a24,24,0,0,0-24-24H56A24,24,0,0,0,32,72v96H24a8,8,0,0,0-8,8v16a24,24,0,0,0,24,24H216a24,24,0,0,0,24-24V176A8,8,0,0,0,232,168ZM48,72a8,8,0,0,1,8-8H200a8,8,0,0,1,8,8v96H48ZM224,192a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8v-8H224ZM152,88a8,8,0,0,1-8,8H112a8,8,0,0,1,0-16h32A8,8,0,0,1,152,88Z\"/></svg>", "build/slides": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M224,56V176a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8H216A8,8,0,0,1,224,56Z\" opacity=\"0.2\"/><path d=\"M216,40H136V24a8,8,0,0,0-16,0V40H40A16,16,0,0,0,24,56V176a16,16,0,0,0,16,16H79.36L57.75,219a8,8,0,0,0,12.5,10l29.59-37h56.32l29.59,37a8,8,0,1,0,12.5-10l-21.61-27H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,136H40V56H216V176ZM104,120v24a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm32-16v40a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm32-16v56a8,8,0,0,1-16,0V88a8,8,0,0,1,16,0Z\"/></svg>", "skills": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M192,88V200a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V88a8,8,0,0,1,8-8H184A8,8,0,0,1,192,88Z\" opacity=\"0.2\"/><path d=\"M184,72H40A16,16,0,0,0,24,88V200a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V88A16,16,0,0,0,184,72Zm0,128H40V88H184V200ZM232,56V176a8,8,0,0,1-16,0V56H64a8,8,0,0,1,0-16H216A16,16,0,0,1,232,56Z\"/></svg>", "projects": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M208,88v24H69.77a8,8,0,0,0-7.59,5.47L32,208V64a8,8,0,0,1,8-8H93.33a8,8,0,0,1,4.8,1.6L128,80h72A8,8,0,0,1,208,88Z\" opacity=\"0.2\"/><path d=\"M245,110.64A16,16,0,0,0,232,104H216V88a16,16,0,0,0-16-16H130.67L102.94,51.2a16.14,16.14,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V208a8,8,0,0,0,8,8H211.1a8,8,0,0,0,7.59-5.47l28.49-85.47A16.05,16.05,0,0,0,245,110.64ZM93.34,64,123.2,86.4A8,8,0,0,0,128,88h72v16H69.77a16,16,0,0,0-15.18,10.94L40,158.7V64Zm112,136H43.1l26.67-80H232Z\"/></svg>", "projects/ishaan": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M200,56H56A24,24,0,0,0,32,80V192a24,24,0,0,0,24,24H200a24,24,0,0,0,24-24V80A24,24,0,0,0,200,56ZM164,184H92a20,20,0,0,1,0-40h72a20,20,0,0,1,0,40Z\" opacity=\"0.2\"/><path d=\"M200,48H136V16a8,8,0,0,0-16,0V48H56A32,32,0,0,0,24,80V192a32,32,0,0,0,32,32H200a32,32,0,0,0,32-32V80A32,32,0,0,0,200,48Zm16,144a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V80A16,16,0,0,1,56,64H200a16,16,0,0,1,16,16ZM72,108a12,12,0,1,1,12,12A12,12,0,0,1,72,108Zm88,0a12,12,0,1,1,12,12A12,12,0,0,1,160,108Zm4,28H92a28,28,0,0,0,0,56h72a28,28,0,0,0,0-56Zm-24,16v24H116V152ZM80,164a12,12,0,0,1,12-12h8v24H92A12,12,0,0,1,80,164Zm84,12h-8V152h8a12,12,0,0,1,0,24Z\"/></svg>", "projects/self-serve": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M224,64V208H32V48H208A16,16,0,0,1,224,64Z\" opacity=\"0.2\"/><path d=\"M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0V156.69l50.34-50.35a8,8,0,0,1,11.32,0L128,132.69,180.69,80H160a8,8,0,0,1,0-16h40a8,8,0,0,1,8,8v40a8,8,0,0,1-16,0V91.31l-58.34,58.35a8,8,0,0,1-11.32,0L96,123.31l-56,56V200H224A8,8,0,0,1,232,208Z\"/></svg>", "projects/outreach": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M223.69,42.18l-58.22,192a8,8,0,0,1-14.92,1.25L108,148,20.58,105.45a8,8,0,0,1,1.25-14.92l192-58.22A8,8,0,0,1,223.69,42.18Z\" opacity=\"0.2\"/><path d=\"M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z\"/></svg>", "projects/leaderboard": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M40,96H88V208H32V104A8,8,0,0,1,40,96Zm176,40H168v72h56V144A8,8,0,0,0,216,136Z\" opacity=\"0.2\"/><path d=\"M112.41,102.53a8,8,0,0,1,5.06-10.12l12-4A8,8,0,0,1,140,96v40a8,8,0,0,1-16,0V107.1l-1.47.49A8,8,0,0,1,112.41,102.53ZM248,208a8,8,0,0,1-8,8H16a8,8,0,0,1,0-16h8V104A16,16,0,0,1,40,88H80V56A16,16,0,0,1,96,40h64a16,16,0,0,1,16,16v72h40a16,16,0,0,1,16,16v56h8A8,8,0,0,1,248,208Zm-72-64v56h40V144ZM96,200h64V56H96Zm-56,0H80V104H40Z\"/></svg>", "projects/lpg-guru": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M208,40V216a8,8,0,0,1-8,8H56a8,8,0,0,1-8-8V107.31a8,8,0,0,1,2.34-5.65l67.32-67.32A8,8,0,0,1,123.31,32H200A8,8,0,0,1,208,40Z\" opacity=\"0.2\"/><path d=\"M200,24H123.31A15.86,15.86,0,0,0,112,28.69L101.66,39,91.31,28.69a16,16,0,0,0-22.62,0l-24,24a16,16,0,0,0,0,22.62L55,85.66,44.69,96A15.86,15.86,0,0,0,40,107.31V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V40A16,16,0,0,0,200,24ZM56,64,80,40,90.34,50.34l-24,24ZM200,216H56V107.31l16-16h0L123.31,40H200ZM128,64a8,8,0,0,1,8-8h40a8,8,0,0,1,0,16H136A8,8,0,0,1,128,64Zm52.8,62.4L141.33,156l39.47,29.6a8,8,0,1,1-9.6,12.8L128,166,84.8,198.4a8,8,0,0,1-9.6-12.8L114.67,156,75.2,126.4a8,8,0,0,1,9.6-12.8L128,146l43.2-32.4a8,8,0,0,1,9.6,12.8Z\"/></svg>", "projects/ownr": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M240,124a48,48,0,0,1-32,45.27h0V176a40,40,0,0,1-80,0,40,40,0,0,1-80,0v-6.73h0a48,48,0,0,1,0-90.54V72a40,40,0,0,1,80,0,40,40,0,0,1,80,0v6.73A48,48,0,0,1,240,124Z\" opacity=\"0.2\"/><path d=\"M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124ZM88,208a32,32,0,0,1-31.81-28.56A55.87,55.87,0,0,0,64,180h8a8,8,0,0,0,0-16H64A40,40,0,0,1,50.67,86.27,8,8,0,0,0,56,78.73V72a32,32,0,0,1,64,0v68.26A47.8,47.8,0,0,0,88,128a8,8,0,0,0,0,16,32,32,0,0,1,0,64Zm104-44h-8a8,8,0,0,0,0,16h8a55.87,55.87,0,0,0,7.81-.56A32,32,0,1,1,168,144a8,8,0,0,0,0-16,47.8,47.8,0,0,0-32,12.26V72a32,32,0,0,1,64,0v6.73a8,8,0,0,0,5.33,7.54A40,40,0,0,1,192,164Zm16-52a8,8,0,0,1-8,8h-4a36,36,0,0,1-36-36V80a8,8,0,0,1,16,0v4a20,20,0,0,0,20,20h4A8,8,0,0,1,208,112ZM60,120H56a8,8,0,0,1,0-16h4A20,20,0,0,0,80,84V80a8,8,0,0,1,16,0v4A36,36,0,0,1,60,120Z\"/></svg>", "projects/vdo-hosting": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M200,72V184a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V72a8,8,0,0,1,8-8H192A8,8,0,0,1,200,72Z\" opacity=\"0.2\"/><path d=\"M251.77,73a8,8,0,0,0-8.21.39L208,97.05V72a16,16,0,0,0-16-16H32A16,16,0,0,0,16,72V184a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V159l35.56,23.71A8,8,0,0,0,248,184a8,8,0,0,0,8-8V80A8,8,0,0,0,251.77,73ZM192,184H32V72H192V184Zm48-22.95-32-21.33V116.28L240,95Z\"/></svg>", "projects/mahabeer": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M184,128v64H72V128Z\" opacity=\"0.2\"/><path d=\"M240,184h-8V57.9l9.67-2.08a8,8,0,1,0-3.35-15.64l-224,48A8,8,0,0,0,16,104a8.16,8.16,0,0,0,1.69-.18L24,102.47V184H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM40,99,216,61.33V184H192V128a8,8,0,0,0-8-8H72a8,8,0,0,0-8,8v56H40Zm136,53H80V136h96ZM80,168h96v16H80Z\"/></svg>", "projects/royal-living-tangi": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M215.94,182.08A48.33,48.33,0,0,1,168,224,136,136,0,0,1,32,88,48.33,48.33,0,0,1,73.92,40.06a8,8,0,0,1,8.3,4.8l21.13,47.2a8,8,0,0,1-.66,7.53L81.32,125a7.93,7.93,0,0,0-.54,7.81c8.27,16.93,25.77,34.22,42.75,42.41a7.92,7.92,0,0,0,7.83-.59l25-21.3a8,8,0,0,1,7.59-.69l47.16,21.13A8,8,0,0,1,215.94,182.08Z\" opacity=\"0.2\"/><path d=\"M144.27,45.93a8,8,0,0,1,9.8-5.66,86.22,86.22,0,0,1,61.66,61.66,8,8,0,0,1-5.66,9.8A8.23,8.23,0,0,1,208,112a8,8,0,0,1-7.73-5.94,70.35,70.35,0,0,0-50.33-50.33A8,8,0,0,1,144.27,45.93Zm-2.33,41.8c13.79,3.68,22.65,12.54,26.33,26.33A8,8,0,0,0,176,120a8.23,8.23,0,0,0,2.07-.27,8,8,0,0,0,5.66-9.8c-5.12-19.16-18.5-32.54-37.66-37.66a8,8,0,1,0-4.13,15.46Zm81.94,95.35A56.26,56.26,0,0,1,168,232C88.6,232,24,167.4,24,88A56.26,56.26,0,0,1,72.92,32.12a16,16,0,0,1,16.62,9.52l21.12,47.15,0,.12A16,16,0,0,1,109.39,104c-.18.27-.37.52-.57.77L88,129.45c7.49,15.22,23.41,31,38.83,38.51l24.34-20.71a8.12,8.12,0,0,1,.75-.56,16,16,0,0,1,15.17-1.4l.13.06,47.11,21.11A16,16,0,0,1,223.88,183.08Zm-15.88-2s-.07,0-.11,0h0l-47-21.05-24.35,20.71a8.44,8.44,0,0,1-.74.56,16,16,0,0,1-15.75,1.14c-18.73-9.05-37.4-27.58-46.46-46.11a16,16,0,0,1,1-15.7,6.13,6.13,0,0,1,.57-.77L96,95.15l-21-47a.61.61,0,0,1,0-.12A40.2,40.2,0,0,0,40,88,128.14,128.14,0,0,0,168,216,40.21,40.21,0,0,0,208,181.07Z\"/></svg>", "projects/osda": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M232,96H24L128,32Z\" opacity=\"0.2\"/><path d=\"M24,104H48v64H32a8,8,0,0,0,0,16H224a8,8,0,0,0,0-16H208V104h24a8,8,0,0,0,4.19-14.81l-104-64a8,8,0,0,0-8.38,0l-104,64A8,8,0,0,0,24,104Zm40,0H96v64H64Zm80,0v64H112V104Zm48,64H160V104h32ZM128,41.39,203.74,88H52.26ZM248,208a8,8,0,0,1-8,8H16a8,8,0,0,1,0-16H240A8,8,0,0,1,248,208Z\"/></svg>", "projects/neoteric": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M240,120a40,40,0,0,1-40,40H160V80h40A40,40,0,0,1,240,120Z\" opacity=\"0.2\"/><path d=\"M248,120a48.05,48.05,0,0,0-48-48H160.2c-2.91-.17-53.62-3.74-101.91-44.24A16,16,0,0,0,32,40V200a16,16,0,0,0,26.29,12.25c37.77-31.68,77-40.76,93.71-43.3v31.72A16,16,0,0,0,159.12,214l11,7.33A16,16,0,0,0,194.5,212l11.77-44.36A48.07,48.07,0,0,0,248,120ZM48,199.93V40h0c42.81,35.91,86.63,45,104,47.24v65.48C134.65,155,90.84,164.07,48,199.93Zm131,8,0,.11-11-7.33V168h21.6ZM200,152H168V88h32a32,32,0,1,1,0,64Z\"/></svg>", "projects/iwd-app": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M192,56V200H64V56Z\" opacity=\"0.2\"/><path d=\"M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM72,64H184V192H72Zm8-32h96a8,8,0,0,1,8,8v8H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8v-8H184v8A8,8,0,0,1,176,224Z\"/></svg>", "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M216,48H40a8,8,0,0,0-8,8V216l32-16,32,16,32-16,32,16,32-16,32,16V56A8,8,0,0,0,216,48ZM112,160H64V96h48Z\" opacity=\"0.2\"/><path d=\"M216,40H40A16,16,0,0,0,24,56V216a8,8,0,0,0,11.58,7.15L64,208.94l28.42,14.21a8,8,0,0,0,7.16,0L128,208.94l28.42,14.21a8,8,0,0,0,7.16,0L192,208.94l28.42,14.21A8,8,0,0,0,232,216V56A16,16,0,0,0,216,40Zm0,163.06-20.42-10.22a8,8,0,0,0-7.16,0L160,207.06l-28.42-14.22a8,8,0,0,0-7.16,0L96,207.06,67.58,192.84a8,8,0,0,0-7.16,0L40,203.06V56H216ZM136,112a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,112Zm0,32a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,144ZM64,168h48a8,8,0,0,0,8-8V96a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8v64A8,8,0,0,0,64,168Zm8-64h32v48H72Z\"/></svg>", "content/ai-colleague": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M216,48H40a8,8,0,0,0-8,8V216l32-16,32,16,32-16,32,16,32-16,32,16V56A8,8,0,0,0,216,48ZM112,160H64V96h48Z\" opacity=\"0.2\"/><path d=\"M216,40H40A16,16,0,0,0,24,56V216a8,8,0,0,0,11.58,7.15L64,208.94l28.42,14.21a8,8,0,0,0,7.16,0L128,208.94l28.42,14.21a8,8,0,0,0,7.16,0L192,208.94l28.42,14.21A8,8,0,0,0,232,216V56A16,16,0,0,0,216,40Zm0,163.06-20.42-10.22a8,8,0,0,0-7.16,0L160,207.06l-28.42-14.22a8,8,0,0,0-7.16,0L96,207.06,67.58,192.84a8,8,0,0,0-7.16,0L40,203.06V56H216ZM136,112a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,112Zm0,32a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,144ZM64,168h48a8,8,0,0,0,8-8V96a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8v64A8,8,0,0,0,64,168Zm8-64h32v48H72Z\"/></svg>", "content/cron-jobs": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M216,48H40a8,8,0,0,0-8,8V216l32-16,32,16,32-16,32,16,32-16,32,16V56A8,8,0,0,0,216,48ZM112,160H64V96h48Z\" opacity=\"0.2\"/><path d=\"M216,40H40A16,16,0,0,0,24,56V216a8,8,0,0,0,11.58,7.15L64,208.94l28.42,14.21a8,8,0,0,0,7.16,0L128,208.94l28.42,14.21a8,8,0,0,0,7.16,0L192,208.94l28.42,14.21A8,8,0,0,0,232,216V56A16,16,0,0,0,216,40Zm0,163.06-20.42-10.22a8,8,0,0,0-7.16,0L160,207.06l-28.42-14.22a8,8,0,0,0-7.16,0L96,207.06,67.58,192.84a8,8,0,0,0-7.16,0L40,203.06V56H216ZM136,112a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,112Zm0,32a8,8,0,0,1,8-8h48a8,8,0,0,1,0,16H144A8,8,0,0,1,136,144ZM64,168h48a8,8,0,0,0,8-8V96a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8v64A8,8,0,0,0,64,168Zm8-64h32v48H72Z\"/></svg>", "cv": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M215.88,56.39l-29.75,169a8,8,0,0,1-9.27,6.49l-130.25-23a8,8,0,0,1-6.49-9.26l29.75-169a8,8,0,0,1,9.27-6.49l130.25,23A8,8,0,0,1,215.88,56.39Z\" opacity=\"0.2\"/><path d=\"M210.78,39.25l-130.25-23A16,16,0,0,0,62,29.23l-29.75,169a16,16,0,0,0,13,18.53l130.25,23h0a16,16,0,0,0,18.54-13l29.75-169A16,16,0,0,0,210.78,39.25ZM178.26,224h0L48,201,77.75,32,208,55ZM89.34,58.42a8,8,0,0,1,9.27-6.48l83,14.65a8,8,0,0,1-1.39,15.88,8.36,8.36,0,0,1-1.4-.12l-83-14.66A8,8,0,0,1,89.34,58.42ZM83.8,89.94a8,8,0,0,1,9.27-6.49l83,14.66A8,8,0,0,1,174.67,114a7.55,7.55,0,0,1-1.41-.13l-83-14.65A8,8,0,0,1,83.8,89.94Zm-5.55,31.51A8,8,0,0,1,87.52,115L129,122.29a8,8,0,0,1-1.38,15.88,8.27,8.27,0,0,1-1.4-.12l-41.5-7.33A8,8,0,0,1,78.25,121.45Z\"/></svg>"};
+const SEO_TITLES = {"build": "How to Build with AI | Moheet Subudhi", "build/parts": "The seven parts | Moheet Subudhi", "build/sheet": "From idea to working thing | Moheet Subudhi", "build/generator": "The Setup Interview | Moheet Subudhi", "build/soul": "Five soul files | Moheet Subudhi", "build/loop": "Make it finish instead of wander | Moheet Subudhi", "build/tools": "Stop it guessing and overstepping | Moheet Subudhi", "build/kit": "Find it. Write it. Fix it. | Moheet Subudhi", "build/memory": "Memory | Moheet Subudhi", "build/local": "Open models, and running one yourself | Moheet Subudhi", "build/slides": "The slides | Moheet Subudhi", "skills": "Business Analytics Skills | Moheet Subudhi", "projects": "Things I have built | Moheet Subudhi", "projects/ishaan": "Ishaan, an ops agent | Moheet Subudhi", "projects/self-serve": "Self-serve strategy | Moheet Subudhi", "projects/outreach": "Outreach Console | Moheet Subudhi", "projects/leaderboard": "BestHunt AI model leaderboard | Moheet Subudhi", "projects/lpg-guru": "LPG Guru | Moheet Subudhi", "projects/ownr": "Ownr | Moheet Subudhi", "projects/vdo-hosting": "VDO Hosting | Moheet Subudhi", "projects/mahabeer": "Mahabeer Inventory | Moheet Subudhi", "projects/royal-living-tangi": "Royal Living Tangi | Moheet Subudhi", "projects/osda": "OSDA, Government of Odisha | Moheet Subudhi", "projects/neoteric": "Neoteric | Moheet Subudhi", "projects/iwd-app": "IWD Secretary App | Moheet Subudhi", "content": "Things I have written | Moheet Subudhi", "content/ai-colleague": "Meet Ishaan | Moheet Subudhi", "content/cron-jobs": "Cron jobs | Moheet Subudhi", "cv": "My work, so far | Moheet Subudhi", "": "Moheet Subudhi \u00b7 Product Manager, Business Automation"};
+const LOCKS = {"build/slides": {"title": "The slides", "unlock": "deck", "hint": "Four digits. Ask me for it."}};      /* nodes that ask for a PIN before they open */        /* each node's icon, reused in the search results */
+
+document.querySelectorAll("pre[data-block]").forEach(function (el) {
+  if (C[el.dataset.block]) el.textContent = C[el.dataset.block];
+});
+
+/* ---------- soul picker ---------- */
+let currentSoul = 0;
+const soulName = document.getElementById("soul-name");
+const soulBody = document.querySelector('pre[data-block="soul"]');
+function showSoul(i) {
+  currentSoul = i;
+  soulName.textContent = C.souls[i].name;
+  soulBody.textContent = C.souls[i].body;
+  document.querySelectorAll("[data-soul]").forEach(function (t) {
+    t.setAttribute("aria-selected", String(Number(t.dataset.soul) === i));
+  });
+}
+document.querySelectorAll("[data-soul]").forEach(function (t) {
+  t.addEventListener("click", function () { showSoul(Number(t.dataset.soul)); });
+});
+showSoul(0);
+
+/* ---------- the PIN pop-up ----------
+   The page never knows a PIN. It sends what was typed to a server, which checks it and
+   hands back a token that expires. Wrong answers come back slowly on purpose. A node
+   opts in with a lock flag in the tree; "unlock" says what a right answer does. */
+const DECK_API = "https://how-to-build-with-ai-deck.vercel.app";
+const UNLOCKERS = {
+  deck: async function (pin) {
+    const r = await fetch(DECK_API + "/api/unlock", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin: pin })
+    });
+    if (!r.ok) return false;
+    const d = await r.json();
+    location.href = DECK_API + "/api/deck?t=" + encodeURIComponent(d.token);
+    return true;
+  },
+  /* Same check, but a right answer opens the locked page here and keeps it open for
+     the rest of the visit. A deterrent, like the slides: the server holds the PIN. */
+  open: async function (pin, path) {
+    const r = await fetch(DECK_API + "/api/unlock", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin: pin })
+    });
+    if (!r.ok) return false;
+    unlocked[path] = true;
+    try { sessionStorage.setItem("unlocked", JSON.stringify(unlocked)); } catch (e) {}
+    closeLock();
+    go(path);
+    return true;
+  }
+};
+let unlocked = {};
+try { unlocked = JSON.parse(sessionStorage.getItem("unlocked") || "{}") || {}; } catch (e) {}
+function isLocked(path) { return !!LOCKS[path] && !unlocked[path]; }
+const scrim = document.getElementById("pinScrim"), pinIn = document.getElementById("pinIn"),
+      pinMsg = document.getElementById("pinMsg"), cellsEl = document.querySelector(".cells"),
+      cellEls = [...document.querySelectorAll(".cell")];
+let pinFor = null, pinBusy = false, pinReturn = null;
+
+function paintCells() {
+  cellEls.forEach(function (c, i2) {
+    c.textContent = pinIn.value[i2] ? "•" : "";
+    c.classList.toggle("on", i2 === Math.min(pinIn.value.length, 3) && document.activeElement === pinIn);
+  });
+}
+function openLock(path) {
+  const lock = LOCKS[path]; if (!lock) return;
+  pinFor = path; pinReturn = document.activeElement;
+  document.getElementById("pinTitle").textContent = lock.title;
+  document.getElementById("pinHint").textContent = lock.hint;
+  pinIn.value = ""; pinMsg.textContent = ""; cellsEl.classList.remove("bad");
+  scrim.hidden = false;
+  requestAnimationFrame(function () { scrim.classList.add("on"); });
+  setTimeout(function () { scrim.classList.add("on"); }, 40);   /* if frames are throttled */
+  pinIn.focus(); paintCells();
+}
+function closeLock() {
+  if (scrim.hidden) return;
+  scrim.classList.remove("on");
+  setTimeout(function () { scrim.hidden = true; }, 220);
+  pinFor = null;
+  if (pinReturn && pinReturn.focus) try { pinReturn.focus(); } catch (e) {}
+}
+async function trySubmit() {
+  if (pinBusy || pinIn.value.length !== 4 || !pinFor) return;
+  pinBusy = true; pinMsg.textContent = "Checking…";
+  let ok = false;
+  try { ok = await UNLOCKERS[LOCKS[pinFor].unlock](pinIn.value, pinFor); }
+  catch (err) { pinMsg.textContent = "Could not reach the server. Try again."; pinBusy = false; return; }
+  pinBusy = false;
+  if (ok) { pinMsg.textContent = scrim.hidden ? "" : "Opening…"; return; }
+  pinMsg.textContent = "Not that one.";
+  cellsEl.classList.remove("bad"); void cellsEl.offsetWidth; cellsEl.classList.add("bad");
+  pinIn.value = ""; paintCells();
+}
+pinIn.addEventListener("input", function () {
+  pinIn.value = pinIn.value.replace(/\D/g, "").slice(0, 4);
+  pinMsg.textContent = ""; cellsEl.classList.remove("bad");
+  paintCells(); trySubmit();
+});
+pinIn.addEventListener("focus", paintCells);
+pinIn.addEventListener("blur", paintCells);
+document.getElementById("pinX").addEventListener("click", closeLock);
+scrim.addEventListener("mousedown", function (e) { if (e.target === scrim) closeLock(); });
+scrim.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") { e.stopPropagation(); closeLock(); }
+  if (e.key === "Tab") { e.preventDefault(); pinIn.focus(); }   /* the pop-up holds focus */
+});
+
+/* ---------- copy ---------- */
+document.querySelectorAll("[data-copy]").forEach(function (btn) {
+  btn.addEventListener("click", async function (ev) {
+    /* The button sits inside a <summary>, so a click on it would also open or
+       close the disclosure. Copying is not opening. */
+    if (btn.closest("summary")) { ev.preventDefault(); ev.stopPropagation(); }
+    const key = btn.dataset.copy;
+    const text = key === "soul" ? C.souls[currentSoul].body : C[key];
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    } catch (e) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:absolute;left:-9999px;top:0";
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      try { ok = document.execCommand("copy"); } catch (e2) { ok = false; }
+      document.body.removeChild(ta);
+    }
+    btn.textContent = ok ? "Copied" : "Select and copy";
+    btn.classList.toggle("done", ok);
+    setTimeout(function () { btn.textContent = "Copy"; btn.classList.remove("done"); }, 2000);
+  });
+});
+
+/* ---------- routing: the poster, then one view at a time ----------
+   Hash based, so it is a plain static file with no server rules, and any single
+   item can be linked to directly. */
+const panes = document.querySelectorAll("[data-pane]");
+const whereEl = document.getElementById("where");
+const backBtn = document.getElementById("back");
+
+function crumb(path) {
+  /* "projects/ownr" reads as "My projects / Ownr" */
+  const out2 = [];
+  let p3 = path;
+  while (p3) { out2.unshift(TITLES[p3] || p3); p3 = PARENTS[p3] || ""; }
+  return out2.join("  /  ");
+}
+
+const hubTitle = document.getElementById("hubTitle");
+const hubSub = document.getElementById("hubSub");
+const hubUp = document.getElementById("hubUp");
+const hubBar = document.getElementById("hubBar");
+const hubWhere = document.getElementById("hubWhere");
+const SITE = "Moheet Subudhi";
+const ROOT_TITLE = "Moheet Subudhi · Product Manager, Business Automation";   /* the home screen's tab title, same as the page's own <title> */
+
+/* An old link, or one written before the tree grew a level, still resolves: an
+   unknown hash falls back to the one node whose own slug matches it. */
+function resolvePath(raw) {
+  if (!raw) return "";
+  if (raw in FOLDERS || SLUGS.indexOf(raw) > -1) return raw;
+  /* Compare last segments, so a node that has since moved up a level resolves
+     too: #build/skills still finds skills now that it sits at the root. */
+  const tail = raw.split("/").pop();
+  const hit = SLUGS.filter(function (s2) { return s2.split("/").pop() === tail; });
+  return hit.length === 1 ? hit[0] : "";
+}
+
+/* The heading changes the way ink arrives on paper, not the way a terminal
+   types: the old words blur away together, the new ones settle in one after
+   another. Typing a word at a time out of nothing read as a glitch at any speed
+   fast enough not to be annoying. CSS animations, so a throttled tab still
+   lands on the finished state. */
+let headTimers = [];
+function words(text) {
+  return text.split(" ").map(function (w2, i) {
+    return '<span class="w" style="--d:' + (0.055 * i).toFixed(3) + 's">' +
+      w2.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span>";
+  }).join(" ");
+}
+function setHeading(text, sub, animate) {
+  headTimers.forEach(clearTimeout);
+  headTimers = [];
+  hubTitle.setAttribute("aria-label", text);
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const same = hubTitle.textContent.trim() === text;
+  const write = function () {
+    hubTitle.innerHTML = words(text);
+    hubSub.innerHTML = '<span class="w">' +
+      sub.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span>";
+    hubTitle.classList.remove("out");
+    hubSub.classList.remove("out");
+  };
+  if (!animate || reduced || same) { write(); return; }
+  hubTitle.classList.add("out");
+  hubSub.classList.add("out");
+  headTimers.push(setTimeout(write, 170));
+  /* A backstop for a dropped timer, not a second run: rewriting unconditionally
+     replaced the words and started the whole settle again. */
+  headTimers.push(setTimeout(function () {
+    if (hubTitle.textContent.trim() !== text) write();
+  }, 700));
+}
+
+let hubPath = "";
+function showFolder(path, animate) {
+  hubPath = path;
+  const f = FOLDERS[path] || FOLDERS[""];
+  setHeading(f.t, f.s, animate);
+  hubBar.hidden = !path;
+  if (path) {
+    hubUp.textContent = "← " + (PARENTS[path] ? TITLES[PARENTS[path]] : SITE);
+    hubWhere.textContent = TITLES[path];
+  }
+  document.title = SEO_TITLES[path] || ROOT_TITLE;
+  if (q.value.trim()) { q.value = ""; }
+  runSearch();
+  maybeHint();
+}
+
+function apply(raw, animate) {
+  let path = resolvePath(raw);
+  /* A pasted link to a locked node shows the folder it sits in and asks for the PIN. */
+  if (path && isLocked(path)) {
+    const lockPath = path;
+    path = PARENTS[path] || "";
+    try { history.replaceState(null, "", urlFor(path)); } catch (e) {}
+    setTimeout(function () { openLock(lockPath); }, 60);
+  }
+  const leaf = SLUGS.indexOf(path) > -1 && !(path in FOLDERS);
+  document.body.classList.toggle("open", leaf);
+  if (q.value.trim()) { q.value = ""; runSearch(); }
+  placeSearch(leaf);
+  panes.forEach(function (p) { p.hidden = p.dataset.pane !== path; });
+  if (leaf) {
+    /* The button beside it already says what it came out of. */
+    whereEl.textContent = TITLES[path];
+    document.title = SEO_TITLES[path] || (TITLES[path] + " — " + SITE);
+    const parent = PARENTS[path] || "";
+    backBtn.textContent = "← " + (parent ? TITLES[parent] : SITE);
+    backBtn.dataset.up = parent;
+  } else {
+    whereEl.textContent = "";
+    showFolder(path in FOLDERS ? path : "", animate);
+  }
+  window.scrollTo(0, 0);
+  if (leaf) reveal(document.querySelector('[data-pane="' + path + '"]'));
+  /* Tell Google which screen this is. GA4 ignores everything after a #, so the screen is
+     reported as a virtual path (/projects/ishaan) with its title. */
+  if (location.hostname === "moheetsubudhi.com") {
+    gtag("event", "page_view", {
+      page_title: document.title,
+      page_location: location.origin + urlFor(path)
+    });
+  }
+}
+
+/* Every page has a real address: /projects/ishaan/, not #projects/ishaan. A visitor on an
+   old # link is moved to the new address. */
+function urlFor(slug) { return slug ? "/" + slug + "/" : "/"; }
+function routeFromUrl() {
+  const h = location.hash.replace("#", "");
+  if (h) return h;
+  return location.protocol === "file:" ? "" : location.pathname.replace(/^\/+|\/+$/g, "");
+}
+
+/* history.pushState throws on file:// and inside some sandboxed previews, which
+   would otherwise break every link on the page. Fall back to setting the hash. */
+function setUrl(slug) {
+  try {
+    history.pushState(null, "", urlFor(slug));
+  } catch (e) {
+    if (slug) location.hash = slug;
+    else if (location.hash) location.hash = "";
+  }
+}
+
+function go(slug) {
+  if (slug && isLocked(slug)) { openLock(slug); return; }
+  const run = function () { setUrl(slug); apply(slug, true); };
+  if (document.startViewTransition &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    try { document.startViewTransition(run); } catch (e) { run(); }
+  } else {
+    run();
+  }
+}
+window.addEventListener("hashchange", function () {
+  const h = location.hash.replace("#", "");
+  if (h && location.protocol !== "file:") {
+    const r = resolvePath(h);
+    try { history.replaceState(null, "", urlFor(r)); } catch (e) {}
+    apply(r);
+  } else {
+    apply(routeFromUrl());
+  }
+});
+/* A link inside a page that names another page opens it in place, like a tile does. */
+document.addEventListener("click", function (e) {
+  const a = e.target.closest && e.target.closest("a[data-jump]");
+  if (!a || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  e.preventDefault();
+  go(a.dataset.jump);
+});
+
+document.querySelectorAll("[data-go]").forEach(function (b) {
+  b.addEventListener("click", function () { go(b.dataset.go); });
+});
+backBtn.addEventListener("click", function () { go(backBtn.dataset.up || null); });
+hubUp.addEventListener("click", function () { go(PARENTS[hubPath] || null); });
+window.addEventListener("popstate", function () {
+  apply(routeFromUrl());
+});
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" && !scrim.hidden) return;
+  if (e.key === "Escape" && document.body.classList.contains("open")) go(null);
+});
+
+/* ---------- reveal on scroll ----------
+   A CSS class, not a JavaScript tween: a transition still lands on its final state
+   when frames are dropped, so a throttled tab never leaves content invisible. The
+   class is only added by script, so with no JavaScript the page is simply visible. */
+let io = null;
+function reveal(pane) {
+  if (!pane) return;
+  const items = pane.querySelectorAll(".view-body > *");
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !("IntersectionObserver" in window)) {
+    items.forEach(function (el) { el.classList.add("in"); });
+    return;
+  }
+  document.documentElement.classList.add("reveal");
+  if (io) io.disconnect();
+  io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting || e.boundingClientRect.top < 0) {
+        e.target.classList.add("in");
+        io.unobserve(e.target);
+      }
+    });
+  }, { rootMargin: "0px 0px -6% 0px" });
+  items.forEach(function (el) { el.classList.remove("in"); io.observe(el); });
+
+  /* Anything already on screen is shown at once rather than waiting for the observer,
+     which is delivered on a rendering step and can be throttled. Without this the
+     first screenful of an opened view can sit blank. */
+  function showOnScreen() {
+    items.forEach(function (el) {
+      if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add("in");
+    });
+  }
+  /* Deferred by a frame. Adding the start and end states in one go means the
+     browser never sees a change to transition between, which is why nothing moved. */
+  if (window.requestAnimationFrame) {
+    requestAnimationFrame(function () { requestAnimationFrame(showOnScreen); });
+  }
+  setTimeout(showOnScreen, 220);
+  setTimeout(function () { items.forEach(function (el) { el.classList.add("in"); }); }, 2500);
+}
+
+/* ---------- poster scatter ----------
+   Positions are measured, not guessed. Eight slots are laid around the title: three
+   along the top, one at each side, three along the bottom. If the viewport cannot
+   hold them clear of the title, the poster stays a grid instead of overlapping
+   itself. Re-run on resize and once the fonts have settled, since both change the
+   height of the centre block. */
+function layoutScatter() {
+  const wide = window.matchMedia("(min-width: 850px)").matches;
+  /* No minimum. A folder holding one thing lays out and drags like a folder
+     holding seven; otherwise the page changes its own rules as it fills up. */
+  const objsAll = [...hub.querySelectorAll(".obj")].filter(function (o) { return !o.hidden; });
+  if (!objsAll.length) { hub.classList.remove("scatter"); return; }
+  if (!wide) {
+    hub.classList.remove("scatter"); clearSpots(objsAll); return;
+  }
+
+  hub.classList.add("scatter");
+  /* Clamp the field to a band around the title. Anchored to the container edges,
+     the objects end up half a screen from the headline on a wide monitor. */
+  const H = hub.clientHeight;
+  /* Held in around the heading rather than pushed to the edges of the monitor:
+     at 1440 the full width put the corner objects a screen away from the title. */
+  const band = Math.min(hub.clientWidth * 0.84, 1020);
+  const x0 = (hub.clientWidth - band) / 2;
+  const W = band;
+  const pad = 14;
+  const probe = objsAll[0].getBoundingClientRect();
+  const ow = probe.width || 132, oh = probe.height || 170;
+
+  /* Measure the headline's text, not its block: .poster-title spans the full width,
+     so using its box would always claim there is no room beside it. */
+  function textWidth(el) {
+    const rng = document.createRange();
+    rng.selectNodeContents(el);
+    const r2 = rng.getBoundingClientRect();
+    return r2.width || el.getBoundingClientRect().width;
+  }
+  const title = document.querySelector(".poster-title").getBoundingClientRect();
+  const titleText = textWidth(document.querySelector(".poster-title h1"));
+  const search = document.querySelector(".search").getBoundingClientRect();
+  const hubTop = hub.getBoundingClientRect().top;
+  const centreTop = title.top - hubTop, centreBottom = search.bottom - hubTop;
+
+  const fieldH = Math.min(H, 700);
+  const y0 = (H - fieldH) / 2;
+  const topY = y0 + pad;
+  const botY = y0 + fieldH - oh - pad;
+  const roomTop = centreTop - (topY + oh);
+  const roomBot = botY - centreBottom;
+  if (roomTop < 8 || roomBot < 8) { hub.classList.remove("scatter"); clearSpots(objsAll); return; }
+
+  /* Slots are generated for however many objects exist, so adding one to the tree
+     never leaves it stacked on another. Two sit beside the title when it leaves
+     room; the rest spread along the top and the bottom. */
+  const N = objsAll.length;
+  const widest = Math.max(titleText, search.width);
+  const useSides = ((W - widest) / 2 - pad * 2) >= ow && N >= 6;
+  const spots = [];
+
+  function row(count, y) {
+    if (count <= 0) return;
+    const span = W - ow - pad * 2;
+    for (let i = 0; i < count; i++) {
+      spots.push([pad + (count > 1 ? (span / (count - 1)) * i : span / 2), y]);
+    }
+  }
+
+  const rest = N - (useSides ? 2 : 0);
+  /* One or two sit under the heading rather than above it: a lone object over
+     the title reads as a mistake. */
+  const topCount = rest <= 2 ? 0 : Math.ceil(rest / 2);
+  row(topCount, topY);
+  if (useSides) {
+    const midY = Math.max(topY + oh + 8,
+      Math.min(centreTop + (centreBottom - centreTop) / 2 - oh / 2, botY - oh - 8));
+    spots.push([pad, midY]);
+    spots.push([W - ow - pad, midY]);
+  }
+  row(rest - topCount, botY);
+  objsAll.forEach(function (o, i) {
+    const sp = spots[i] || spots[spots.length - 1];
+    o.style.left = Math.round(x0 + sp[0]) + "px";
+    o.style.top = Math.round(sp[1]) + "px";
+  });
+  if (typeof applyPlaced === "function") applyPlaced();
+}
+function clearSpots(list) {
+  list.forEach(function (o) { o.style.left = ""; o.style.top = ""; });
+  const live = [...hub.querySelectorAll(".obj")].filter(function (o) { return !o.hidden; });
+  const box = hub.querySelector(".objects");
+  box.classList.toggle("few", live.length > 0 && live.length < 3);
+  box.classList.toggle("many", live.length > 6);
+}
+
+/* ---------- search ----------
+   Matches every word typed against each item's title, lede and body text. While a
+   search is running the poster drops out of scatter into a grid, because a scatter
+   with items removed from it reads as broken rather than filtered. */
+const hub = document.getElementById("hub");
+const q = document.getElementById("q");
+const countEl = document.getElementById("count");
+const objs = [...hub.querySelectorAll(".obj")];
+const resultsEl = document.getElementById("results");
+const searchEl = document.querySelector(".search");
+const searchHome = searchEl.parentNode, searchAfter = searchEl.nextSibling;
+/* The opened page's own bar. The folder poster has a top bar too, earlier in the page
+   and hidden while a page is open, so a bare ".topbar" would pick that one. */
+const topbarInner = document.querySelector("#view .topbar .inner");
+function placeSearch(open) {
+  const want = open ? topbarInner : searchHome;
+  if (searchEl.parentNode === want) return;
+  if (open) want.appendChild(searchEl);
+  else want.insertBefore(searchEl, searchAfter);
+}
+
+/* Search reaches every node from anywhere, including one nested two levels down,
+   and each hit says where it lives, so a name need not be unique on its own.
+   Filtering the tiles instead would find almost nothing once most of the page
+   sits inside folders. */
+const INDEX = objs.map(function (o) {
+  return { path: o.dataset.go, find: o.dataset.find,
+           label: TITLES[o.dataset.go], where: crumb(PARENTS[o.dataset.go] || "") };
+});
+let shown = [], cursor = 0;
+
+function paint() {
+  resultsEl.querySelectorAll("[data-go]").forEach(function (b, i) {
+    b.classList.toggle("on", i === cursor);
+  });
+}
+function open_(path) { q.value = ""; runSearch(); go(path); }
+
+function runSearch() {
+  const terms = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!terms.length) {
+    shown = []; cursor = 0;
+    resultsEl.hidden = true;
+    resultsEl.innerHTML = "";
+    countEl.textContent = "";
+    hub.classList.remove("searching");
+    objs.forEach(function (o) { o.hidden = o.dataset.parent !== hubPath; });
+    layoutScatter();
+    return;
+  }
+  hub.classList.add("searching");
+  /* A hit nearer the front of the indexed text is a more central one: the
+     string starts with the label, so a name match sorts above a body match. */
+  shown = INDEX.filter(function (it) {
+    return terms.every(function (t) { return it.find.indexOf(t) > -1; });
+  }).sort(function (a, b) {
+    const sc = function (it) {
+      let n2 = 0;
+      terms.forEach(function (t) { n2 += it.find.indexOf(t); });
+      return n2;
+    };
+    return sc(a) - sc(b);
+  }).slice(0, 8);
+  cursor = 0;
+  countEl.textContent = "";
+  resultsEl.hidden = false;
+  if (!shown.length) {
+    resultsEl.innerHTML = '<ol><li class="none">' +
+      '<span class="say">Not here. Ask me.</span>' +
+      '<span class="sub2">Three ways below. I answer.</span>' +
+      "</li></ol>";
+    return;
+  }
+  resultsEl.innerHTML = "<ol>" + shown.map(function (it) {
+    /* Flat children: the name and the trail are both flex items of the row, so
+       the trail can be pushed to the far end. Nested in a wrapper they were not. */
+    return '<li><button data-go="' + it.path + '"><span class="ico">' +
+      (PICS[it.path] || "") + '</span><span class="t">' + it.label + '</span>' +
+      (it.where ? '<span class="c">' + it.where + '</span>' : '') +
+      '</button></li>';
+  }).join("") + "</ol>";
+  resultsEl.querySelectorAll("[data-go]").forEach(function (b) {
+    b.addEventListener("click", function () { open_(b.dataset.go); });
+  });
+  paint();
+}
+q.addEventListener("input", runSearch);
+q.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") { q.value = ""; runSearch(); q.blur(); return; }
+  if (!shown.length) return;
+  if (e.key === "ArrowDown") { e.preventDefault(); cursor = (cursor + 1) % shown.length; paint(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); cursor = (cursor - 1 + shown.length) % shown.length; paint(); }
+  else if (e.key === "Enter") { e.preventDefault(); open_(shown[cursor].path); }
+});
+/* "/" anywhere puts the cursor in the box, the way every search field people
+   already use behaves. */
+document.addEventListener("keydown", function (e) {
+  if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); }
+});
+
+/* Assembled at runtime so the address is not sitting in the markup for scrapers. */
+const mail = document.getElementById("mail");
+mail.href = "mailto:" + "moheetsubudhi" + "@" + "gmail.com";
+document.querySelectorAll(".js-mail").forEach(function (a) {
+  a.href = mail.href; a.textContent = mail.href.slice(7);
+});
+/* Opening a mail app leaves the page, so Google cannot see it. Report it ourselves. */
+[mail].concat([...document.querySelectorAll(".js-mail")]).forEach(function (a) {
+  a.addEventListener("click", function () {
+    if (location.hostname === "moheetsubudhi.com") gtag("event", "contact_click", { method: "email" });
+  });
+});
+
+/* ---------- accent ----------
+   Only the accent moves; paper and ink stay put, so contrast holds whichever is
+   picked. Stored per visitor, and a blocked localStorage must not break the page. */
+function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function recall(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+function hexRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function setAccent(hex) {
+  const [r, g, b] = hexRgb(hex);
+  const root = document.documentElement.style;
+  root.setProperty("--accent", hex);
+  root.setProperty("--accent-rgb", r + "," + g + "," + b);
+  /* the second tint is the accent lifted toward the paper, so diagrams stay legible */
+  const mix = function (c, p) { return Math.round(c + (p - c) * 0.52); };
+  const l = [mix(r, 242), mix(g, 238), mix(b, 227)];
+  root.setProperty("--accent-2", "rgb(" + l.join(",") + ")");
+  root.setProperty("--accent-2-rgb", l.join(","));
+  document.querySelectorAll("[data-accent]").forEach(function (b2) {
+    b2.setAttribute("aria-pressed", String(b2.dataset.accent === hex));
+  });
+  store("accent", hex);
+}
+document.querySelectorAll("[data-accent]").forEach(function (b2) {
+  b2.addEventListener("click", function () { setAccent(b2.dataset.accent); });
+});
+const savedAccent = recall("accent");
+if (savedAccent && /^#[0-9a-f]{6}$/i.test(savedAccent)) setAccent(savedAccent);
+
+/* ---------- dragging the objects ----------
+   Pointer events so it works with a mouse, a trackpad and a finger. A press that
+   travels under a few pixels is still a click, so opening an item never breaks.
+   Positions are remembered, and layoutScatter restores them on the next visit. */
+const DRAG_KEY = "spots";
+let placed = {};
+try { placed = JSON.parse(recall(DRAG_KEY) || "{}") || {}; } catch (e) { placed = {}; }
+
+function applyPlaced() {
+  if (!hub.classList.contains("scatter")) return;
+  Object.keys(placed).forEach(function (slug) {
+    const el = hub.querySelector('[data-go="' + slug + '"]');
+    if (!el || el.hidden) return;
+    el.style.left = placed[slug][0] + "px";
+    el.style.top = placed[slug][1] + "px";
+  });
+}
+
+document.querySelectorAll(".obj").forEach(function (el) {
+  let sx = 0, sy = 0, ox = 0, oy = 0, moved = false, id = null;
+
+  el.addEventListener("pointerdown", function (e) {
+    if (!hub.classList.contains("scatter") || e.button) return;
+    id = e.pointerId; moved = false;
+    sx = e.clientX; sy = e.clientY;
+    ox = parseFloat(el.style.left) || el.offsetLeft;
+    oy = parseFloat(el.style.top) || el.offsetTop;
+    el.setPointerCapture(id);
+  });
+
+  el.addEventListener("pointermove", function (e) {
+    if (id === null || e.pointerId !== id) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (!moved && Math.abs(dx) + Math.abs(dy) < 5) return;   /* still a click */
+    moved = true;
+    el.classList.add("dragging");
+    const w = hub.clientWidth - el.offsetWidth, h = hub.clientHeight - el.offsetHeight;
+    const nx = Math.max(0, Math.min(w, ox + dx));
+    const ny = Math.max(0, Math.min(h, oy + dy));
+    el.style.left = nx + "px";
+    el.style.top = ny + "px";
+    placed[el.dataset.go] = [Math.round(nx), Math.round(ny)];
+  });
+
+  function end(e) {
+    if (id === null || (e && e.pointerId !== id)) return;
+    try { el.releasePointerCapture(id); } catch (e2) {}
+    id = null;
+    if (moved) {
+      el.classList.remove("dragging");
+      store(DRAG_KEY, JSON.stringify(placed));
+      resetBtn.hidden = false;
+      dismissHint();
+    }
+  }
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+
+  /* a drag must not also open the item */
+  el.addEventListener("click", function (e) {
+    if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; }
+  }, true);
+});
+
+/* The nudge shows once, only where dragging is possible, and only to someone who
+   has not already moved something. It leaves as soon as they do. */
+const dragHint = document.getElementById("dragHint");
+let hintTimer = null;
+function maybeHint() {
+  const canDrag = hub.classList.contains("scatter");
+  if (!canDrag) { dragHint.hidden = true; return; }
+  if (dragHint.dataset.gone) return;
+  dragHint.hidden = false;
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(dismissHint, 7000);
+}
+function dismissHint() {
+  if (dragHint.hidden) return;
+  dragHint.dataset.gone = "1";
+  dragHint.classList.add("gone");
+  setTimeout(function () { dragHint.hidden = true; dragHint.classList.remove("gone"); }, 400);
+}
+
+const resetBtn = document.getElementById("resetSpots");
+resetBtn.hidden = !Object.keys(placed).length;
+resetBtn.addEventListener("click", function () {
+  placed = {};
+  store(DRAG_KEY, "{}");
+  hub.querySelectorAll(".obj").forEach(function (o) { o.style.left = ""; o.style.top = ""; });
+  layoutScatter();
+  resetBtn.hidden = true;
+});
+
+/* ---------- the opening ----------
+   The objects settle into place once, when the poster first loads. Added by script
+   after the positions are set, so nothing animates from the wrong spot, and never
+   on the way back from an opened item. The class is only ever added here, so with
+   no JavaScript the objects are simply there. */
+function playOpening() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const objs2 = [...hub.querySelectorAll(".obj")].filter(function (o) { return !o.hidden; });
+  objs2.forEach(function (o, i) { o.style.setProperty("--d", (0.04 + i * 0.055) + "s"); });
+  document.documentElement.classList.add("anim");
+  /* Drop the class once it has played, so a later relayout does not replay it. */
+  setTimeout(function () { document.documentElement.classList.remove("anim"); }, 1400);
+}
+
+(function () {
+  const h = location.hash.replace("#", "");
+  let start = ROUTE;
+  if (h) {
+    start = resolvePath(h);
+    if (location.protocol !== "file:") { try { history.replaceState(null, "", urlFor(start)); } catch (e) {} }
+  }
+  apply(start);
+})();
+maybeHint();
+playOpening();
+window.addEventListener("resize", function () { layoutScatter(); maybeHint(); });
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(layoutScatter);
+}
+
+</script>
+</body></html>

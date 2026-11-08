@@ -9,6 +9,7 @@ scrollable view. Everything the visitor copies is pulled from giveaways/*.md at
 build time, never retyped here.
 """
 import html as H
+import datetime
 import json
 import pathlib
 import re
@@ -116,7 +117,8 @@ a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(47,79,21
 a:hover{border-bottom-color:var(--accent)}
 h1,h2,h3{font-family:var(--display);letter-spacing:-.025em}
 h1{font-weight:800;line-height:.94;font-size:clamp(38px,min(9vw,10vh),84px)}
-h2{font-weight:800;line-height:1.04;font-size:clamp(27px,5.4vw,42px)}
+h2,.view-head h1{font-weight:800;line-height:1.04;font-size:clamp(27px,5.4vw,42px)}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 h3{font-weight:600;font-size:clamp(17px,3.4vw,21px);letter-spacing:-.01em}
 p{color:var(--muted);font-size:clamp(15px,3.6vw,17px)}
 p + p{margin-top:13px}
@@ -347,7 +349,7 @@ body.open #view{display:block}
 .view-body p{font-size:clamp(15px,3.6vw,16.5px)}
 .view-head{padding-top:calc(var(--rule) * 2)}
 .view-head .n{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent)}
-.view-head h2{margin-top:12px}
+.view-head h1,.view-head h2{margin-top:12px}
 .view-head .lead{margin-top:16px}
 /* Top and bottom only: these share an element with .wrap, whose side padding
    keeps text off the screen edge on a phone. */
@@ -920,8 +922,6 @@ ownr.digital &rarr;</a></p>
     v.append(dict(
         slug="skills", label="Business Analytics Skills", art="skill", glyph=None,
         title="Business Analytics Skills",
-        # Same PIN as the slides. A right answer opens the page here instead of leaving.
-        lock=dict(unlock="open", hint="Four digits. Ask me for it."),
         lede="Thirty-six skills across machine learning, statistics, optimisation, pricing, "
              "decision analysis, data engineering and recommenders.",
         body=f"""
@@ -1792,6 +1792,10 @@ def build():
                 yield item
 
     ALL = list(walk(V))
+    for _p, _n, _i, _par in ALL:
+        if _n.get("body"):
+            _n["body"] = re.sub(r'href="#([a-z0-9/-]+)" data-jump="\1"',
+                                r'href="/\1/" data-jump="\1"', _n["body"])
 
     def art_for(node):
         """An icon, or for a node that names a stamp, a postage stamp with a photo."""
@@ -1819,14 +1823,24 @@ def build():
 
     objects = "".join(tile(p2, n, i, parent) for p2, n, i, parent in ALL)
 
-    # Only a leaf gets a pane. A folder opens the poster again, retitled.
-    panes = "".join(
-        f'<article class="pane" data-pane="{path}" hidden>'
-        f'<div class="wrap view-head"><span class="n">({i + 1:02d})</span>'
-        f'<h2>{H.escape(n["title"])}</h2>'
-        f'<p class="lead">{H.escape(n["lede"])}</p></div>'
-        f'<div class="wrap view-body">{n["body"]}</div></article>'
-        for path, n, i, parent in ALL if not n.get("children"))
+    # Only a leaf gets a pane. A folder opens the poster again, retitled. Each page
+    # carries only its own pane in its HTML; the others arrive from the shared script,
+    # so a page is about one thing and its text is not repeated on every URL.
+    def pane_inner(i, n):
+        return (f'<div class="wrap view-head"><span class="n">({i + 1:02d})</span>'
+                f'<h1>{H.escape(n["title"])}</h1>'
+                f'<p class="lead">{H.escape(n["lede"])}</p></div>'
+                f'<div class="wrap view-body">{n["body"]}</div>')
+    def rooted(html):
+        """A page now lives at /projects/ishaan/, so a file path has to start at the root."""
+        return re.sub(r'(src|href)="(logos|cv|giveaways|assets)/', r'\1="/\2/', html)
+    LEAVES = [(path, n, i) for path, n, i, parent in ALL if not n.get("children")]
+    PANE_INNER = {path: rooted(pane_inner(i, n)) for path, n, i in LEAVES}
+
+    def panes_for(route):
+        return "".join(
+            f'<article class="pane" data-pane="{path}" hidden>'
+            f'{PANE_INNER[path] if path == route else ""}</article>' for path, n, i in LEAVES)
 
     # The poster can stand at the root or inside any folder, so each needs a heading.
     HOME = ("Hey, I\u2019m Moheet.", "Steal anything.")
@@ -1835,6 +1849,166 @@ def build():
         if n.get("children"):
             FOLDERS[path] = {"t": n["title"], "s": n["lede"]}
     ICONS_BY_PATH = {p2: icon_for(n) for p2, n, i, parent in ALL}
+
+    # ---------- search: one head per URL ----------
+    SITE_URL = "https://moheetsubudhi.com"
+    NAME = "Moheet Subudhi"
+    ROOT_DESC = ("Moheet Subudhi builds business automation and AI agents at Mailmodo. "
+                 "See his projects and his CV, and take a free pack on how to build with AI.")
+    PUBLISHED = {"content/ai-colleague": "2026-07-22", "content/cron-jobs": "2026-08-29"}
+    ARTICLE_URL = {
+        "content/ai-colleague": "https://www.linkedin.com/pulse/we-built-ai-agent-run-our-customer-support-heres-how-actually-moheet-b2nme/",
+        "content/cron-jobs": "https://www.linkedin.com/pulse/cron-jobs-moheet-subudhi-mf4of/",
+    }
+    # Written by hand where the page's own lede is too short to make a good snippet.
+    DESC = {
+        "build": "Everything from the session on how to build with AI: the seven parts, the Setup Interview, soul files, the loop checklist, the tool registry and memory.",
+        "build/parts": "The seven parts of building with AI: model, harness, loop, MCP, skills, context and memory. Six are not the model, and they are where things break.",
+        "build/sheet": "The order to use the How to Build with AI giveaways in, and a prompt that builds your idea with you, part by part.",
+        "build/generator": "The Setup Interview is one prompt that asks about your work for five minutes, then writes four files that set an AI up for your actual job.",
+        "build/soul": "Five soul files that say who an AI is when it works with you: its standards, its voice and what it never does. Pick the closest to your job.",
+        "build/tools": "A tool registry for AI agents: which tool answers which question, and what it may do without asking you, so it stops guessing and overstepping.",
+        "build/memory": "How to give an AI a memory that outlives the conversation, so you stop re-explaining yourself: context, memory, and how Moheet built his own.",
+        "build/local": "Open AI models and how to run one on your own laptop: no account, no API and no data leaving your machine. Six models from six makers.",
+        "skills": "Thirty-six skills for AI assistants across machine learning, statistics, optimisation, pricing, decision analysis, data engineering and recommenders.",
+        "projects/lpg-guru": "One platform to run an LPG gas agency, with an AI assistant on top. It replaces paper registers, spreadsheets, an IVR vendor and a bulk-messaging tool.",
+        "projects/ownr": "Ownr is one private memory and persona that every AI you use plugs into, so each tool starts from what you already told another.",
+        "projects/vdo-hosting": "VDO Hosting put India's meetings, ceremonies and classes online during the 2020 lockdown, including for people the internet had left behind: 700+ events.",
+        "content/ai-colleague": "How Mailmodo built Ishaan, an AI agent that reads customer queries, checks the account and drafts a reply for a person to approve.",
+        "content/cron-jobs": "The quiet workers behind automation: three kinds of cron job that refresh context, repair tools and check that the work actually happened.",
+        "build/loop": "A loop checklist that makes an AI agent finish instead of wander: the goal, the check, the stop and the limit, as a prompt you can copy.",
+        "build/kit": "Three prompts for skills: one finds the tasks you repeat, one writes the skill from how you do it, and one checks any skill and fixes it.",
+        "build/slides": "The slides from the How to Build with AI session.",
+        "projects": "Things Moheet Subudhi has built: an ops agent, a cold-email console, a self-serve customer strategy, an AI model leaderboard and client work.",
+        "content": "Articles by Moheet Subudhi on LinkedIn about the automation he runs at work: an AI agent for customer support, and cron jobs.",
+        "cv": "Moheet Subudhi's CV: product manager for business automation at Mailmodo, and seven roles since 2020 across SaaS, government and consulting.",
+        "projects/ishaan": "Ishaan is an always-on AI agent in Slack that runs customer success operations at Mailmodo: 19 scheduled jobs, and it checks and repairs its own work.",
+        "projects/self-serve": "How Mailmodo's small self-serve customers were sorted into four groups by how they use the product, so the team knows who to help and how.",
+        "projects/outreach": "An internal web app where one person runs a whole cold-email campaign, with the costly mistakes, such as double sends and mailing opt-outs, blocked in code.",
+        "projects/leaderboard": "BestHunt's AI model leaderboard ranks 400+ priced models by what real work costs, in plain money terms, refreshed every Monday.",
+        "projects/iwd-app": "A reporting app built for Inner Wheel District 301 in Delhi: 2,400+ members, 60+ clubs, and monthly and yearly compliance reports made audit-ready.",
+        "projects/osda": "A Rs 60-lakh digital transformation for Skilled in Odisha, the Government of Odisha's skilling body: a modular CMS, push notifications and dashboards.",
+        "projects/mahabeer": "A custom inventory system for Mahabeer, built after auditing 120+ warehouse transactions a day. Order accuracy went from 82% to 97%.",
+        "projects/neoteric": "A government PR campaign run by a 45-member team with standard operating procedures and compliance checks, reaching 2,50,000+ impressions.",
+        "projects/royal-living-tangi": "A data governance project for an LPG agency with 34,000+ customers: 14,500+ records cleaned and 5,027+ addresses verified.",
+    }
+    def plain(html):
+        return re.sub(r"\s+", " ", H.unescape(re.sub(r"<[^>]+>", " ", html))).strip()
+    def clip(t, n):
+        if len(t) <= n:
+            return t
+        t = t[:n].rsplit(" ", 1)[0].rstrip(",;:—-")
+        return t + "…"
+    def seo_desc(path, n):
+        if path in DESC:
+            return DESC[path]
+        d = n["lede"]
+        if len(d) < 110 and n.get("body"):
+            d = d + " " + plain(n["body"])
+        return clip(d, 158)
+    def seo_title(path, n):
+        if not path:
+            return ROOT_TITLE
+        t = f'{n["title"]} | {NAME}'
+        if len(t) > 70:
+            t = f'{n["label"]} | {NAME}'
+        return t
+    ROOT_TITLE = f"{NAME} · Product Manager, Business Automation"
+    NODE = {p2: n for p2, n, i, parent in ALL}
+    ROUTES = [""] + [p2 for p2, n, i, parent in ALL]
+    def url_of(path):
+        return SITE_URL + ("/" + path + "/" if path else "/")
+    TITLES_SEO = {p2: seo_title(p2, n) for p2, n, i, parent in ALL}
+    TITLES_SEO[""] = ROOT_TITLE
+    NOINDEX = {p2 for p2, n, i, parent in ALL if n.get("lock")}   # the slides open a PIN, not a page
+
+    PERSON = {"@type": "Person", "@id": SITE_URL + "/#person", "name": NAME,
+              "url": SITE_URL + "/", "jobTitle": "Product Manager, Business Automation",
+              "worksFor": {"@type": "Organization", "name": "Mailmodo", "url": "https://www.mailmodo.com/"},
+              "knowsAbout": ["Business automation", "AI agents", "Customer success operations",
+                             "Cold email outreach", "Product management"],
+              "sameAs": ["https://www.linkedin.com/in/moheetsubudhi/"]}
+    WEBSITE = {"@type": "WebSite", "@id": SITE_URL + "/#website", "name": NAME, "url": SITE_URL + "/",
+               "publisher": {"@id": SITE_URL + "/#person"}}
+
+    def crumbs(path):
+        chain, p3 = [], path
+        while p3:
+            chain.insert(0, p3)
+            p3 = next((par for pp, n, i, par in ALL if pp == p3), "")
+        items = [("Home", SITE_URL + "/")] + [(NODE[c]["label"], url_of(c)) for c in chain]
+        return {"@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": k + 1, "name": nm, "item": u} for k, (nm, u) in enumerate(items)]}
+
+    MODIFIED = datetime.date.today().isoformat()
+
+    def graph(path):
+        if not path:
+            return [dict(PERSON), WEBSITE,
+                    {"@type": "ProfilePage", "@id": SITE_URL + "/#profile", "url": SITE_URL + "/",
+                     "name": ROOT_TITLE, "mainEntity": {"@id": SITE_URL + "/#person"},
+                     "isPartOf": {"@id": SITE_URL + "/#website"}, "dateModified": MODIFIED}]
+        n = NODE[path]
+        page = {"@type": "WebPage", "@id": url_of(path) + "#page", "url": url_of(path),
+                "name": n["title"], "description": seo_desc(path, n),
+                "isPartOf": {"@id": SITE_URL + "/#website"}, "author": {"@id": SITE_URL + "/#person"},
+                "image": SITE_URL + "/og.png", "dateModified": MODIFIED}
+        if path in PUBLISHED:
+            page.update({"@type": "BlogPosting", "headline": n["title"], "datePublished": PUBLISHED[path],
+                         "mainEntityOfPage": url_of(path), "isBasedOn": ARTICLE_URL[path],
+                         "publisher": {"@id": SITE_URL + "/#person"}})
+        elif n.get("children"):
+            page["@type"] = "CollectionPage"
+        elif path == "cv":
+            page["about"] = {"@id": SITE_URL + "/#person"}
+        return [{"@type": "Person", "@id": SITE_URL + "/#person", "name": NAME, "url": SITE_URL + "/"},
+                WEBSITE, page, crumbs(path)]
+
+    def head_for(path):
+        n = NODE.get(path)
+        title = TITLES_SEO[path]
+        desc = ROOT_DESC if not path else seo_desc(path, n)
+        og_desc = ("Business automation, AI agents and the projects behind them, plus a free pack "
+                   "on how to build with AI.") if not path else desc
+        t, d, u = H.escape(title, True), H.escape(desc, True), url_of(path)
+        og_type = "article" if path in PUBLISHED else "website"
+        robots = '<meta name="robots" content="noindex,follow">\n' if path in NOINDEX else ""
+        ld = json.dumps({"@context": "https://schema.org", "@graph": graph(path)}, separators=(",", ":"))
+        return (f'<title>{t}</title>\n<meta name="description" content="{d}">\n{robots}'
+                f'<link rel="canonical" href="{u}">\n<meta name="theme-color" content="#F2EEE3">\n'
+                '<link rel="icon" href="/favicon.svg" type="image/svg+xml">\n'
+                '<link rel="icon" href="/favicon.ico" sizes="48x48">\n'
+                '<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">\n'
+                '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n'
+                f'<meta property="og:type" content="{og_type}">\n<meta property="og:site_name" content="{NAME}">\n'
+                f'<meta property="og:url" content="{u}">\n<meta property="og:title" content="{t}">\n'
+                f'<meta property="og:description" content="{H.escape(og_desc, True)}">\n'
+                f'<meta property="og:image" content="{SITE_URL}/og.png">\n'
+                '<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'
+                f'<meta property="og:image:alt" content="{NAME}">\n<meta name="twitter:card" content="summary_large_image">\n'
+                f'<meta name="twitter:title" content="{t}">\n<meta name="twitter:description" content="{H.escape(og_desc, True)}">\n'
+                f'<meta name="twitter:image" content="{SITE_URL}/og.png">\n'
+                f'<script type="application/ld+json">{ld}</script>')
+
+    def nav_for():
+        """Real links to every page, off screen, so a crawler (or a screen reader) finds them
+        without the poster needing to change."""
+        def li(path, label):
+            return f'<li><a href="{url_of(path)}">{H.escape(label)}</a></li>'
+        out = [f'<li><a href="{SITE_URL}/">Home</a></li>']
+        for path, n, i, parent in ALL:
+            if path in NOINDEX:
+                continue
+            out.append(li(path, n["title"] if not n.get("children") else n["label"]))
+        return f'<nav class="sr-only" aria-label="All pages"><ul>{"".join(out)}</ul></nav>'
+
+    def folder_of(route):
+        """The poster state a page opens in: the page's own folder, or its parent's for a leaf."""
+        if route in FOLDERS:
+            return route
+        return NODE_PARENT.get(route, "")
+    NODE_PARENT = {p2: parent for p2, n, i, parent in ALL}
+
 
     # Every one checked for contrast on the paper background and with white text on it.
     ACCENTS = [("Cobalt", "#2F4FD4"), ("Forest", "#1F6B4A"), ("Rust", "#B3431E"),
@@ -1852,7 +2026,8 @@ def build():
     LABELS = json.dumps({p2: n["label"] for p2, n, i, parent in ALL})
     PARENTS = json.dumps({p2: parent for p2, n, i, parent in ALL})
 
-    page = f"""<!doctype html>
+    def render(R):
+     return f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
 <!-- Google tag (gtag.js) -->
@@ -1870,28 +2045,7 @@ def build():
   }}
 </script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Moheet Subudhi · Product Manager, Business Automation</title>
-<meta name="description" content="Moheet Subudhi builds business automation and AI agents at Mailmodo. See his projects and his CV, and take a free pack on how to build with AI.">
-<link rel="canonical" href="https://moheetsubudhi.com/">
-<meta name="theme-color" content="#F2EEE3">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Moheet Subudhi">
-<meta property="og:url" content="https://moheetsubudhi.com/">
-<meta property="og:title" content="Moheet Subudhi · Product Manager, Business Automation">
-<meta property="og:description" content="Business automation, AI agents and the projects behind them, plus a free pack on how to build with AI.">
-<meta property="og:image" content="https://moheetsubudhi.com/og.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Moheet Subudhi">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Moheet Subudhi · Product Manager, Business Automation">
-<meta name="twitter:description" content="Business automation, AI agents and the projects behind them, plus a free pack on how to build with AI.">
-<meta name="twitter:image" content="https://moheetsubudhi.com/og.png">
-<script type="application/ld+json">{{"@context":"https://schema.org","@type":"Person","name":"Moheet Subudhi","url":"https://moheetsubudhi.com/","jobTitle":"Product Manager, Business Automation","worksFor":{{"@type":"Organization","name":"Mailmodo","url":"https://www.mailmodo.com/"}},"sameAs":["https://www.linkedin.com/in/moheetsubudhi/"]}}</script>
+{head_for(R)}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Hanken+Grotesk:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1906,8 +2060,8 @@ def build():
 </div></div>
 <main id="hub" class="scatter">
   <div class="poster-title">
-    <h1 id="hubTitle">{HOME[0]}</h1>
-    <div class="sub" id="hubSub">{HOME[1]}</div>
+    <h1 id="hubTitle">{FOLDERS[folder_of(R)]["t"]}</h1>
+    <div class="sub" id="hubSub">{FOLDERS[folder_of(R)]["s"]}</div>
   </div>
   <div class="search"><label class="box">
     {I["search"]}
@@ -1924,8 +2078,9 @@ def build():
     <button class="back" id="back">&larr; Back</button>
     <span class="where" id="where"></span>
   </div></div>
-  {panes}
+  {panes_for(R)}
 </div>
+{nav_for()}
 
 <div id="chrome"><div class="row">
   <div class="contact">
@@ -1963,14 +2118,20 @@ def build():
 </div>
 </div>
 
-<script type="application/json" id="content">{json.dumps(c)}</script>
+<script src="/assets/{SITE_JS}"></script>
 <script>
-const C = JSON.parse(document.getElementById("content").textContent);
+const ROUTE = {json.dumps(R)};
+const C = window.SITE.content;
+/* Every page carries its own text; the others arrive here, before anything binds to them. */
+document.querySelectorAll("[data-pane]").forEach(function (p) {{
+  if (!p.firstChild && window.SITE.panes[p.dataset.pane]) p.innerHTML = window.SITE.panes[p.dataset.pane];
+}});
 const SLUGS = {PATHS};        /* every addressable node, "projects/ownr" and so on */
 const TITLES = {LABELS};
 const PARENTS = {PARENTS};    /* so back climbs one level instead of jumping home */
 const FOLDERS = {FOLDERS_JSON};   /* a path the poster can stand at, and its heading */
 const PICS = {ICONS_JSON};
+const SEO_TITLES = {json.dumps(TITLES_SEO)};
 const LOCKS = {LOCKS_JSON};      /* nodes that ask for a PIN before they open */        /* each node's icon, reused in the search results */
 
 document.querySelectorAll("pre[data-block]").forEach(function (el) {{
@@ -2193,7 +2354,7 @@ function showFolder(path, animate) {{
     hubUp.textContent = "\u2190 " + (PARENTS[path] ? TITLES[PARENTS[path]] : SITE);
     hubWhere.textContent = TITLES[path];
   }}
-  document.title = path ? TITLES[path] + " \u2014 " + SITE : ROOT_TITLE;
+  document.title = SEO_TITLES[path] || ROOT_TITLE;
   if (q.value.trim()) {{ q.value = ""; }}
   runSearch();
   maybeHint();
@@ -2205,7 +2366,7 @@ function apply(raw, animate) {{
   if (path && isLocked(path)) {{
     const lockPath = path;
     path = PARENTS[path] || "";
-    try {{ history.replaceState(null, "", path ? "#" + path : location.pathname); }} catch (e) {{}}
+    try {{ history.replaceState(null, "", urlFor(path)); }} catch (e) {{}}
     setTimeout(function () {{ openLock(lockPath); }}, 60);
   }}
   const leaf = SLUGS.indexOf(path) > -1 && !(path in FOLDERS);
@@ -2216,7 +2377,7 @@ function apply(raw, animate) {{
   if (leaf) {{
     /* The button beside it already says what it came out of. */
     whereEl.textContent = TITLES[path];
-    document.title = TITLES[path] + " \u2014 " + SITE;
+    document.title = SEO_TITLES[path] || (TITLES[path] + " \u2014 " + SITE);
     const parent = PARENTS[path] || "";
     backBtn.textContent = "\u2190 " + (parent ? TITLES[parent] : SITE);
     backBtn.dataset.up = parent;
@@ -2231,16 +2392,25 @@ function apply(raw, animate) {{
   if (location.hostname === "moheetsubudhi.com") {{
     gtag("event", "page_view", {{
       page_title: document.title,
-      page_location: location.origin + "/" + path
+      page_location: location.origin + urlFor(path)
     }});
   }}
+}}
+
+/* Every page has a real address: /projects/ishaan/, not #projects/ishaan. A visitor on an
+   old # link is moved to the new address. */
+function urlFor(slug) {{ return slug ? "/" + slug + "/" : "/"; }}
+function routeFromUrl() {{
+  const h = location.hash.replace("#", "");
+  if (h) return h;
+  return location.protocol === "file:" ? "" : location.pathname.replace(/^\/+|\/+$/g, "");
 }}
 
 /* history.pushState throws on file:// and inside some sandboxed previews, which
    would otherwise break every link on the page. Fall back to setting the hash. */
 function setUrl(slug) {{
   try {{
-    history.pushState(null, "", slug ? "#" + slug : location.pathname + location.search);
+    history.pushState(null, "", urlFor(slug));
   }} catch (e) {{
     if (slug) location.hash = slug;
     else if (location.hash) location.hash = "";
@@ -2258,7 +2428,21 @@ function go(slug) {{
   }}
 }}
 window.addEventListener("hashchange", function () {{
-  apply(location.hash.replace("#", ""));
+  const h = location.hash.replace("#", "");
+  if (h && location.protocol !== "file:") {{
+    const r = resolvePath(h);
+    try {{ history.replaceState(null, "", urlFor(r)); }} catch (e) {{}}
+    apply(r);
+  }} else {{
+    apply(routeFromUrl());
+  }}
+}});
+/* A link inside a page that names another page opens it in place, like a tile does. */
+document.addEventListener("click", function (e) {{
+  const a = e.target.closest && e.target.closest("a[data-jump]");
+  if (!a || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  e.preventDefault();
+  go(a.dataset.jump);
 }});
 
 document.querySelectorAll("[data-go]").forEach(function (b) {{
@@ -2267,7 +2451,7 @@ document.querySelectorAll("[data-go]").forEach(function (b) {{
 backBtn.addEventListener("click", function () {{ go(backBtn.dataset.up || null); }});
 hubUp.addEventListener("click", function () {{ go(PARENTS[hubPath] || null); }});
 window.addEventListener("popstate", function () {{
-  apply(location.hash.replace("#", ""));
+  apply(routeFromUrl());
 }});
 document.addEventListener("keydown", function (e) {{
   if (e.key === "Escape" && !scrim.hidden) return;
@@ -2661,7 +2845,15 @@ function playOpening() {{
   setTimeout(function () {{ document.documentElement.classList.remove("anim"); }}, 1400);
 }}
 
-apply(location.hash.replace("#", ""));
+(function () {{
+  const h = location.hash.replace("#", "");
+  let start = ROUTE;
+  if (h) {{
+    start = resolvePath(h);
+    if (location.protocol !== "file:") {{ try {{ history.replaceState(null, "", urlFor(start)); }} catch (e) {{}} }}
+  }}
+  apply(start);
+}})();
 maybeHint();
 playOpening();
 window.addEventListener("resize", function () {{ layoutScatter(); maybeHint(); }});
@@ -2672,9 +2864,44 @@ if (document.fonts && document.fonts.ready) {{
 </script>
 </body></html>
 """
-    (HERE / "index.html").write_text(page, encoding="utf-8")
-    print(f"wrote index.html  {len(page):,} bytes  ·  {len(V)} views  ·  {len(c['souls'])} soul files")
+    # The shared script: pane text and the copy-paste blocks, hashed so a change busts the cache.
+    import hashlib
+    shared = "window.SITE=" + json.dumps({"content": c, "panes": PANE_INNER}, separators=(",", ":")) + ";"
+    SITE_JS_NAME = "site." + hashlib.sha1(shared.encode()).hexdigest()[:10] + ".js"
+    assets = HERE / "assets"
+    assets.mkdir(exist_ok=True)
+    for old_js in assets.glob("site.*.js"):
+        old_js.unlink()
+    (assets / SITE_JS_NAME).write_text(shared, encoding="utf-8")
+    SITE_JS = SITE_JS_NAME
 
+    total = 0
+    for R in ROUTES:
+        html_out = rooted(render(R))
+        target = HERE / "index.html" if not R else HERE / R / "index.html"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(html_out, encoding="utf-8")
+        total += len(html_out)
+
+    # sitemap and llms.txt
+    urls = "".join(f"<url><loc>{url_of(R)}</loc><lastmod>{MODIFIED}</lastmod></url>"
+                   for R in ROUTES if R not in NOINDEX)
+    (HERE / "sitemap.xml").write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n', encoding="utf-8")
+    lines = [f"# {NAME}", "",
+             f"> {ROOT_DESC}", "",
+             "Moheet Subudhi is a product manager for business automation at Mailmodo (YC21). "
+             "He builds AI agents, outreach systems and customer success automation.", ""]
+    for path, n, i, parent in ALL:
+        if path in NOINDEX:
+            continue
+        if not parent:
+            lines += ["", f"## {n['label']}", ""] if n.get("children") else []
+        if not n.get("children"):
+            lines.append(f"- [{n['label']}]({url_of(path)}): {seo_desc(path, n)}")
+    (HERE / "llms.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"wrote {len(ROUTES)} pages  ·  {total:,} bytes  ·  {SITE_JS_NAME}")
 
 if __name__ == "__main__":
     build()
